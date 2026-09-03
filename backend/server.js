@@ -33,6 +33,12 @@ app.use('/api/audiobook', audiobookRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/settings', settingsRoutes);
 
+app.get('/', (req, res) => res.json({
+	name: 'Can We Talk? API',
+	status: 'online',
+	health: '/api/health'
+}));
+
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 const port = process.env.PORT || 4000;
