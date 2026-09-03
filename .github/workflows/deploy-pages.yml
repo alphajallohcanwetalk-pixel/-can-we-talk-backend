@@ -27,7 +27,7 @@ jobs:
       - name: Prepare site
         run: |
           mkdir dist
-          cp can-we-talk-project/frontend/app.html dist/index.html
+          cp frontend/app.html dist/index.html
           printf '%s\n' 'canwetalkvoice.com' > dist/CNAME
 
       - name: Configure Pages
