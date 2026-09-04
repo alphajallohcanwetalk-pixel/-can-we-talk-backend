@@ -22,6 +22,36 @@ Build Command: npm install
 Start Command: npm start
 ```
 
+## Render environment values
+
+Add these non-secret values exactly:
+
+```text
+FRONTEND_URL=https://canwetalkvoice.com
+FRONTEND_APP_URL=https://canwetalkvoice.com
+EMAIL_FROM=Can We Talk <questions@canwetalkvoice.com>
+PORT=4000
+ADMIN_EMAIL=alpha.jalloh@canwetalkvoice.com
+```
+
+Add these provider variables using the rotated values from their dashboards:
+
+```text
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+RESEND_API_KEY=
+```
+
+Add the live Stripe recurring Price IDs, which must begin with `price_`:
+
+```text
+STRIPE_PRICE_BOOKCLUB_MONTHLY=price_...
+STRIPE_PRICE_BOOKCLUB_ANNUAL=price_...
+```
+
 ## Remaining account-side work
 
 1. Add production environment variables in Render. Never commit or paste secrets.

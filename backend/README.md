@@ -36,6 +36,19 @@ Follow these steps in order — each one unlocks the next.
    update profiles set is_author = true where email = 'alpha@his-real-email.com';
    ```
 
+For the production Render service, use these non-secret values:
+
+```text
+FRONTEND_URL=https://canwetalkvoice.com
+FRONTEND_APP_URL=https://canwetalkvoice.com
+EMAIL_FROM=Can We Talk <questions@canwetalkvoice.com>
+PORT=4000
+ADMIN_EMAIL=alpha.jalloh@canwetalkvoice.com
+```
+
+Use the exact recurring Stripe Price IDs from Stripe Dashboard, beginning with
+`price_`; do not use Product IDs beginning with `prod_`.
+
 ---
 
 ## 4. Set up Stripe products (for the Book Club)
