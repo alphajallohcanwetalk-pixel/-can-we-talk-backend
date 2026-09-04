@@ -1393,7 +1393,7 @@
               <div class="field"><label>Price (USD)</label><input type="number" id="newBookPrice" placeholder="19.99" step="0.01"></div>
               <div class="field"><label>Description</label><textarea id="newBookDescription" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="What is this book about?"></textarea></div>
               <div class="field"><label>eBook text</label><textarea id="newBookReaderText" style="min-height:180px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Paste the full eBook text. Separate pages or sections with a blank line."></textarea></div>
-              <div class="field"><label>Or upload plain-text eBook</label><input type="file" id="newBookReaderFile" accept=".txt,text/plain"></div>
+              <div class="field"><label>Upload eBook file</label><input type="file" id="newBookReaderFile" accept=".txt,.epub,.pdf,text/plain,application/epub+zip,application/pdf"></div>
               <div class="field"><label>Front cover image</label><input type="file" id="newBookCover" accept="image/*"></div>
               <div class="field"><label>Back cover image</label><input type="file" id="newBookBackCover" accept="image/*"></div>
               <div class="field"><label>Launch / gallery photos (up to 6)</label><input type="file" id="newBookGallery" accept="image/*" multiple></div>
@@ -2102,6 +2102,10 @@
   // ================= COVER IMAGE UPLOAD (Supabase Storage) =================
   async function uploadCover(file, folder){
     if(!file) return null;
+    if(!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024){
+      alert('Images must be JPG, PNG, or WebP files no larger than 10 MB.');
+      return null;
+    }
     const path = `${folder}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
     const { error } = await sb.storage.from('covers').upload(path, file);
     if(error){ alert('Cover upload failed: ' + error.message); return null; }
@@ -2385,10 +2389,62 @@
   }
   document.getElementById('cancelBookEditBtn').addEventListener('click', resetBookForm);
 
+  async function extractEbookText(file){
+    const extension = file.name.toLowerCase().split('.').pop();
+    if(extension === 'txt') return file.text();
+    if(extension === 'epub'){
+      await loadExternalScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js', 'JSZip');
+      const archive = await JSZip.loadAsync(await file.arrayBuffer());
+      const names = Object.keys(archive.files).filter(name => /\.(xhtml|html?)$/i.test(name)).sort();
+      const sections = [];
+      for(const name of names){
+        const markup = await archive.files[name].async('text');
+        const document = new DOMParser().parseFromString(markup, 'text/html');
+        const text = document.body?.textContent?.replace(/\s+/g, ' ').trim();
+        if(text) sections.push(text);
+      }
+      return sections.join('\n\n');
+    }
+    if(extension === 'pdf'){
+      await loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', 'pdfjsLib');
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+      const pages = [];
+      for(let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++){
+        const page = await pdf.getPage(pageNumber);
+        const content = await page.getTextContent();
+        const text = content.items.map(item => item.str).join(' ').replace(/\s+/g, ' ').trim();
+        if(text) pages.push(text);
+      }
+      return pages.join('\n\n');
+    }
+    throw new Error('Please choose a .txt, .epub, or .pdf file.');
+  }
+
+  const loadedExternalScripts = {};
+  function loadExternalScript(src, globalName){
+    if(window[globalName]) return Promise.resolve();
+    if(loadedExternalScripts[src]) return loadedExternalScripts[src];
+    loadedExternalScripts[src] = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('The file reader library could not be loaded.'));
+      document.head.appendChild(script);
+    });
+    return loadedExternalScripts[src];
+  }
+
   document.getElementById('newBookReaderFile').addEventListener('change', async (event) => {
     const file = event.target.files[0];
     if(!file) return;
-    document.getElementById('newBookReaderText').value = await file.text();
+    if(file.size > 25 * 1024 * 1024){ alert('eBook files must be 25 MB or smaller.'); event.target.value = ''; return; }
+    try {
+      document.getElementById('newBookReaderText').value = await extractEbookText(file);
+    } catch(error) {
+      alert('Could not read this eBook: ' + error.message);
+      event.target.value = '';
+    }
   });
 
   document.getElementById('addBookBtn').addEventListener('click', async () => {

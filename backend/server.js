@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import crypto from 'node:crypto';
+import * as Sentry from '@sentry/node';
 
 import authRoutes from './routes/auth.js';
 import bookRoutes from './routes/books.js';
@@ -18,6 +19,7 @@ import webhookRoutes from './routes/webhooks.js';
 
 const app = express();
 app.set('trust proxy', 1);
+if (process.env.SENTRY_DSN) Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.NODE_ENV || 'development', tracesSampleRate: 0.1 });
 app.use((req, res, next) => {
 	const requestId = req.headers['x-request-id'] || crypto.randomUUID();
 	req.requestId = requestId;
@@ -87,6 +89,7 @@ app.use((err, req, res, next) => {
 		return res.status(400).json({ error: 'Invalid JSON' });
 	}
 	console.error(JSON.stringify({ type: 'error', request_id: req.requestId, message: err.message, path: req.path }));
+	if (process.env.SENTRY_DSN) Sentry.captureException(err, { tags: { request_id: req.requestId, path: req.path } });
 	res.status(500).json({ error: 'Internal server error', request_id: req.requestId });
 });
 

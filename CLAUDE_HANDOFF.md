@@ -50,6 +50,7 @@ Add the live Stripe recurring Price IDs, which must begin with `price_`:
 ```text
 STRIPE_PRICE_BOOKCLUB_MONTHLY=price_...
 STRIPE_PRICE_BOOKCLUB_ANNUAL=price_...
+SENTRY_DSN=https://...  # optional, configure in Render for crash alerts
 ```
 
 ## Remaining account-side work

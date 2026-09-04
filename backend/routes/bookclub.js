@@ -16,6 +16,7 @@ router.post('/subscribe', requireAuth, async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
+      automatic_payment_methods: { enabled: true },
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: req.user.email,
       metadata: { book_club_user_id: req.user.id, plan },

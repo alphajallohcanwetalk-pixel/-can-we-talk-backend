@@ -25,5 +25,7 @@ Two folders:
 - Backend health check: https://can-we-talk-backend.onrender.com/api/health
 - Production frontend origins are allowed by the backend CORS configuration.
 - Operations, emergency recovery, backups, and logs: see [OPERATIONS.md](OPERATIONS.md).
+- Stripe Checkout uses automatic payment methods enabled for the Stripe account and customer region.
+- Author eBook uploads support `.txt`, `.epub`, and `.pdf`; the reader stores extracted text and paginates it privately.
 - Remaining setup is account configuration: Render environment variables, Supabase
   schema and allowed URLs, Stripe webhook and price IDs, and credential rotation.

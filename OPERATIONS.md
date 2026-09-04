@@ -32,6 +32,8 @@ When reporting a failure, capture the URL, UTC time, HTTP status, and `x-request
 
 For stack traces and crash notifications, add a server-side monitoring provider such as Sentry to the backend. Configure its DSN only as a Render secret. Do not put a server DSN or service credentials in `frontend/app.html`.
 
+This backend now sends uncaught request errors to Sentry when `SENTRY_DSN` is set. In Render, add `SENTRY_DSN` and redeploy, then configure Sentry alerts for unhandled exceptions and elevated 5xx rates.
+
 ## Recovery checklist
 
 1. Check Render service status and logs using the request ID.

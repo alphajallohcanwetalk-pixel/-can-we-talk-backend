@@ -60,7 +60,7 @@ router.post('/checkout', requireAuth, async (req, res) => {
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
-    payment_method_types: ['card'], // add 'mobile_money' style options via Stripe's regional payment methods once available for Sierra Leone
+    automatic_payment_methods: { enabled: true },
     line_items: normalizedItems.map((i) => ({
       price_data: {
         currency: 'usd',
