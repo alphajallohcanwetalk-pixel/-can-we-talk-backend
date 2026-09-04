@@ -66,10 +66,12 @@ This prints a `whsec_...` value — put that in `STRIPE_WEBHOOK_SECRET` in `.env
 
 ---
 
-## 6. Connect the frontend (`app.html`)
+## 6. Frontend connection
 
-Right now `app.html` uses in-memory JavaScript arrays for everything. The next
-step (I can do this with you) is replacing those with real calls, for example:
+The frontend is connected to the deployed API at
+`https://can-we-talk-backend.onrender.com`. It uses Supabase Auth in the browser
+and calls the backend for books, essays, comments, media, orders, Book Club,
+settings, and email side effects.
 
 ```javascript
 // Instead of the in-memory `books` array:
@@ -93,22 +95,19 @@ const { checkout_url } = await res.json();
 window.location.href = checkout_url; // redirects to Stripe's hosted checkout page
 ```
 
-This is a real, separate piece of work — swapping ~15 mock functions in `app.html`
-for real `fetch` calls. Say the word and I'll do that pass next.
+## 7. Current deployment
 
----
+- **Backend**: Render, root directory `backend`, build command `npm install`,
+  start command `npm start`.
+- **Frontend**: GitHub Pages at `https://canwetalkvoice.com`.
+- **Production webhook URL**:
+  `https://can-we-talk-backend.onrender.com/api/webhooks/stripe`
+- **Health check**: `https://can-we-talk-backend.onrender.com/api/health` returns
+  `{"ok":true}`.
 
-## 7. Deploy
-
-- **Backend**: Render, Railway, or Fly.io all have simple free/cheap tiers for
-  a small Node app like this. Set the same environment variables there.
-- **Frontend**: any static host works since `app.html` is one file — Netlify,
-  Vercel, or even Supabase Storage with a custom domain.
-- **Stripe webhook in production**: once deployed, add the real webhook URL
-  (`https://your-api.com/api/webhooks/stripe`) in the Stripe Dashboard →
-  Developers → Webhooks, and update `STRIPE_WEBHOOK_SECRET` with the new value
-  Stripe gives you for that endpoint.
-- **Go live**: switch Stripe from test mode to live mode, swap in live API keys.
+Before accepting real payments, configure the Render environment variables,
+run `schema.sql` in Supabase, add the production site URL to Supabase Auth,
+configure the Stripe webhook, and use Stripe Price IDs beginning with `price_`.
 
 ---
 

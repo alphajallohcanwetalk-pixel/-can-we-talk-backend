@@ -14,7 +14,15 @@ Two folders:
 3. Open `backend/README.md` and follow it step by step — it walks through
    creating your Supabase, Stripe, and Resend accounts, running the database
    schema, and starting the server.
-4. For `frontend/app.html`: right now it runs on temporary in-memory data
-   (nothing saves after a refresh). Once the backend is running, the next
-   step is connecting `app.html` to the real API — ask Claude to do that pass
-   when you're ready.
+4. The frontend is deployed at https://canwetalkvoice.com and calls the
+   backend at https://can-we-talk-backend.onrender.com.
+
+## Deployment status
+
+- GitHub Pages publishes `frontend/app.html` through `.github/workflows/deploy-pages.yml`.
+- Render runs the backend with root directory `backend`, build command `npm install`,
+  and start command `npm start`.
+- Backend health check: https://can-we-talk-backend.onrender.com/api/health
+- Production frontend origins are allowed by the backend CORS configuration.
+- Remaining setup is account configuration: Render environment variables, Supabase
+  schema and allowed URLs, Stripe webhook and price IDs, and credential rotation.
