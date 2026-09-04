@@ -45,13 +45,42 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
 
 // PUT /api/books/:id — edit
 router.put('/:id', requireAuth, requireAuthor, async (req, res) => {
+  const { price, ...bookFields } = req.body;
   const { data, error } = await supabaseAdmin
     .from('books')
-    .update(req.body)
+    .update(bookFields)
     .eq('id', req.params.id)
     .select()
     .single();
   if (error) return res.status(500).json({ error: error.message });
+
+  if (price !== undefined) {
+    const priceCents = Math.round(Number(price) * 100);
+    if (!Number.isFinite(priceCents) || priceCents < 0) {
+      return res.status(400).json({ error: 'price must be a non-negative number' });
+    }
+
+    const { data: paperback, error: formatError } = await supabaseAdmin
+      .from('book_formats')
+      .select('id')
+      .eq('book_id', req.params.id)
+      .eq('format_name', 'Paperback')
+      .maybeSingle();
+
+    if (formatError) return res.status(500).json({ error: formatError.message });
+
+    const formatQuery = paperback
+      ? supabaseAdmin.from('book_formats').update({ price_cents: priceCents }).eq('id', paperback.id)
+      : supabaseAdmin.from('book_formats').insert({
+          book_id: req.params.id,
+          format_name: 'Paperback',
+          price_cents: priceCents,
+          sort_order: 0
+        });
+    const { error: savePriceError } = await formatQuery;
+    if (savePriceError) return res.status(500).json({ error: savePriceError.message });
+  }
+
   res.json(data);
 });
 
