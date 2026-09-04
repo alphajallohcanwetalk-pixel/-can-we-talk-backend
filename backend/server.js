@@ -15,7 +15,19 @@ import webhookRoutes from './routes/webhooks.js';
 
 const app = express();
 
-app.use(cors({ origin: process.env.FRONTEND_URL }));
+const allowedOrigins = new Set([
+	process.env.FRONTEND_URL,
+	process.env.FRONTEND_APP_URL,
+	'https://canwetalkvoice.com',
+	'https://www.canwetalkvoice.com',
+	'http://127.0.0.1:5500',
+	'http://localhost:5500'
+].filter(Boolean));
+
+app.use(cors({ origin: (origin, callback) => {
+	if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+	return callback(new Error('Origin not allowed by CORS'));
+} }));
 
 // Stripe webhooks need the RAW body for signature verification, so this must be
 // registered BEFORE express.json() and only for this specific path.
