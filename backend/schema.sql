@@ -50,6 +50,7 @@ create table book_formats (
   format_name text not null,                -- 'Paperback' | 'Hardcover' | 'eBook' | 'Audiobook'
   price_cents integer not null,
   stock_count integer,                      -- null = digital / unlimited
+  is_offered boolean default true,
   sort_order integer default 0
 );
 

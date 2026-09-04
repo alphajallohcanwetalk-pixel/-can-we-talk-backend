@@ -26,9 +26,9 @@ router.post('/checkout', requireAuth, async (req, res) => {
     }
     const [{ data: book }, { data: format }] = await Promise.all([
       supabaseAdmin.from('books').select('id,title,is_active').eq('id', item.book_id).single(),
-      supabaseAdmin.from('book_formats').select('id,book_id,format_name,price_cents,stock_count').eq('book_id', item.book_id).eq('format_name', item.format_name).single()
+      supabaseAdmin.from('book_formats').select('id,book_id,format_name,price_cents,stock_count,is_offered').eq('book_id', item.book_id).eq('format_name', item.format_name).single()
     ]);
-    if (!book?.is_active || !format || (format.stock_count !== null && format.stock_count < quantity)) {
+    if (!book?.is_active || !format || format.is_offered === false || (format.stock_count !== null && format.stock_count < quantity)) {
       return res.status(400).json({ error: 'One or more items are unavailable' });
     }
     normalizedItems.push({ ...format, title: book.title, qty: quantity, signed: item.signed === true });

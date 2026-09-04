@@ -2149,6 +2149,25 @@
     }
   }
 
+  function applyBookFormats(key, book){
+    const buyBox = document.querySelector(`.buy-box[data-book-id="${key}"]`);
+    if(!buyBox || !book) return;
+    const formats = (book.formats || []).filter(format => format.is_offered !== false);
+    const options = buyBox.querySelector('.format-options');
+    if(!options || !formats.length) return;
+    options.replaceChildren(...formats.map((format, index) => {
+      const option = document.createElement('div');
+      option.className = `format-opt${index === 0 ? ' selected' : ''}`;
+      option.dataset.formatName = format.format_name;
+      option.innerHTML = `<div><div class="fname"></div><div class="fnote">${format.format_name === 'eBook' ? 'Instant online reading' : format.format_name}</div></div><div class="fprice"></div>`;
+      option.querySelector('.fname').textContent = format.format_name;
+      option.querySelector('.fprice').textContent = `$${(format.price_cents / 100).toFixed(2)}`;
+      return option;
+    }));
+    const selected = formats[0];
+    buyBox.dataset.price = (selected.price_cents / 100).toFixed(2);
+  }
+
   function normalizeGalleryUrls(value){
     if(Array.isArray(value)) return value.filter(url => typeof url === 'string' && url.trim());
     if(typeof value === 'string'){
@@ -2184,6 +2203,8 @@
       monoBookId = mono ? mono.id : null;
       if(mrp?.cover_image_url) applyCoverImage(document.getElementById('mrp-cover-art'), mrp.cover_image_url);
       if(mono?.cover_image_url) applyCoverImage(document.getElementById('mono-cover-art'), mono.cover_image_url);
+      applyBookFormats('mrp', mrp);
+      applyBookFormats('mono', mono);
       applyBookExtras('mrp', mrp);
       applyBookExtras('mono', mono);
       if(mrpBookId) loadAndRenderComments('mrp-comment-list', mrpBookId);
@@ -3065,8 +3086,16 @@
     const shipping_address = document.getElementById('checkoutAddress').value;
     const customer_name = document.getElementById('checkoutName').value;
     const customer_phone = document.getElementById('checkoutPhone').value;
-    const items = cart.map(i => ({ book_id: i.bookId, format_name: i.format, qty: i.qty, signed: i.signed }));
     try {
+      const latestBooks = await fetch(`${API_URL}/api/books`).then(res => res.json());
+      const latestFormats = new Map();
+      latestBooks.forEach(book => (book.book_formats || []).forEach(format => latestFormats.set(`${book.id}::${format.format_name}`, format)));
+      cart.forEach(item => {
+        const latest = latestFormats.get(`${item.bookId}::${item.format}`);
+        if(latest) item.price = latest.price_cents / 100;
+      });
+      renderCheckoutSummary();
+      const items = cart.map(i => ({ book_id: i.bookId, format_name: i.format, qty: i.qty, signed: i.signed }));
       const res = await fetch(`${API_URL}/api/orders/checkout`, {
         method: 'POST',
         headers: authHeaders(),

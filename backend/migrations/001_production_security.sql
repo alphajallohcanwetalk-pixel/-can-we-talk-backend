@@ -10,6 +10,7 @@ alter table books add column if not exists back_cover_url text;
 alter table books add column if not exists gallery_urls jsonb;
 alter table essays add column if not exists cover_image_url text;
 alter table essays add column if not exists is_offered boolean default false;
+alter table book_formats add column if not exists is_offered boolean default true;
 
 create unique index if not exists book_club_subscriptions_stripe_id_idx
   on book_club_subscriptions (stripe_subscription_id)
