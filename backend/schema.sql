@@ -37,6 +37,8 @@ create table books (
   description text,
   cover_style text default 'cover-1',       -- for now: which gradient/cover to render
   cover_image_url text,                     -- real cover photo, once uploaded
+  back_cover_url text,
+  gallery_urls jsonb,
   is_active boolean default true,
   reader_full_text text,                    -- real book text for the AJ Book Club reader
   created_at timestamptz default now()
@@ -59,6 +61,8 @@ create table essays (
   year integer not null,
   excerpt text not null,
   full_text text,
+  cover_image_url text,
+  is_offered boolean default false,
   published boolean default true,
   created_at timestamptz default now()
 );
@@ -81,6 +85,8 @@ create table orders (
   stripe_session_id text,
   status text default 'pending' check (status in ('pending','paid','shipped','refunded')),
   shipping_address text,
+  customer_name text,
+  customer_phone text,
   total_cents integer not null,
   created_at timestamptz default now()
 );
@@ -138,9 +144,9 @@ alter table orders enable row level security;
 alter table order_items enable row level security;
 alter table book_club_subscriptions enable row level security;
 
--- Profiles: users can read/update their own row
+-- Profiles: users can read their own row. Authorization and entitlement fields
+-- are writable only by the service-role backend.
 create policy "Users read own profile" on profiles for select using (auth.uid() = id);
-create policy "Users update own profile" on profiles for update using (auth.uid() = id);
 
 -- Comments: anyone can read; only the author can write their own; signed-in required to insert
 create policy "Anyone can read comments" on comments for select using (true);

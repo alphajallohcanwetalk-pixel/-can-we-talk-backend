@@ -28,10 +28,10 @@ router.get('/:id', async (req, res) => {
 
 // POST /api/books — Author Dashboard: add a new book
 router.post('/', requireAuth, requireAuthor, async (req, res) => {
-  const { title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, formats } = req.body;
+  const { title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text, formats } = req.body;
   const { data: book, error } = await supabaseAdmin
     .from('books')
-    .insert({ title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls })
+    .insert({ title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text })
     .select()
     .single();
   if (error) return res.status(500).json({ error: error.message });

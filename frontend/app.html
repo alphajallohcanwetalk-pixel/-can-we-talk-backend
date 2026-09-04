@@ -1078,8 +1078,8 @@
         <div class="info-row"><span class="k">Author</span><a href="mailto:alpha.jalloh@canwetalkvoice.com">alpha.jalloh@canwetalkvoice.com</a></div>
         <div class="info-row"><span class="k">Questions</span><a href="mailto:questions@canwetalkvoice.com">questions@canwetalkvoice.com</a></div>
         <div class="info-row"><span class="k">Sales</span><a href="mailto:sales@canwetalkvoice.com">sales@canwetalkvoice.com</a></div>
-        <div class="info-row"><span class="k">Books</span><a href="mailto:books@canwetalk.voice.com">books@canwetalk.voice.com</a></div>
-        <div class="info-row"><span class="k">Essays</span><a href="mailto:essay@canwetalk.voice.com">essay@canwetalk.voice.com</a></div>
+        <div class="info-row"><span class="k">Books</span><a href="mailto:books@canwetalkvoice.com">books@canwetalkvoice.com</a></div>
+        <div class="info-row"><span class="k">Essays</span><a href="mailto:essay@canwetalkvoice.com">essay@canwetalkvoice.com</a></div>
         <div class="info-row"><span class="k">Based in</span><span>Freetown, Sierra Leone</span></div>
         <div class="info-row"><span class="k">Follow</span><span>Instagram · X · LinkedIn</span></div>
         <div class="speaking-note"><strong>Booking Alpha to speak?</strong><br>Include your event date, audience size and location in your message and the team will follow up with availability and rates.</div>
@@ -1213,8 +1213,8 @@
         <div class="field"><label>Phone number</label><input type="tel" id="checkoutPhone" required placeholder="+232..."></div>
         <div class="field"><label>Email</label><input type="email" id="checkoutEmail" required placeholder="you@example.com"></div>
         <div class="field"><label>Shipping address</label><input type="text" id="checkoutAddress" required placeholder="Street, city, country"></div>
-        <div class="field"><label>Payment method (prototype — no real charge)</label>
-          <select id="checkoutPayment"><option>Card (Visa/Mastercard)</option><option>Mobile Money (Orange Money / Africell Money)</option><option>PayPal</option></select>
+        <div class="field"><label>Payment method</label>
+          <select id="checkoutPayment"><option>Card (Visa/Mastercard)</option></select>
         </div>
         <button type="submit" class="btn btn-dark" style="align-self:flex-start;">Place Order</button>
       </form>
@@ -1353,11 +1353,9 @@
       <div id="admin-lock" style="max-width:380px; margin:40px auto; text-align:center;">
         <span class="eyebrow">Author Access</span>
         <h2 style="margin-top:14px;">Author Dashboard</h2>
-        <p style="color:var(--ink-soft); margin-top:10px; font-size:0.92rem;">This area is for Alpha Amadu Jalloh only. Enter the author passcode to continue.</p>
-        <div class="field" style="margin-top:24px; text-align:left;"><label>Passcode</label><input type="password" id="adminPasscode" placeholder="Enter passcode"></div>
-        <div class="modal-error" id="adminError" style="text-align:left;">Incorrect passcode. Try again.</div>
-        <button class="btn btn-dark" id="adminUnlock" style="margin-top:16px; width:100%;">Enter Dashboard</button>
-        <p style="margin-top:16px; font-size:0.78rem; color:#8b9285;">Prototype passcode: <strong>alpha2026</strong> — swap for real author authentication once connected to a backend.</p>
+        <p style="color:var(--ink-soft); margin-top:10px; font-size:0.92rem;">Sign in with the author account to continue.</p>
+        <div class="modal-error" id="adminError" style="text-align:left;">Author access is required.</div>
+        <button class="btn btn-dark" id="adminUnlock" style="margin-top:16px; width:100%;">Verify Author Access</button>
       </div>
 
       <div id="admin-dashboard" style="display:none;">
@@ -1392,6 +1390,8 @@
               <div class="field"><label>Subtitle</label><input type="text" id="newBookSubtitle" placeholder="Subtitle"></div>
               <div class="field"><label>Price (USD)</label><input type="number" id="newBookPrice" placeholder="19.99" step="0.01"></div>
               <div class="field"><label>Description</label><textarea id="newBookDescription" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="What is this book about?"></textarea></div>
+              <div class="field"><label>eBook text</label><textarea id="newBookReaderText" style="min-height:180px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Paste the full eBook text. Separate pages or sections with a blank line."></textarea></div>
+              <div class="field"><label>Or upload plain-text eBook</label><input type="file" id="newBookReaderFile" accept=".txt,text/plain"></div>
               <div class="field"><label>Front cover image</label><input type="file" id="newBookCover" accept="image/*"></div>
               <div class="field"><label>Back cover image</label><input type="file" id="newBookBackCover" accept="image/*"></div>
               <div class="field"><label>Launch / gallery photos (up to 6)</label><input type="file" id="newBookGallery" accept="image/*" multiple></div>
@@ -1471,7 +1471,7 @@
               <div class="field"><label>Duration (mm:ss)</label><input type="text" id="newChapterDuration" placeholder="8:24"></div>
               <div class="field"><label>Price (USD)</label><input type="number" id="newChapterPrice" step="0.01" placeholder="2.99"></div>
               <div class="field"><label>Narration audio file</label><input type="file" id="newChapterFile" accept="audio/*">
-                <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">In production, this uploads to your voice-narration pipeline (e.g. ElevenLabs, using Alpha's cloned voice) and generates the chapter audio automatically. File selection here is illustrative — playback in this prototype is simulated.</div>
+                <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Audio must be uploaded to private storage before a chapter can be published.</div>
               </div>
               <button class="btn btn-dark" id="addChapterBtn" style="align-self:flex-start;">Publish Chapter</button>
             </div>
@@ -1690,10 +1690,16 @@
   });
 
   // Stripe redirects back here after payment — check for that and show confirmation
-  if(location.hash.includes('order-confirm')){
+  const orderConfirmId = new URLSearchParams(location.hash.split('?')[1] || '').get('order');
+  async function verifyOrderConfirmation(){
+    if(!orderConfirmId || !currentSession) return;
+    const res = await fetch(`${API_URL}/api/orders/confirmation/${orderConfirmId}`, { headers: authHeaders() });
+    if(!res.ok) return;
+    const data = await res.json();
+    if(!data.confirmed) return;
     cart = [];
-    document.getElementById('orderNumber').textContent = 'Confirmed';
-    document.getElementById('orderEmail').textContent = currentSession ? currentSession.user.email : 'your email';
+    document.getElementById('orderNumber').textContent = data.order.id;
+    document.getElementById('orderEmail').textContent = currentSession.user.email;
     showView('order-confirm');
   }
   if(location.hash.includes('joined=1')){
@@ -1809,7 +1815,7 @@
     this.reset();
   });
 
-  // ================= AUTH (in-memory prototype — no real backend yet) =================
+  // ================= AUTH =================
   let currentUser = null; // {name, email}
   const authModal = document.getElementById('authModal');
 
@@ -1863,6 +1869,7 @@
       currentSession = data.session;
       const name = data.session.user.user_metadata?.full_name || data.session.user.email;
       setSignedIn({ name, email: data.session.user.email });
+      verifyOrderConfirmation();
     }
   });
 
@@ -1955,14 +1962,25 @@
         const name = c.profiles?.full_name || 'Reader';
         const div = document.createElement('div');
         div.className = 'comment-item';
-        div.innerHTML = `
-          <div class="comment-head">
-            <div class="comment-avatar">${initials(name)}</div>
-            <span class="comment-name">${name}</span>
-            <span class="comment-stars">${starString(c.rating || 0)}</span>
-            <span class="comment-date">${new Date(c.created_at).toLocaleDateString()}</span>
-          </div>
-          <div class="comment-body">${c.body}</div>`;
+        const head = document.createElement('div');
+        head.className = 'comment-head';
+        const avatar = document.createElement('div');
+        avatar.className = 'comment-avatar';
+        avatar.textContent = initials(name);
+        const nameEl = document.createElement('span');
+        nameEl.className = 'comment-name';
+        nameEl.textContent = name;
+        const stars = document.createElement('span');
+        stars.className = 'comment-stars';
+        stars.textContent = starString(c.rating || 0);
+        const date = document.createElement('span');
+        date.className = 'comment-date';
+        date.textContent = new Date(c.created_at).toLocaleDateString();
+        head.append(avatar, nameEl, stars, date);
+        const body = document.createElement('div');
+        body.className = 'comment-body';
+        body.textContent = c.body;
+        div.append(head, body);
         list.appendChild(div);
       });
     } catch(err){
@@ -2062,6 +2080,14 @@
     }
   }
 
+  function normalizeGalleryUrls(value){
+    if(Array.isArray(value)) return value.filter(url => typeof url === 'string' && url.trim());
+    if(typeof value === 'string'){
+      try { return normalizeGalleryUrls(JSON.parse(value)); } catch(err){ return []; }
+    }
+    return [];
+  }
+
   // ================= BOOKS DATA (loaded from backend) =================
   let books = [];
   let mrpBookId = null, monoBookId = null, currentGenericBookId = null;
@@ -2075,12 +2101,16 @@
         return {
           id: b.id, title: b.title, subtitle: b.subtitle || '', price: paperback ? paperback.price_cents / 100 : 0,
           meta: '', description: b.description || '', cover: b.cover_style || 'cover-1', cover_image_url: b.cover_image_url,
-          back_cover_url: b.back_cover_url, gallery_urls: b.gallery_urls || [], formats: b.book_formats || []
+          back_cover_url: b.back_cover_url, gallery_urls: normalizeGalleryUrls(b.gallery_urls), reader_full_text: b.reader_full_text || '', formats: b.book_formats || []
         };
       });
       // Match the two flagship books by title so their dedicated rich pages can use real IDs
-      const mrp = books.find(b => b.title.toLowerCase().includes('mr. president') || b.title.toLowerCase().includes('mr president'));
-      const mono = books.find(b => b.title.toLowerCase().includes('monopoly of happiness'));
+      const richestBook = (matches) => matches.sort((a, b) => {
+        const mediaScore = (book) => (book.gallery_urls.length * 2) + Number(Boolean(book.cover_image_url)) + Number(Boolean(book.back_cover_url));
+        return mediaScore(b) - mediaScore(a);
+      })[0];
+      const mrp = richestBook(books.filter(b => b.title.toLowerCase().includes('mr. president') || b.title.toLowerCase().includes('mr president')));
+      const mono = richestBook(books.filter(b => b.title.toLowerCase().includes('monopoly of happiness')));
       mrpBookId = mrp ? mrp.id : null;
       monoBookId = mono ? mono.id : null;
       if(mrp?.cover_image_url) applyCoverImage(document.getElementById('mrp-cover-art'), mrp.cover_image_url);
@@ -2195,19 +2225,22 @@
   loadBooks();
 
   // ================= AUTHOR DASHBOARD =================
-  // Front-door passcode is just a light deterrent — REAL protection is the backend's
-  // is_author check on every write. Someone could bypass this screen but every add/edit/delete
-  // call still requires a signed-in Supabase session flagged is_author = true in the database.
-  const ADMIN_PASSCODE = 'alpha2026';
-  document.getElementById('adminUnlock').addEventListener('click', () => {
-    const val = document.getElementById('adminPasscode').value;
-    if(val === ADMIN_PASSCODE){
+  document.getElementById('adminUnlock').addEventListener('click', async () => {
+    if(!currentSession){ openAuth(); return; }
+    try {
+      const res = await fetch(`${API_URL}/api/auth/me`, { headers: authHeaders() });
+      const profile = await res.json();
+      if(res.ok && profile.is_author){
       document.getElementById('admin-lock').style.display = 'none';
       document.getElementById('admin-dashboard').style.display = 'block';
       renderAdminBooksTable();
       renderAdminEssaysTable();
       renderAdminAudioTable();
-    } else {
+      } else {
+        throw new Error('Author access is required.');
+      }
+    } catch(err) {
+      document.getElementById('adminError').textContent = err.message;
       document.getElementById('adminError').style.display = 'block';
     }
   });
@@ -2244,6 +2277,7 @@
       document.getElementById('newBookSubtitle').value = b.subtitle || '';
       document.getElementById('newBookPrice').value = b.price;
       document.getElementById('newBookDescription').value = b.description || '';
+      document.getElementById('newBookReaderText').value = b.reader_full_text || '';
       document.getElementById('bookFormHeading').textContent = 'Editing: ' + b.title;
       document.getElementById('addBookBtn').textContent = 'Update Book';
       document.getElementById('cancelBookEditBtn').style.display = 'inline-block';
@@ -2273,10 +2307,11 @@
 
   function resetBookForm(){
     editingBookId = null;
-    ['newBookTitle','newBookSubtitle','newBookPrice','newBookDescription'].forEach(i => document.getElementById(i).value = '');
+    ['newBookTitle','newBookSubtitle','newBookPrice','newBookDescription','newBookReaderText'].forEach(i => document.getElementById(i).value = '');
     document.getElementById('newBookCover').value = '';
     document.getElementById('newBookBackCover').value = '';
     document.getElementById('newBookGallery').value = '';
+    document.getElementById('newBookReaderFile').value = '';
     document.getElementById('bookFormHeading').textContent = '+ Add New Book';
     document.getElementById('addBookBtn').textContent = 'Publish Book';
     document.getElementById('cancelBookEditBtn').style.display = 'none';
@@ -2285,11 +2320,18 @@
   }
   document.getElementById('cancelBookEditBtn').addEventListener('click', resetBookForm);
 
+  document.getElementById('newBookReaderFile').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if(!file) return;
+    document.getElementById('newBookReaderText').value = await file.text();
+  });
+
   document.getElementById('addBookBtn').addEventListener('click', async () => {
     const title = document.getElementById('newBookTitle').value.trim();
     const subtitle = document.getElementById('newBookSubtitle').value.trim();
     const price = parseFloat(document.getElementById('newBookPrice').value);
     const description = document.getElementById('newBookDescription').value.trim();
+    const reader_full_text = document.getElementById('newBookReaderText').value.trim();
     const coverFile = document.getElementById('newBookCover').files[0];
     const backCoverFile = document.getElementById('newBookBackCover').files[0];
     const galleryFiles = Array.from(document.getElementById('newBookGallery').files).slice(0, 6);
@@ -2305,7 +2347,7 @@
       }
 
       if(editingBookId){
-        const body = { title, subtitle, description, price };
+        const body = { title, subtitle, description, reader_full_text, price };
         if(cover_image_url) body.cover_image_url = cover_image_url;
         if(back_cover_url) body.back_cover_url = back_cover_url;
         if(gallery_urls) body.gallery_urls = gallery_urls;
@@ -2317,7 +2359,7 @@
           method: 'POST',
           headers: authHeaders(),
           body: JSON.stringify({
-            title, subtitle, description,
+            title, subtitle, description, reader_full_text,
             cover_style: books.length % 2 === 0 ? 'cover-1' : 'cover-2',
             cover_image_url, back_cover_url, gallery_urls,
             formats: [{ format_name: 'Paperback', price_cents: Math.round(price * 100), sort_order: 0 }]
@@ -2520,38 +2562,21 @@
   });
 
   // ================= AUDIOBOOKS =================
-  const chapters = {
-    mrp: [
-      {title:"Chapter 1 — An Invitation to Talk", duration:"6:12", price:2.99},
-      {title:"Chapter 2 — What Citizenship Requires", duration:"9:40", price:2.99},
-      {title:"Chapter 3 — The Silence We Are Taught", duration:"7:55", price:2.99},
-      {title:"Chapter 4 — Accountability Without Apology", duration:"10:20", price:2.99},
-      {title:"Chapter 5 — A Democracy That Listens Back", duration:"8:47", price:2.99}
-    ],
-    mono: [
-      {title:"Chapter 1 — Who Gets to Be Happy", duration:"5:58", price:2.49},
-      {title:"Chapter 2 — The Architecture of Imbalance", duration:"8:14", price:2.49},
-      {title:"Chapter 3 — Beyond Political Slogans", duration:"7:03", price:2.49}
-    ]
-  };
-  const purchasedChapters = new Set(); // stores "bookId::chapterIndex"
-  const purchasedBundles = new Set(); // stores bookId
-
-  function chapterKey(bookId, i){ return bookId + '::' + i; }
-  function isUnlocked(bookId, i){ return purchasedBundles.has(bookId) || purchasedChapters.has(chapterKey(bookId, i)); }
+  const chapters = { mrp: [], mono: [] };
+  const chapterAudio = new Audio();
 
   function renderChapters(bookId){
     const list = document.getElementById(bookId + '-chapter-list');
     if(!list) return;
     list.innerHTML = '';
     chapters[bookId].forEach((ch, i) => {
-      const unlocked = isUnlocked(bookId, i);
+      const unlocked = ch.owned;
       const row = document.createElement('div');
       row.className = 'chapter-row';
       row.innerHTML = `
         <div class="chapter-icon ${unlocked ? 'unlocked' : ''}" data-play="${bookId}:${i}">${unlocked ? '▶' : '🔒'}</div>
         <div class="chapter-info"><div class="ct">${ch.title}</div><div class="cd">${ch.duration}</div></div>
-        ${unlocked ? '<span class="chapter-action" style="color:var(--sl-green);">Owned</span>' : `<span class="chapter-action locked" data-buy-chapter="${bookId}:${i}">Buy · $${ch.price.toFixed(2)}</span>`}
+        ${unlocked ? '<span class="chapter-action" style="color:var(--sl-green);">Owned</span>' : `<span class="chapter-action locked" data-buy-chapter="${bookId}:${i}">Buy · $${(ch.price_cents / 100).toFixed(2)}</span>`}
       `;
       list.appendChild(row);
     });
@@ -2559,15 +2584,19 @@
       el.addEventListener('click', () => {
         if(!currentUser){ openAuth(); return; }
         const [bId, idx] = el.dataset.buyChapter.split(':');
-        purchasedChapters.add(chapterKey(bId, idx));
-        renderChapters(bId);
+        const chapter = chapters[bId][Number(idx)];
+        fetch(`${API_URL}/api/audiobook/chapters/${chapter.id}/buy`, { method: 'POST', headers: authHeaders() })
+          .then(async res => { if(!res.ok) throw new Error(await res.text()); return res.json(); })
+          .then(({ checkout_url }) => { window.location.href = checkout_url; })
+          .catch(err => alert('Could not start audio checkout: ' + err.message));
       });
     });
     list.querySelectorAll('[data-play]').forEach(el => {
       el.addEventListener('click', () => {
         const [bId, idx] = el.dataset.play.split(':');
-        if(!isUnlocked(bId, idx)){ if(!currentUser) openAuth(); return; }
-        playChapter(bId, parseInt(idx));
+        const chapter = chapters[bId][Number(idx)];
+        if(!chapter.owned){ if(!currentUser) openAuth(); else alert('Purchase this chapter to listen.'); return; }
+        playChapter(bId, Number(idx));
       });
     });
   }
@@ -2575,73 +2604,56 @@
   document.querySelectorAll('[data-buy-bundle]').forEach(el => {
     el.addEventListener('click', () => {
       if(!currentUser){ openAuth(); return; }
-      purchasedBundles.add(el.dataset.buyBundle);
-      renderChapters(el.dataset.buyBundle);
+      alert('Full audiobook bundles are not available yet. Please purchase chapters individually.');
     });
   });
 
-  // ---------- Mock player ----------
+  // ---------- Audio player ----------
   const bookTitles = {mrp:"Mr. President, Can We Talk?", mono:"Monopoly of Happiness"};
-  let playerInterval = null;
-  let playerState = {bookId:null, chapterIndex:null, elapsed:0, totalSeconds:0, playing:false};
+  let playerState = {bookId:null, chapterIndex:null};
 
   function parseDuration(d){ const [m,s] = d.split(':').map(Number); return m*60 + s; }
   function formatTime(sec){ const m = Math.floor(sec/60); const s = Math.floor(sec%60); return m + ':' + String(s).padStart(2,'0'); }
 
   function playChapter(bookId, index){
-    clearInterval(playerInterval);
     const ch = chapters[bookId][index];
-    playerState = {bookId, chapterIndex:index, elapsed:0, totalSeconds:parseDuration(ch.duration), playing:true};
+    playerState = {bookId, chapterIndex:index};
     document.getElementById('mpTitle').textContent = ch.title;
     document.getElementById('mpBook').textContent = bookTitles[bookId];
-    document.getElementById('mpTotal').textContent = ch.duration;
+    document.getElementById('mpTotal').textContent = formatTime(ch.duration_seconds || 0);
     document.getElementById('mpElapsed').textContent = '0:00';
     document.getElementById('mpFill').style.width = '0%';
-    document.getElementById('mpPlayBtn').textContent = '⏸';
     document.getElementById('miniPlayer').classList.add('show');
-    playerInterval = setInterval(() => {
-      playerState.elapsed++;
-      const pct = Math.min(100, (playerState.elapsed / playerState.totalSeconds) * 100);
-      document.getElementById('mpFill').style.width = pct + '%';
-      document.getElementById('mpElapsed').textContent = formatTime(playerState.elapsed);
-      if(playerState.elapsed >= playerState.totalSeconds){
-        clearInterval(playerInterval);
-        document.getElementById('mpPlayBtn').textContent = '▶';
-        playerState.playing = false;
-      }
-    }, 1000);
+    fetch(`${API_URL}/api/audiobook/chapters/${ch.id}/stream`, { headers: authHeaders() })
+      .then(async res => { if(!res.ok) throw new Error(await res.text()); return res.json(); })
+      .then(({ audio_url }) => { chapterAudio.src = audio_url; return chapterAudio.play(); })
+      .catch(err => alert('Could not play this chapter: ' + err.message));
   }
 
   document.getElementById('mpPlayBtn').addEventListener('click', () => {
     if(playerState.chapterIndex === null) return;
-    if(playerState.playing){
-      clearInterval(playerInterval);
-      playerState.playing = false;
-      document.getElementById('mpPlayBtn').textContent = '▶';
-    } else {
-      playerState.playing = true;
-      document.getElementById('mpPlayBtn').textContent = '⏸';
-      playerInterval = setInterval(() => {
-        playerState.elapsed++;
-        const pct = Math.min(100, (playerState.elapsed / playerState.totalSeconds) * 100);
-        document.getElementById('mpFill').style.width = pct + '%';
-        document.getElementById('mpElapsed').textContent = formatTime(playerState.elapsed);
-        if(playerState.elapsed >= playerState.totalSeconds){
-          clearInterval(playerInterval);
-          document.getElementById('mpPlayBtn').textContent = '▶';
-          playerState.playing = false;
-        }
-      }, 1000);
-    }
+    if(chapterAudio.paused) chapterAudio.play(); else chapterAudio.pause();
   });
   document.getElementById('mpClose').addEventListener('click', () => {
-    clearInterval(playerInterval);
+    chapterAudio.pause();
+    chapterAudio.removeAttribute('src');
     document.getElementById('miniPlayer').classList.remove('show');
-    playerState = {bookId:null, chapterIndex:null, elapsed:0, totalSeconds:0, playing:false};
+    playerState = {bookId:null, chapterIndex:null};
   });
 
-  renderChapters('mrp');
-  renderChapters('mono');
+  async function loadAudiobookChapters(bookKey, bookId){
+    if(!bookId) return;
+    try {
+      const res = await fetch(`${API_URL}/api/audiobook/${bookId}/chapters`, { headers: authHeaders() });
+      if(!res.ok) throw new Error(await res.text());
+      chapters[bookKey] = await res.json();
+      renderChapters(bookKey);
+    } catch(err) {
+      console.error('Could not load audiobook chapters:', err);
+    }
+  }
+  loadAudiobookChapters('mrp', mrpBookId);
+  loadAudiobookChapters('mono', monoBookId);
 
   // ---------- Admin: audiobook chapter management ----------
   function renderAdminAudioTable(){
@@ -2672,11 +2684,7 @@
     const duration = document.getElementById('newChapterDuration').value.trim();
     const price = parseFloat(document.getElementById('newChapterPrice').value);
     if(!title || !/^\d+:\d{2}$/.test(duration) || !price){ alert('Please fill in a valid title, duration (mm:ss) and price.'); return; }
-    chapters[bookId].push({title, duration, price});
-    ['newChapterTitle','newChapterDuration','newChapterPrice'].forEach(i => document.getElementById(i).value = '');
-    document.getElementById('newChapterFile').value = '';
-    renderAdminAudioTable();
-    renderChapters(bookId);
+    alert('Chapter publishing requires a private audio URL. Upload the audio to private storage, then publish it through the secured backend.');
   });
 
   // ================= AJ BOOK CLUB =================
@@ -2718,44 +2726,31 @@
     btn.addEventListener('click', () => openReader(btn.dataset.read));
   });
 
-  // ---------- Reader content (placeholder text — swap for real book text via the pipeline) ----------
-  const readerContent = {
-    mrp: {
-      title: "Mr. President, Can We Talk?",
-      pages: [
-        "Every relationship between a government and its people rests on a single, fragile assumption: that power, once given, remains answerable to those who gave it. This book begins from that assumption, and from the discomfort of watching it tested again and again across our continent.",
-        "To ask a leader a direct question is not to declare war on them. It is to remind them, gently or firmly, that the chair they sit in was never truly theirs. It was lent. And what is lent can, and must, be accounted for.",
-        "I have met citizens who apologize before they criticize — as though disagreement itself were the crime, rather than the silence that too often follows it. Democracy cannot survive on that kind of politeness.",
-        "This is not a book that hates power. It is a book that refuses to be afraid of it. There is a difference, and the difference matters more than most conversations allow.",
-        "What follows are the questions I have carried into rooms where I was not always welcome, and the answers — or the silences — that came back.",
-        "Can we talk, Mr. President? Not as adversaries, but as two people who owe each other the truth. That is where this conversation begins."
-      ]
-    },
-    mono: {
-      title: "Monopoly of Happiness",
-      pages: [
-        "Happiness, in most societies, is treated as a private matter — something earned or lost through individual effort. But look closely at who is happy in Sierra Leone, and where, and you begin to see something else: a map of privilege disguised as a map of merit.",
-        "Opportunity does not fall evenly. It pools in certain families, certain schools, certain neighborhoods, the way water pools in the lowest part of a field — not because it belongs there, but because the ground was shaped to send it there.",
-        "This book is not an argument against ambition. It is an argument against pretending the race is fair when the starting line was never in the same place for everyone.",
-        "To name an imbalance is not to attack those who benefit from it. It is to ask, honestly, whether a nation that only works for a few can really call itself whole."
-      ]
-    }
-  };
-  let readerState = {bookId:null, page:0, fontSize:1.12};
+  let readerState = {bookId:null, pages:[], page:0, fontSize:1.12};
 
-  function openReader(bookId){
+  async function openReader(bookKey){
     showView('reader');
-    document.getElementById('readerBookTitle').textContent = readerContent[bookId].title;
-    if(!isMember){
-      document.getElementById('reader-locked-msg').style.display = 'block';
-      document.getElementById('reader-content').style.display = 'none';
+    if(!currentSession){
+      openAuth();
       return;
     }
-    document.getElementById('reader-locked-msg').style.display = 'none';
-    document.getElementById('reader-content').style.display = 'block';
-    readerState = {bookId, page:0, fontSize:1.12};
-    buildWatermark();
-    renderReaderPage();
+    const bookId = bookKey === 'mrp' ? mrpBookId : monoBookId;
+    try {
+      const res = await fetch(`${API_URL}/api/bookclub/read/${bookId}`, { headers: authHeaders() });
+      if(!res.ok) throw new Error(res.status === 403 ? 'Book Club membership required.' : 'Reader unavailable.');
+      const book = await res.json();
+      document.getElementById('readerBookTitle').textContent = book.title;
+      readerState = { bookId: bookKey, pages: (book.reader_full_text || '').split(/\n\s*\n/).filter(Boolean), page:0, fontSize:1.12 };
+      if(!readerState.pages.length) throw new Error('This book is not available in the reader yet.');
+      document.getElementById('reader-locked-msg').style.display = 'none';
+      document.getElementById('reader-content').style.display = 'block';
+      buildWatermark();
+      renderReaderPage();
+    } catch(err) {
+      document.getElementById('reader-locked-msg').style.display = 'block';
+      document.getElementById('reader-content').style.display = 'none';
+      document.getElementById('reader-locked-msg').textContent = err.message;
+    }
   }
 
   function buildWatermark(){
@@ -2765,17 +2760,20 @@
   }
 
   function renderReaderPage(){
-    const content = readerContent[readerState.bookId];
-    const pageText = content.pages[readerState.page];
-    document.getElementById('readerPageText').innerHTML = `<p style="font-size:${readerState.fontSize}rem;">${pageText}</p>`;
-    document.getElementById('readerPageNum').textContent = `Page ${readerState.page + 1} of ${content.pages.length}`;
+    const pageText = readerState.pages[readerState.page];
+    const paragraph = document.createElement('p');
+    paragraph.style.fontSize = `${readerState.fontSize}rem`;
+    paragraph.textContent = pageText;
+    const page = document.getElementById('readerPageText');
+    page.replaceChildren(paragraph);
+    document.getElementById('readerPageNum').textContent = `Page ${readerState.page + 1} of ${readerState.pages.length}`;
   }
 
   document.querySelector('[data-page-prev]').addEventListener('click', () => {
     if(readerState.page > 0){ readerState.page--; renderReaderPage(); window.scrollTo({top:0, behavior:'smooth'}); }
   });
   document.querySelector('[data-page-next]').addEventListener('click', () => {
-    const total = readerContent[readerState.bookId].pages.length;
+    const total = readerState.pages.length;
     if(readerState.page < total - 1){ readerState.page++; renderReaderPage(); window.scrollTo({top:0, behavior:'smooth'}); }
   });
   document.querySelector('[data-font-inc]').addEventListener('click', () => { readerState.fontSize = Math.min(1.6, readerState.fontSize + 0.1); renderReaderPage(); });
@@ -2921,7 +2919,7 @@
     const shipping_address = document.getElementById('checkoutAddress').value;
     const customer_name = document.getElementById('checkoutName').value;
     const customer_phone = document.getElementById('checkoutPhone').value;
-    const items = cart.map(i => ({ book_id: i.bookId, title: i.title, format_name: i.format, price_cents: Math.round(i.price * 100), qty: i.qty, signed: i.signed }));
+    const items = cart.map(i => ({ book_id: i.bookId, format_name: i.format, qty: i.qty, signed: i.signed }));
     try {
       const res = await fetch(`${API_URL}/api/orders/checkout`, {
         method: 'POST',

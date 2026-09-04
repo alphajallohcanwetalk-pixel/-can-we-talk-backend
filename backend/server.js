@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 import authRoutes from './routes/auth.js';
 import bookRoutes from './routes/books.js';
@@ -14,26 +16,44 @@ import settingsRoutes from './routes/settings.js';
 import webhookRoutes from './routes/webhooks.js';
 
 const app = express();
+app.set('trust proxy', 1);
+
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction) {
+	const required = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'STRIPE_PRICE_BOOKCLUB_MONTHLY', 'STRIPE_PRICE_BOOKCLUB_ANNUAL', 'FRONTEND_APP_URL'];
+	const missing = required.filter((name) => !process.env[name]);
+	const invalid = [process.env.STRIPE_SECRET_KEY, process.env.STRIPE_PRICE_BOOKCLUB_MONTHLY, process.env.STRIPE_PRICE_BOOKCLUB_ANNUAL].some((value) => value?.startsWith('sk_test_') || value?.startsWith('prod_'));
+	if (missing.length || invalid) throw new Error(`Production configuration invalid${missing.length ? `; missing: ${missing.join(', ')}` : ''}${invalid ? '; Stripe must use live secret and price IDs' : ''}`);
+}
 
 const allowedOrigins = new Set([
 	process.env.FRONTEND_URL,
 	process.env.FRONTEND_APP_URL,
 	'https://canwetalkvoice.com',
 	'https://www.canwetalkvoice.com',
-	'http://127.0.0.1:5500',
-	'http://localhost:5500'
+	...(isProduction ? [] : ['http://127.0.0.1:5500', 'http://localhost:5500'])
 ].filter(Boolean));
 
+app.use(helmet({
+	contentSecurityPolicy: false,
+	crossOriginEmbedderPolicy: false
+}));
 app.use(cors({ origin: (origin, callback) => {
 	if (!origin || allowedOrigins.has(origin)) return callback(null, true);
-	return callback(new Error('Origin not allowed by CORS'));
+	return callback(null, false);
 } }));
+
+const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: 'draft-8', legacyHeaders: false });
+app.use('/api', apiLimiter);
+app.use('/api/auth/welcome', rateLimit({ windowMs: 60 * 60 * 1000, limit: 5, standardHeaders: 'draft-8', legacyHeaders: false }));
+app.use('/api/orders/checkout', rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: 'draft-8', legacyHeaders: false }));
 
 // Stripe webhooks need the RAW body for signature verification, so this must be
 // registered BEFORE express.json() and only for this specific path.
 app.use('/api/webhooks', express.raw({ type: 'application/json' }), webhookRoutes);
 
-app.use(express.json());
+app.use(express.json({ limit: '100kb' }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
@@ -52,6 +72,14 @@ app.get('/', (req, res) => res.json({
 }));
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
+
+app.use((err, req, res, next) => {
+	if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+		return res.status(400).json({ error: 'Invalid JSON' });
+	}
+	console.error('Unhandled request error:', err);
+	res.status(500).json({ error: 'Internal server error' });
+});
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => console.log(`Can We Talk? API running on port ${port}`));

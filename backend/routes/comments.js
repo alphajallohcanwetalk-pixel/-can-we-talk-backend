@@ -36,7 +36,9 @@ router.get('/', async (req, res) => {
 router.post('/', requireAuth, async (req, res) => {
   const { target_type, target_id, rating, body } = req.body;
   if (!['book', 'essay'].includes(target_type)) return res.status(400).json({ error: 'Invalid target_type' });
-  if (!body?.trim()) return res.status(400).json({ error: 'Comment body is required' });
+  if (!/^[0-9a-f-]{36}$/i.test(target_id || '') || !Number.isInteger(rating) || rating < 1 || rating > 5 || typeof body !== 'string' || !body.trim() || body.length > 2000) {
+    return res.status(400).json({ error: 'Invalid comment' });
+  }
 
   const { data, error } = await supabaseAdmin
     .from('comments')
