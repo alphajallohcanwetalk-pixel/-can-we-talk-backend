@@ -58,25 +58,35 @@ router.post('/checkout', requireAuth, async (req, res) => {
     return res.status(500).json({ error: 'Could not create order' });
   }
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    automatic_payment_methods: { enabled: true },
-    line_items: normalizedItems.map((i) => ({
-      price_data: {
-        currency: 'usd',
-        product_data: { name: `${i.title} (${i.format_name}${i.signed ? ', signed' : ''})` },
-        unit_amount: i.price_cents
-      },
-      quantity: i.qty
-    })),
-    metadata: { order_id: order.id },
-    success_url: `${process.env.FRONTEND_APP_URL}#order-confirm?order=${order.id}`,
-    cancel_url: `${process.env.FRONTEND_APP_URL}#cart`
-  });
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      // Omitting payment_method_types lets Stripe use the methods enabled in Dashboard.
+      line_items: normalizedItems.map((i) => ({
+        price_data: {
+          currency: 'usd',
+          product_data: { name: `${i.title} (${i.format_name}${i.signed ? ', signed' : ''})` },
+          unit_amount: i.price_cents
+        },
+        quantity: i.qty
+      })),
+      customer_email: req.user.email,
+      metadata: { order_id: order.id },
+      success_url: `${process.env.FRONTEND_APP_URL}#order-confirm?order=${order.id}`,
+      cancel_url: `${process.env.FRONTEND_APP_URL}#cart`
+    });
 
-  await supabaseAdmin.from('orders').update({ stripe_session_id: session.id }).eq('id', order.id);
-
-  res.json({ checkout_url: session.url });
+    const { error: sessionError } = await supabaseAdmin.from('orders').update({ stripe_session_id: session.id }).eq('id', order.id);
+    if (sessionError) {
+      console.error('Order session ID save failed:', sessionError.message);
+      return res.status(500).json({ error: 'Could not save payment session' });
+    }
+    res.json({ checkout_url: session.url });
+  } catch (error) {
+    await supabaseAdmin.from('orders').delete().eq('id', order.id).eq('status', 'pending');
+    console.error('Book checkout failed:', JSON.stringify({ type: error.type, code: error.code, message: error.message }));
+    res.status(502).json({ error: 'Payment service unavailable', detail: error.message });
+  }
 });
 
 router.get('/confirmation/:id', requireAuth, async (req, res) => {
