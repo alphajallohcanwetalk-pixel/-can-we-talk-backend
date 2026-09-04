@@ -398,11 +398,11 @@
   .reader-bar .rb-title{font-size:0.9rem; font-weight:600;}
   .reader-bar .rb-controls{display:flex; align-items:center; gap:14px; font-size:0.85rem;}
   .reader-bar button{background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:7px 12px; border-radius:4px; cursor:pointer; font-size:0.8rem;}
-  .reader-page-wrap{position:relative; max-width:680px; aspect-ratio:210/297; min-height:900px; margin:50px auto; background-color:#fffdf6; background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 33px, rgba(126,111,77,0.11) 34px, transparent 35px); padding:60px 56px; border:1px solid #e7e0d2; border-radius:4px; box-shadow:0 20px 50px rgba(0,0,0,0.08); user-select:none; -webkit-user-select:none;}
+  .reader-page-wrap{position:relative; max-width:680px; aspect-ratio:210/297; min-height:900px; margin:50px auto; overflow:hidden; box-sizing:border-box; background-color:#fffdf6; background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 33px, rgba(126,111,77,0.11) 34px, transparent 35px); padding:60px 56px; border:1px solid #e7e0d2; border-radius:4px; box-shadow:0 20px 50px rgba(0,0,0,0.08); user-select:none; -webkit-user-select:none;}
   .reader-page-wrap p{font-family:'Fraunces',serif; font-size:1.12rem; line-height:1.85; color:#241d10; margin-bottom:22px;}
   .reader-watermark{position:absolute; inset:0; pointer-events:none; overflow:hidden; opacity:0.06; display:flex; flex-wrap:wrap; align-content:center; justify-content:center; transform:rotate(-30deg); font-family:'IBM Plex Mono',monospace; font-size:0.85rem; line-height:3.2; color:#000; text-align:center;}
   .reader-page-num{text-align:center; margin-top:30px; font-size:0.8rem; color:#8b8367; font-family:'IBM Plex Mono',monospace;}
-  .essay-page{width:100%; aspect-ratio:210/297; min-height:900px; padding:60px 56px; background-color:#fffdf6; background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 33px, rgba(126,111,77,0.11) 34px, transparent 35px); border:1px solid #e7e0d2; border-radius:4px; box-shadow:0 18px 45px rgba(0,0,0,0.06);}
+  .essay-page{width:100%; aspect-ratio:210/297; min-height:900px; overflow:hidden; box-sizing:border-box; padding:60px 56px; background-color:#fffdf6; background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 33px, rgba(126,111,77,0.11) 34px, transparent 35px); border:1px solid #e7e0d2; border-radius:4px; box-shadow:0 18px 45px rgba(0,0,0,0.06);}
   .reader-nav{display:flex; justify-content:space-between; max-width:680px; margin:0 auto; padding:0 4px;}
   .reader-locked{max-width:520px; margin:80px auto; text-align:center;}
   .screenshot-warning{display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); color:#fff; z-index:600; align-items:center; justify-content:center; text-align:center; padding:30px; flex-direction:column; gap:16px;}
@@ -1740,23 +1740,61 @@
 
   let essayReaderPages = [];
   let essayReaderPage = 0;
-  const PAGE_CHAR_LIMIT = 1500;
+  let essaySourceText = '';
+  function paginateText(text, pageSelector, fontSize){
+    const target = document.querySelector(pageSelector);
+    if(!target) return [[text || 'No content yet.']];
+    const measure = target.cloneNode(false);
+    measure.removeAttribute('id');
+    measure.style.position = 'absolute';
+    measure.style.left = '-100000px';
+    measure.style.top = '0';
+    measure.style.visibility = 'hidden';
+    measure.style.pointerEvents = 'none';
+    measure.style.width = `${target.clientWidth}px`;
+    measure.style.height = `${target.clientHeight}px`;
+    measure.style.minHeight = '0';
+    measure.style.aspectRatio = 'auto';
+    measure.innerHTML = '';
+    document.body.appendChild(measure);
 
-  function paginateText(text){
-    const paragraphs = text.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
     const pages = [];
     let page = [];
-    let length = 0;
-    paragraphs.forEach(paragraph => {
-      const chunks = paragraph.match(new RegExp(`.{1,${PAGE_CHAR_LIMIT}}(?:\\s|$)`, 'g')) || [paragraph];
-      chunks.forEach(chunk => {
-        const value = chunk.trim();
-        if(page.length && length + value.length > PAGE_CHAR_LIMIT){ pages.push(page); page = []; length = 0; }
-        page.push(value);
-        length += value.length;
+    let currentParagraph = '';
+    const fits = (paragraphs) => {
+      measure.replaceChildren(...paragraphs.map(value => {
+        const paragraph = document.createElement('p');
+        if(fontSize) paragraph.style.fontSize = `${fontSize}rem`;
+        paragraph.textContent = value;
+        return paragraph;
+      }));
+      return measure.scrollHeight <= measure.clientHeight;
+    };
+    const pushPage = () => {
+      if(page.length) pages.push(page);
+      page = [];
+    };
+    const paragraphs = String(text || '').split(/\n\s*\n/).filter(paragraph => paragraph.length);
+    paragraphs.forEach(sourceParagraph => {
+      currentParagraph = '';
+      const tokens = sourceParagraph.match(/\s+|\S+/g) || [];
+      tokens.forEach(token => {
+        const candidate = currentParagraph + token;
+        const candidatePage = page.concat(candidate);
+        if(currentParagraph && !fits(candidatePage)){
+          page.push(currentParagraph);
+          currentParagraph = token;
+          if(!fits(page.concat(currentParagraph))) pushPage();
+        } else {
+          currentParagraph = candidate;
+        }
       });
+      if(currentParagraph) page.push(currentParagraph);
+      currentParagraph = '';
+      if(!fits(page)) pushPage();
     });
-    if(page.length) pages.push(page);
+    pushPage();
+    measure.remove();
     return pages.length ? pages : [['No content yet.']];
   }
 
@@ -1777,6 +1815,13 @@
   document.getElementById('essayPagePrev').addEventListener('click', () => { if(essayReaderPage > 0){ essayReaderPage--; renderEssayPage(); } });
   document.getElementById('essayPageNext').addEventListener('click', () => { if(essayReaderPage < essayReaderPages.length - 1){ essayReaderPage++; renderEssayPage(); } });
 
+  function repaginateEssay(){
+    if(!essaySourceText || !document.getElementById('view-essay-detail').classList.contains('active')) return;
+    essayReaderPages = paginateText(essaySourceText, '#essay-detail-body');
+    essayReaderPage = Math.min(essayReaderPage, essayReaderPages.length - 1);
+    renderEssayPage();
+  }
+
   async function openEssay(id){
     const e = essays.find(x => x.id === id);
     if(!e) return;
@@ -1792,7 +1837,8 @@
     else { coverEl.style.display = 'none'; coverEl.removeAttribute('data-lightbox'); }
 
     const text = fullEssay.full_text && fullEssay.full_text.trim() ? fullEssay.full_text : fullEssay.excerpt;
-    essayReaderPages = paginateText(text);
+    essaySourceText = text;
+    essayReaderPages = paginateText(essaySourceText, '#essay-detail-body');
     essayReaderPage = 0;
     renderEssayPage();
     showView('essay-detail');
@@ -2755,7 +2801,7 @@
     btn.addEventListener('click', () => openReader(btn.dataset.read));
   });
 
-  let readerState = {bookId:null, pages:[], page:0, fontSize:1.12};
+  let readerState = {bookId:null, sourceText:'', pages:[], page:0, fontSize:1.12};
 
   async function openReader(bookKey){
     showView('reader');
@@ -2769,10 +2815,11 @@
       if(!res.ok) throw new Error(res.status === 403 ? 'Book Club membership required.' : 'Reader unavailable.');
       const book = await res.json();
       document.getElementById('readerBookTitle').textContent = book.title;
-      readerState = { bookId: bookKey, pages: paginateText(book.reader_full_text || '').map(page => page.join('\n\n')), page:0, fontSize:1.12 };
-      if(!readerState.pages.length) throw new Error('This book is not available in the reader yet.');
       document.getElementById('reader-locked-msg').style.display = 'none';
       document.getElementById('reader-content').style.display = 'block';
+      readerState = { bookId: bookKey, sourceText: book.reader_full_text || '', pages: [], page:0, fontSize:1.12 };
+      readerState.pages = paginateText(readerState.sourceText, '#readerPageWrap', readerState.fontSize);
+      if(!readerState.sourceText.trim()) throw new Error('This book is not available in the reader yet.');
       buildWatermark();
       renderReaderPage();
     } catch(err) {
@@ -2789,14 +2836,28 @@
   }
 
   function renderReaderPage(){
-    const pageText = readerState.pages[readerState.page];
-    const paragraph = document.createElement('p');
-    paragraph.style.fontSize = `${readerState.fontSize}rem`;
-    paragraph.textContent = pageText;
+    const pageText = readerState.pages[readerState.page] || [];
     const page = document.getElementById('readerPageText');
-    page.replaceChildren(paragraph);
+    page.replaceChildren(...pageText.map(text => {
+      const paragraph = document.createElement('p');
+      paragraph.style.fontSize = `${readerState.fontSize}rem`;
+      paragraph.textContent = text;
+      return paragraph;
+    }));
     document.getElementById('readerPageNum').textContent = `Page ${readerState.page + 1} of ${readerState.pages.length}`;
   }
+
+  function repaginateReader(){
+    if(!readerState.sourceText) return;
+    readerState.pages = paginateText(readerState.sourceText, '#readerPageWrap', readerState.fontSize);
+    readerState.page = Math.min(readerState.page, readerState.pages.length - 1);
+    renderReaderPage();
+  }
+
+  window.addEventListener('resize', () => {
+    repaginateEssay();
+    if(document.getElementById('view-reader').classList.contains('active')) repaginateReader();
+  });
 
   document.querySelector('[data-page-prev]').addEventListener('click', () => {
     if(readerState.page > 0){ readerState.page--; renderReaderPage(); window.scrollTo({top:0, behavior:'smooth'}); }
@@ -2805,8 +2866,8 @@
     const total = readerState.pages.length;
     if(readerState.page < total - 1){ readerState.page++; renderReaderPage(); window.scrollTo({top:0, behavior:'smooth'}); }
   });
-  document.querySelector('[data-font-inc]').addEventListener('click', () => { readerState.fontSize = Math.min(1.6, readerState.fontSize + 0.1); renderReaderPage(); });
-  document.querySelector('[data-font-dec]').addEventListener('click', () => { readerState.fontSize = Math.max(0.85, readerState.fontSize - 0.1); renderReaderPage(); });
+  document.querySelector('[data-font-inc]').addEventListener('click', () => { readerState.fontSize = Math.min(1.6, readerState.fontSize + 0.1); repaginateReader(); });
+  document.querySelector('[data-font-dec]').addEventListener('click', () => { readerState.fontSize = Math.max(0.85, readerState.fontSize - 0.1); repaginateReader(); });
 
   // ---------- Copy-deterrence (best-effort — cannot fully block screenshots; see notes) ----------
   document.addEventListener('copy', e => {
