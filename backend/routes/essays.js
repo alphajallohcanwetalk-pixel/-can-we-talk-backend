@@ -7,7 +7,7 @@ const router = express.Router();
 
 // GET /api/essays?search=&category= — powers the Essay Library search/filter
 router.get('/', async (req, res) => {
-  let query = supabaseAdmin.from('essays').select('*').eq('published', true);
+  let query = supabaseAdmin.from('essays').select('id,title,category,year,excerpt,cover_image_url,published,created_at').eq('published', true);
   if (req.query.category && req.query.category !== 'all') {
     query = query.eq('category', req.query.category);
   }
@@ -19,9 +19,18 @@ router.get('/', async (req, res) => {
   res.json(data);
 });
 
+router.get('/:id', async (req, res) => {
+  const { data, error } = await supabaseAdmin.from('essays').select('*').eq('id', req.params.id).eq('published', true).single();
+  if (error) return res.status(404).json({ error: 'Essay not found' });
+  res.json(data);
+});
+
 // POST /api/essays — Author Dashboard: publish new essay + optionally email subscribers
 router.post('/', requireAuth, requireAuthor, async (req, res) => {
   const { title, category, year, excerpt, full_text, notify_subscribers } = req.body;
+  if (typeof title !== 'string' || !title.trim() || typeof excerpt !== 'string' || !excerpt.trim()) return res.status(400).json({ error: 'Title and excerpt are required' });
+  const { data: existing } = await supabaseAdmin.from('essays').select('id').ilike('title', title.trim()).limit(1).maybeSingle();
+  if (existing) return res.status(409).json({ error: 'An essay with this title already exists. Edit the existing essay instead.' });
   const { data: essay, error } = await supabaseAdmin
     .from('essays')
     .insert({ title, category, year, excerpt, full_text })

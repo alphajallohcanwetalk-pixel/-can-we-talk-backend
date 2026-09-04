@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import crypto from 'node:crypto';
 
 import authRoutes from './routes/auth.js';
 import bookRoutes from './routes/books.js';
@@ -17,6 +18,14 @@ import webhookRoutes from './routes/webhooks.js';
 
 const app = express();
 app.set('trust proxy', 1);
+app.use((req, res, next) => {
+	const requestId = req.headers['x-request-id'] || crypto.randomUUID();
+	req.requestId = requestId;
+	res.setHeader('x-request-id', requestId);
+	const startedAt = Date.now();
+	res.on('finish', () => console.log(JSON.stringify({ type: 'request', request_id: requestId, method: req.method, path: req.path, status: res.statusCode, duration_ms: Date.now() - startedAt })));
+	next();
+});
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -77,8 +86,8 @@ app.use((err, req, res, next) => {
 	if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
 		return res.status(400).json({ error: 'Invalid JSON' });
 	}
-	console.error('Unhandled request error:', err);
-	res.status(500).json({ error: 'Internal server error' });
+	console.error(JSON.stringify({ type: 'error', request_id: req.requestId, message: err.message, path: req.path }));
+	res.status(500).json({ error: 'Internal server error', request_id: req.requestId });
 });
 
 const port = process.env.PORT || 4000;

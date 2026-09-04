@@ -398,10 +398,11 @@
   .reader-bar .rb-title{font-size:0.9rem; font-weight:600;}
   .reader-bar .rb-controls{display:flex; align-items:center; gap:14px; font-size:0.85rem;}
   .reader-bar button{background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:7px 12px; border-radius:4px; cursor:pointer; font-size:0.8rem;}
-  .reader-page-wrap{position:relative; max-width:680px; margin:50px auto; background:#fffdf6; padding:60px 56px; border-radius:4px; box-shadow:0 20px 50px rgba(0,0,0,0.08); user-select:none; -webkit-user-select:none;}
+  .reader-page-wrap{position:relative; max-width:680px; aspect-ratio:210/297; min-height:900px; margin:50px auto; background-color:#fffdf6; background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 33px, rgba(126,111,77,0.11) 34px, transparent 35px); padding:60px 56px; border:1px solid #e7e0d2; border-radius:4px; box-shadow:0 20px 50px rgba(0,0,0,0.08); user-select:none; -webkit-user-select:none;}
   .reader-page-wrap p{font-family:'Fraunces',serif; font-size:1.12rem; line-height:1.85; color:#241d10; margin-bottom:22px;}
   .reader-watermark{position:absolute; inset:0; pointer-events:none; overflow:hidden; opacity:0.06; display:flex; flex-wrap:wrap; align-content:center; justify-content:center; transform:rotate(-30deg); font-family:'IBM Plex Mono',monospace; font-size:0.85rem; line-height:3.2; color:#000; text-align:center;}
   .reader-page-num{text-align:center; margin-top:30px; font-size:0.8rem; color:#8b8367; font-family:'IBM Plex Mono',monospace;}
+  .essay-page{width:100%; aspect-ratio:210/297; min-height:900px; padding:60px 56px; background-color:#fffdf6; background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 33px, rgba(126,111,77,0.11) 34px, transparent 35px); border:1px solid #e7e0d2; border-radius:4px; box-shadow:0 18px 45px rgba(0,0,0,0.06);}
   .reader-nav{display:flex; justify-content:space-between; max-width:680px; margin:0 auto; padding:0 4px;}
   .reader-locked{max-width:520px; margin:80px auto; text-align:center;}
   .screenshot-warning{display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); color:#fff; z-index:600; align-items:center; justify-content:center; text-align:center; padding:30px; flex-direction:column; gap:16px;}
@@ -488,6 +489,7 @@
     .bio-grid{grid-template-columns:1fr;}
     .pillar-grid{grid-template-columns:1fr 1fr;}
     .contact-layout{grid-template-columns:1fr;}
+    .reader-page-wrap,.essay-page{min-height:560px; padding:38px 28px;}
   }
 </style>
 </head>
@@ -1334,7 +1336,7 @@
   </section>
   <section style="padding:0 0 90px;">
     <div class="wrap" style="max-width:720px;">
-      <div id="essay-detail-body" style="font-family:'Fraunces',serif; font-size:1.1rem; line-height:1.85; color:var(--ink); min-height:200px;"></div>
+      <div id="essay-detail-body" class="essay-page" style="font-family:'Fraunces',serif; font-size:1.1rem; line-height:1.85; color:var(--ink);"></div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:30px;">
         <button class="btn btn-outline-dark" id="essayPagePrev">← Previous</button>
         <span id="essayPageIndicator" style="font-family:'IBM Plex Mono',monospace; font-size:0.8rem; color:var(--ink-soft);">Page 1 of 1</span>
@@ -1719,7 +1721,7 @@
     try {
       const res = await fetch(`${API_URL}/api/essays`);
       const data = await res.json();
-      essays = data.map(e => ({ id: e.id, title: e.title, cat: e.category, year: e.year, excerpt: e.excerpt, full_text: e.full_text, cover_image_url: e.cover_image_url }));
+      essays = data.map(e => ({ id: e.id, title: e.title, cat: e.category, year: e.year, excerpt: e.excerpt, cover_image_url: e.cover_image_url }));
     } catch (err) {
       console.error('Failed to load essays:', err);
       essays = [];
@@ -1738,11 +1740,34 @@
 
   let essayReaderPages = [];
   let essayReaderPage = 0;
-  const PARAGRAPHS_PER_PAGE = 3;
+  const PAGE_CHAR_LIMIT = 1500;
+
+  function paginateText(text){
+    const paragraphs = text.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+    const pages = [];
+    let page = [];
+    let length = 0;
+    paragraphs.forEach(paragraph => {
+      const chunks = paragraph.match(new RegExp(`.{1,${PAGE_CHAR_LIMIT}}(?:\\s|$)`, 'g')) || [paragraph];
+      chunks.forEach(chunk => {
+        const value = chunk.trim();
+        if(page.length && length + value.length > PAGE_CHAR_LIMIT){ pages.push(page); page = []; length = 0; }
+        page.push(value);
+        length += value.length;
+      });
+    });
+    if(page.length) pages.push(page);
+    return pages.length ? pages : [['No content yet.']];
+  }
 
   function renderEssayPage(){
     const body = document.getElementById('essay-detail-body');
-    body.innerHTML = essayReaderPages[essayReaderPage] || '';
+    body.replaceChildren(...(essayReaderPages[essayReaderPage] || []).map(text => {
+      const paragraph = document.createElement('p');
+      paragraph.style.marginBottom = '22px';
+      paragraph.textContent = text;
+      return paragraph;
+    }));
     document.getElementById('essayPageIndicator').textContent = `Page ${essayReaderPage + 1} of ${essayReaderPages.length}`;
     document.getElementById('essayPagePrev').disabled = essayReaderPage === 0;
     document.getElementById('essayPageNext').disabled = essayReaderPage === essayReaderPages.length - 1;
@@ -1752,9 +1777,12 @@
   document.getElementById('essayPagePrev').addEventListener('click', () => { if(essayReaderPage > 0){ essayReaderPage--; renderEssayPage(); } });
   document.getElementById('essayPageNext').addEventListener('click', () => { if(essayReaderPage < essayReaderPages.length - 1){ essayReaderPage++; renderEssayPage(); } });
 
-  function openEssay(id){
+  async function openEssay(id){
     const e = essays.find(x => x.id === id);
     if(!e) return;
+    const response = await fetch(`${API_URL}/api/essays/${id}`);
+    if(!response.ok) return;
+    const fullEssay = await response.json();
     document.getElementById('essay-crumb').textContent = e.title;
     document.getElementById('essay-detail-cat').textContent = e.cat;
     document.getElementById('essay-detail-title').textContent = e.title;
@@ -1763,17 +1791,8 @@
     if(e.cover_image_url){ coverEl.style.display = 'block'; coverEl.style.backgroundImage = `url('${e.cover_image_url}')`; coverEl.setAttribute('data-lightbox', e.cover_image_url); }
     else { coverEl.style.display = 'none'; coverEl.removeAttribute('data-lightbox'); }
 
-    const text = e.full_text && e.full_text.trim() ? e.full_text : e.excerpt;
-    const paragraphs = text.split('\n\n').filter(p => p.trim());
-    essayReaderPages = [];
-    for(let i = 0; i < paragraphs.length; i += PARAGRAPHS_PER_PAGE){
-      const chunk = paragraphs.slice(i, i + PARAGRAPHS_PER_PAGE);
-      essayReaderPages.push(chunk.map(p => `<p style="margin-bottom:22px;">${p}</p>`).join(''));
-    }
-    if(essayReaderPages.length === 0) essayReaderPages = ['<p>No content yet.</p>'];
-    if(!e.full_text || !e.full_text.trim()){
-      essayReaderPages[essayReaderPages.length - 1] += `<p style="font-size:0.85rem; color:var(--ink-soft); font-style:normal; font-family:'Inter',sans-serif;">The full text of this essay hasn't been added yet — only the excerpt is available.</p>`;
-    }
+    const text = fullEssay.full_text && fullEssay.full_text.trim() ? fullEssay.full_text : fullEssay.excerpt;
+    essayReaderPages = paginateText(text);
     essayReaderPage = 0;
     renderEssayPage();
     showView('essay-detail');
@@ -2327,6 +2346,9 @@
   });
 
   document.getElementById('addBookBtn').addEventListener('click', async () => {
+    const submitButton = document.getElementById('addBookBtn');
+    if(submitButton.disabled) return;
+    submitButton.disabled = true;
     const title = document.getElementById('newBookTitle').value.trim();
     const subtitle = document.getElementById('newBookSubtitle').value.trim();
     const price = parseFloat(document.getElementById('newBookPrice').value);
@@ -2335,8 +2357,8 @@
     const coverFile = document.getElementById('newBookCover').files[0];
     const backCoverFile = document.getElementById('newBookBackCover').files[0];
     const galleryFiles = Array.from(document.getElementById('newBookGallery').files).slice(0, 6);
-    if(!title || !price || !description){ alert('Please fill in title, price and description.'); return; }
-    if(!currentSession){ alert('Please sign in as the author account first.'); return; }
+    if(!title || !price || !description){ alert('Please fill in title, price and description.'); submitButton.disabled = false; return; }
+    if(!currentSession){ alert('Please sign in as the author account first.'); submitButton.disabled = false; return; }
     try {
       let cover_image_url, back_cover_url, gallery_urls;
       if(coverFile) cover_image_url = await uploadCover(coverFile, 'books');
@@ -2372,6 +2394,7 @@
       await loadBooks();
       renderAdminBooksTable();
     } catch(err){ alert('Could not save book: ' + err.message); }
+    finally { submitButton.disabled = false; }
   });
 
   // ---------- Formats & pricing panel ----------
@@ -2495,15 +2518,17 @@
       const e = essays.find(x => x.id === el.dataset.editEssay);
       if(!e) return;
       editingEssayId = e.id;
+      fetch(`${API_URL}/api/essays/${e.id}`).then(response => response.json()).then(fullEssay => {
       document.getElementById('newEssayTitle').value = e.title;
       document.getElementById('newEssayCategory').value = e.cat;
       document.getElementById('newEssayYear').value = e.year;
       document.getElementById('newEssayExcerpt').value = e.excerpt;
-      document.getElementById('newEssayFullText').value = e.full_text || '';
+      document.getElementById('newEssayFullText').value = fullEssay.full_text || '';
       document.getElementById('essayFormHeading').textContent = 'Editing: ' + e.title;
       document.getElementById('addEssayBtn').textContent = 'Update Essay';
       document.getElementById('cancelEssayEditBtn').style.display = 'inline-block';
       document.getElementById('newEssayTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
     }));
     tbody.querySelectorAll('[data-delete-essay]').forEach(el => el.addEventListener('click', async () => {
       const essay = essays.find(x => x.id === el.dataset.deleteEssay);
@@ -2528,14 +2553,17 @@
   document.getElementById('cancelEssayEditBtn').addEventListener('click', resetEssayForm);
 
   document.getElementById('addEssayBtn').addEventListener('click', async () => {
+    const submitButton = document.getElementById('addEssayBtn');
+    if(submitButton.disabled) return;
+    submitButton.disabled = true;
     const title = document.getElementById('newEssayTitle').value.trim();
     const category = document.getElementById('newEssayCategory').value;
     const year = parseInt(document.getElementById('newEssayYear').value) || new Date().getFullYear();
     const excerpt = document.getElementById('newEssayExcerpt').value.trim();
     const full_text = document.getElementById('newEssayFullText').value.trim();
     const coverFile = document.getElementById('newEssayCover').files[0];
-    if(!title || !excerpt){ alert('Please fill in a title and excerpt.'); return; }
-    if(!currentSession){ alert('Please sign in as the author account first.'); return; }
+    if(!title || !excerpt){ alert('Please fill in a title and excerpt.'); submitButton.disabled = false; return; }
+    if(!currentSession){ alert('Please sign in as the author account first.'); submitButton.disabled = false; return; }
     try {
       let cover_image_url;
       if(coverFile) cover_image_url = await uploadCover(coverFile, 'essays');
@@ -2559,6 +2587,7 @@
       await loadEssays();
       renderAdminEssaysTable();
     } catch(err){ alert('Could not save essay: ' + err.message); }
+    finally { submitButton.disabled = false; }
   });
 
   // ================= AUDIOBOOKS =================
@@ -2740,7 +2769,7 @@
       if(!res.ok) throw new Error(res.status === 403 ? 'Book Club membership required.' : 'Reader unavailable.');
       const book = await res.json();
       document.getElementById('readerBookTitle').textContent = book.title;
-      readerState = { bookId: bookKey, pages: (book.reader_full_text || '').split(/\n\s*\n/).filter(Boolean), page:0, fontSize:1.12 };
+      readerState = { bookId: bookKey, pages: paginateText(book.reader_full_text || '').map(page => page.join('\n\n')), page:0, fontSize:1.12 };
       if(!readerState.pages.length) throw new Error('This book is not available in the reader yet.');
       document.getElementById('reader-locked-msg').style.display = 'none';
       document.getElementById('reader-content').style.display = 'block';

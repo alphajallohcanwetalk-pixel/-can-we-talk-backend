@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   const { data, error } = await supabaseAdmin
     .from('books')
-    .select('*, book_formats(*)')
+    .select('id,title,subtitle,description,cover_style,cover_image_url,back_cover_url,gallery_urls,is_active,created_at,book_formats(*)')
     .eq('is_active', true)
     .order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
@@ -19,9 +19,15 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const { data, error } = await supabaseAdmin
     .from('books')
-    .select('*, book_formats(*)')
+    .select('id,title,subtitle,description,cover_style,cover_image_url,back_cover_url,gallery_urls,is_active,created_at,book_formats(*)')
     .eq('id', req.params.id)
     .single();
+  if (error) return res.status(404).json({ error: 'Book not found' });
+  res.json(data);
+});
+
+router.get('/:id/manage', requireAuth, requireAuthor, async (req, res) => {
+  const { data, error } = await supabaseAdmin.from('books').select('*, book_formats(*)').eq('id', req.params.id).single();
   if (error) return res.status(404).json({ error: 'Book not found' });
   res.json(data);
 });
@@ -29,6 +35,9 @@ router.get('/:id', async (req, res) => {
 // POST /api/books — Author Dashboard: add a new book
 router.post('/', requireAuth, requireAuthor, async (req, res) => {
   const { title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text, formats } = req.body;
+  if (typeof title !== 'string' || !title.trim() || typeof description !== 'string' || !description.trim()) return res.status(400).json({ error: 'Title and description are required' });
+  const { data: existing } = await supabaseAdmin.from('books').select('id').ilike('title', title.trim()).limit(1).maybeSingle();
+  if (existing) return res.status(409).json({ error: 'A book with this title already exists. Edit the existing book instead.' });
   const { data: book, error } = await supabaseAdmin
     .from('books')
     .insert({ title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text })
