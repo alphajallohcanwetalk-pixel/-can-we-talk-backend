@@ -611,6 +611,34 @@
   .bar-row .bl{color:var(--ink-soft);} .bar-row .bv{color:var(--sl-green-deep); font-weight:600;}
   .an-flag{color:#b3261e;}
 
+  /* ---------- Hero install button ---------- */
+  .btn-install{display:inline-flex; align-items:center; gap:11px; background:#fff; color:var(--sl-green-deep);
+    border:1px solid rgba(255,255,255,0.9); box-shadow:0 10px 28px rgba(0,0,0,0.22); font-weight:700;}
+  .btn-install img{border-radius:6px; flex:0 0 auto;}
+  .btn-install:hover{background:#fff; transform:translateY(-2px); box-shadow:0 14px 34px rgba(0,0,0,0.28);}
+  .btn-install:active{transform:translateY(0) scale(0.98);}
+
+  /* ---------- Back and reload controls ---------- */
+  .nav-ctrl{font-size:1.05rem; line-height:1; transition:transform .18s, background .18s;}
+  .nav-ctrl:hover{transform:translateY(-1px);}
+  .nav-ctrl:active{transform:scale(0.92);}
+  #navReload.spinning{animation:nav-spin .6s linear;}
+  @keyframes nav-spin{from{transform:rotate(0)} to{transform:rotate(360deg)}}
+
+  /* ---------- Account view ---------- */
+  .account-grid{display:grid; gap:20px; max-width:640px;}
+  .account-card{border:1px solid var(--line); border-radius:10px; padding:22px 24px; background:var(--paper);}
+  .account-card h3{font-size:0.82rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); margin-bottom:14px;}
+  .account-row{display:flex; justify-content:space-between; gap:14px; padding:9px 0; border-bottom:1px solid var(--line); font-size:0.9rem;}
+  .account-row:last-child{border-bottom:none;}
+  .account-row span:first-child{color:var(--ink-soft);}
+  .danger-zone{border-color:rgba(179,38,30,0.35);}
+  .danger-zone h3{color:#b3261e;}
+  .danger-toggle{background:none; border:0; color:#b3261e; font-size:0.84rem; font-weight:600; cursor:pointer;
+    text-decoration:underline; padding:0;}
+  .danger-body{display:none; margin-top:16px;}
+  .danger-body.open{display:block;}
+
   /* ---------- Auth form extras ---------- */
   .pw-wrap{position:relative; display:flex; align-items:center;}
   .pw-wrap input{width:100%; padding-right:62px;}
@@ -714,6 +742,8 @@
     <div id="authArea">
       <a class="nav-cta" id="signInBtn">Sign In</a>
     </div>
+    <button class="icon-btn nav-ctrl" id="navBack" aria-label="Go back" title="Back" style="display:none;">←</button>
+    <button class="icon-btn nav-ctrl" id="navReload" aria-label="Reload the page" title="Reload">⟳</button>
     <button class="icon-btn" id="searchBtn" aria-label="Search the site">🔍</button>
     <button class="icon-btn" id="cartBtn" aria-label="View cart"><span>🛒</span><span class="cart-badge" id="cartBadge" style="display:none;">0</span></button>
     <a class="nav-cta nav-link" data-view="book-mrp" style="margin-left:10px;">Shop Books</a>
@@ -763,10 +793,13 @@
       <div class="subtitle">(The Misfit Voice)</div>
       <p class="tagline">Some questions are too important to remain unasked. Books, essays, conversations and reflections on leadership, justice, Africa, society and the people who live with the consequences of power.</p>
       <div class="hero-ctas">
+        <button class="btn btn-install" data-install-app>
+          <img src="icons/icon-192.png" alt="" width="26" height="26" decoding="async">
+          <span>Download the App</span>
+        </button>
         <a class="btn btn-primary nav-link" data-view="book-mrp">Explore My Books</a>
         <a class="btn btn-ghost nav-link" data-view="essays">Read My Essays</a>
         <a class="btn btn-ghost nav-link" data-view="misfit">Enter The Misfit Voice</a>
-        <button class="btn btn-ghost" data-install-app>Get the App</button>
       </div>
       <div class="hero-name">ALPHA AMADU JALLOH</div>
       <div class="hero-role">Author · Columnist · Human Rights Advocate · Peacebuilder · Public Commentator</div>
@@ -1624,6 +1657,79 @@
   </section>
 </div>
 
+<!-- ============ ACCOUNT VIEW ============ -->
+<div class="view" id="view-account">
+  <div class="wrap breadcrumb"><a class="nav-link" data-view="home">Home</a><span>/</span><span>Your account</span></div>
+  <section class="page-hero">
+    <div class="wrap"><span class="eyebrow">Your Account</span><h1>Account settings</h1>
+      <p>Your details, your security, and your orders.</p></div>
+  </section>
+  <section style="padding:0 0 90px;">
+    <div class="wrap account-grid">
+
+      <div class="account-card">
+        <h3>Your details</h3>
+        <div class="account-row"><span>Name</span><strong id="acctName">Loading</strong></div>
+        <div class="account-row"><span>Email</span><strong id="acctEmail">Loading</strong></div>
+        <div class="account-row"><span>Member since</span><strong id="acctSince">Loading</strong></div>
+        <div class="account-row"><span>Book Club</span><strong id="acctClub">Loading</strong></div>
+        <button class="btn btn-sm btn-outline-dark" id="acctSignOut" style="margin-top:16px;">Sign out</button>
+      </div>
+
+      <div class="account-card">
+        <h3>Password</h3>
+        <p style="font-size:0.86rem; color:var(--ink-soft); margin-bottom:14px;">Change the password you use to sign in.</p>
+        <div class="field"><label for="acctNewPassword">New password</label>
+          <div class="pw-wrap">
+            <input type="password" id="acctNewPassword" autocomplete="new-password" placeholder="At least 8 characters">
+            <button type="button" class="pw-toggle" data-pw-toggle="acctNewPassword" aria-label="Show password">Show</button>
+          </div>
+          <div class="pw-meter" id="acctMeter"><span></span></div>
+        </div>
+        <div class="modal-error" id="acctPwError" style="margin-top:10px;">Something went wrong.</div>
+        <div class="modal-ok" id="acctPwOk" style="margin-top:10px;">Password updated.</div>
+        <button class="btn btn-sm btn-dark" id="acctPwSave" style="margin-top:12px;">Save new password</button>
+      </div>
+
+      <div class="account-card">
+        <h3>Two factor authentication</h3>
+        <p style="font-size:0.86rem; color:var(--ink-soft); margin-bottom:14px;">
+          Add a code from an authenticator app on top of your password.
+        </p>
+        <div id="acctMfaStatus" class="an-list" style="margin-bottom:14px;"></div>
+        <a class="btn btn-sm btn-outline-dark nav-link" data-view="admin" id="acctMfaLink">Manage in Security settings</a>
+      </div>
+
+      <div class="account-card">
+        <h3>Orders</h3>
+        <div id="acctOrders" class="an-list"><p class="an-empty">Loading…</p></div>
+      </div>
+
+      <div class="account-card danger-zone">
+        <h3>Danger zone</h3>
+        <button class="danger-toggle" id="dangerToggle">Delete my account</button>
+        <div class="danger-body" id="dangerBody">
+          <p style="font-size:0.86rem; color:var(--ink-soft); line-height:1.7; margin:12px 0;">
+            This removes your profile, your comments and ratings, your Book Club membership and any
+            audiobook chapters you own. It cannot be undone.
+          </p>
+          <p style="font-size:0.86rem; color:var(--ink-soft); line-height:1.7; margin-bottom:14px;">
+            Completed orders are kept as financial records, but they are detached from you and your
+            name, phone number and address are removed from them.
+          </p>
+          <div class="field"><label for="deleteConfirm">Type <strong>DELETE</strong> to confirm</label>
+            <input type="text" id="deleteConfirm" placeholder="DELETE" autocomplete="off"></div>
+          <div class="modal-error" id="deleteError" style="margin-top:10px;">Something went wrong.</div>
+          <button class="btn btn-sm btn-dark" id="deleteAccountBtn" style="margin-top:12px; background:#b3261e;">
+            Permanently delete my account
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
 <!-- ============ AUTHOR DASHBOARD VIEW ============ -->
 <div class="view" id="view-admin">
   <section class="pad" style="padding-top:60px;">
@@ -1650,6 +1756,7 @@
           <div class="modal-tab" data-admin-tab="essays">Essays</div>
           <div class="modal-tab" data-admin-tab="audio">Audiobooks</div>
           <div class="modal-tab" data-admin-tab="settings">Settings</div>
+          <div class="modal-tab" data-admin-tab="security" id="securityTab">Security</div>
           <div class="modal-tab" data-admin-tab="developer" id="devTab" style="display:none;">Developer</div>
         </div>
 
@@ -1861,6 +1968,53 @@
           <button class="btn btn-dark" id="saveSettingsBtn" style="align-self:flex-start;">Save Social Links</button>
         </div>
 
+        <!-- SECURITY / TWO FACTOR -->
+        <div class="modal-panel" id="admin-panel-security" style="flex-direction:column; gap:22px; margin-top:30px; max-width:560px;">
+          <div>
+            <h3 style="font-family:'Fraunces',serif; font-size:1.3rem;">Two factor authentication</h3>
+            <p style="color:var(--ink-soft); font-size:0.88rem; margin-top:8px; line-height:1.65;">
+              A second factor means a stolen password is not enough to publish books, change prices or read your error logs.
+              You will need an authenticator app such as Google Authenticator, Microsoft Authenticator or 1Password.
+            </p>
+          </div>
+
+          <div class="an-card" id="mfaStatusCard">
+            <h4>Status</h4>
+            <div id="mfaStatus" class="an-list"><p class="an-empty">Checking…</p></div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+              <button class="btn btn-sm btn-dark" id="mfaEnrollBtn">Turn on two factor</button>
+              <button class="btn btn-sm btn-outline-dark" id="mfaDisableBtn" style="display:none; color:#b3261e;">Turn off</button>
+            </div>
+          </div>
+
+          <div class="an-card" id="mfaEnrollCard" style="display:none;">
+            <h4>Scan this with your authenticator app</h4>
+            <div id="mfaQr" style="text-align:center; padding:12px 0;"></div>
+            <p style="font-size:0.8rem; color:var(--ink-soft); text-align:center;">
+              Cannot scan? Enter this key by hand:
+            </p>
+            <div id="mfaSecret" style="text-align:center; font-family:'IBM Plex Mono',monospace; font-size:0.86rem;
+                 word-break:break-all; background:var(--paper-dim); padding:10px 12px; border-radius:6px; margin:8px 0 16px;"></div>
+            <div class="field"><label for="mfaEnrollCode">Enter the 6 digit code it shows</label>
+              <input type="text" id="mfaEnrollCode" inputmode="numeric" maxlength="6" placeholder="123456"
+                     style="letter-spacing:0.4em; font-family:'IBM Plex Mono',monospace;"></div>
+            <div class="modal-error" id="mfaEnrollError" style="margin-top:10px;">That code was not accepted.</div>
+            <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+              <button class="btn btn-sm btn-dark" id="mfaConfirmBtn">Confirm and turn on</button>
+              <button class="btn btn-sm btn-outline-dark" id="mfaCancelEnrollBtn">Cancel</button>
+            </div>
+          </div>
+
+          <div class="an-card">
+            <h4>Good practice</h4>
+            <div class="an-list" style="font-size:0.85rem; color:var(--ink-soft); line-height:1.7;">
+              <div>Keep a backup of the setup key somewhere safe and offline. Losing the phone without it means losing access.</div>
+              <div>Turn this on for the author account first. That is the one that can change prices and publish content.</div>
+              <div>Once it is on, the API enforces it too, not just this page.</div>
+            </div>
+          </div>
+        </div>
+
         <!-- DEVELOPER DIAGNOSTICS -->
         <div class="modal-panel" id="admin-panel-developer" style="flex-direction:column; gap:22px; margin-top:30px;">
           <div class="an-head">
@@ -1970,6 +2124,18 @@
         <input type="email" id="forgotEmail" autocomplete="email" inputmode="email" placeholder="you@example.com"></div>
       <button class="btn btn-dark" id="forgotSubmit" type="submit">Email me a reset link</button>
       <button type="button" class="link-btn" id="backToSignin">Back to sign in</button>
+    </form>
+
+    <!-- Second factor, shown when the account has an authenticator enrolled -->
+    <form class="modal-panel" id="panel-mfa" novalidate>
+      <h3>Enter your authentication code</h3>
+      <div class="modal-sub">This account is protected by two factor authentication. Open your authenticator app and enter the current 6 digit code.</div>
+      <div class="modal-error" id="mfaError">That code was not accepted.</div>
+      <div class="field"><label for="mfaCode">6 digit code</label>
+        <input type="text" id="mfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6"
+               placeholder="123456" style="letter-spacing:0.4em; font-family:'IBM Plex Mono',monospace; font-size:1.1rem;"></div>
+      <button class="btn btn-dark" id="mfaSubmit" type="submit">Verify and sign in</button>
+      <button type="button" class="link-btn" id="mfaCancel">Cancel and sign out</button>
     </form>
 
     <!-- Shown after the emailed link is opened -->
@@ -2105,11 +2271,40 @@
 
   // ---------- View router ----------
   const views = document.querySelectorAll('.view');
-  function showView(name){
+  // Hashes that belong to Supabase or to a return from Stripe, not to a view.
+  const NON_VIEW_HASH = /access_token|type=recovery|password-reset|error_description/;
+
+  let currentViewName = 'home';
+
+  function showView(name, opts = {}){
     views.forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
     document.querySelectorAll('nav.links a').forEach(a => a.classList.toggle('active', a.dataset.view === name));
     document.getElementById('mobileMenu').classList.remove('open');
     window.scrollTo({top:0, behavior:'instant'});
+    currentViewName = name;
+
+    // Give every view a history entry. Without this the browser back button did
+    // nothing, and inside the Android app the system back gesture closed the
+    // whole app from any page instead of going back a screen.
+    if(!opts.fromHistory && !NON_VIEW_HASH.test(location.hash)){
+      const target = '#' + name;
+      if(location.hash !== target) history.pushState({ view: name }, '', target);
+      else history.replaceState({ view: name }, '', target);
+    }
+    updateNavControls();
+  }
+
+  window.addEventListener('popstate', e => {
+    if(NON_VIEW_HASH.test(location.hash)) return;
+    const fromHash = (location.hash || '').replace(/^#/, '').split('?')[0];
+    const name = (e.state && e.state.view) || fromHash || 'home';
+    if(document.getElementById('view-' + name)) showView(name, { fromHistory: true });
+  });
+
+  // Back is hidden on the home screen, where there is nowhere to go back to.
+  function updateNavControls(){
+    const back = document.getElementById('navBack');
+    if(back) back.style.display = currentViewName === 'home' ? 'none' : '';
   }
   document.querySelectorAll('.nav-link').forEach(el => {
     el.addEventListener('click', e => {
@@ -2384,15 +2579,12 @@
     currentUser = user;
     const authArea = document.getElementById('authArea');
     authArea.innerHTML = `<div class="nav-user" id="userMenuBtn"><div class="avatar">${initials(user.name)}</div>${user.name.split(' ')[0]}</div>`;
-    document.getElementById('userMenuBtn').addEventListener('click', async () => {
-      if(confirm('Sign out of Can We Talk?')){
-        await sb.auth.signOut();
-        currentUser = null;
-        currentSession = null;
-        authArea.innerHTML = '<a class="nav-cta" id="signInBtn">Sign In</a>';
-        document.getElementById('signInBtn').addEventListener('click', openAuth);
-        updateCommentGates();
-      }
+    // Clicking your name opens account settings rather than firing a bare
+    // confirm() dialog. Sign out lives inside that page, next to everything
+    // else about the account.
+    document.getElementById('userMenuBtn').addEventListener('click', () => {
+      showView('account');
+      loadAccountView();
     });
     closeAuth();
     updateCommentGates();
@@ -2501,6 +2693,19 @@
   }
 
   // ---------- Sign in ----------
+  // A password alone produces an aal1 session. If the account has an
+  // authenticator enrolled, Supabase reports that aal2 is expected, and the
+  // session stays half finished until a code is given.
+  async function needsSecondFactor(){
+    try {
+      const { data, error } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+      if(error) return false;
+      return data.currentLevel === 'aal1' && data.nextLevel === 'aal2';
+    } catch(e){ return false; }
+  }
+
+  let pendingUser = null;
+
   document.getElementById('panel-signin').addEventListener('submit', async e => {
     e.preventDefault();
     const email = document.getElementById('signinEmail').value.trim();
@@ -2516,8 +2721,53 @@
       document.getElementById('signinPassword').value = '';
       currentSession = data.session;
       const name = data.user.user_metadata?.full_name || data.user.email;
+
+      if(await needsSecondFactor()){
+        pendingUser = { name, email: data.user.email };
+        setMsg('mfaError', null, false);
+        document.getElementById('mfaCode').value = '';
+        showPanel('mfa');
+        document.getElementById('mfaCode').focus();
+        return;
+      }
       setSignedIn({ name, email: data.user.email });
     });
+  });
+
+  // ---------- Second factor at sign in ----------
+  document.getElementById('panel-mfa').addEventListener('submit', async e => {
+    e.preventDefault();
+    const code = document.getElementById('mfaCode').value.replace(/\D/g, '');
+    if(code.length !== 6){ setMsg('mfaError', 'Enter the 6 digit code from your authenticator app.', true); return; }
+
+    await withBusy(document.getElementById('mfaSubmit'), 'Verifying…', async () => {
+      const { data: factorData } = await sb.auth.mfa.listFactors();
+      const factor = (factorData?.totp || []).find(f => f.status === 'verified');
+      if(!factor){ setMsg('mfaError', 'No authenticator is set up on this account.', true); return; }
+
+      const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: factor.id, code });
+      if(error){
+        setMsg('mfaError', /expired|invalid/i.test(error.message || '')
+          ? 'That code was wrong or has expired. Codes change every 30 seconds, so try the current one.'
+          : error.message, true);
+        return;
+      }
+      setMsg('mfaError', null, false);
+      const { data: sessionData } = await sb.auth.getSession();
+      currentSession = sessionData.session;
+      const user = pendingUser || { name: sessionData.session.user.email, email: sessionData.session.user.email };
+      pendingUser = null;
+      document.getElementById('mfaCode').value = '';
+      setSignedIn(user);
+    });
+  });
+
+  document.getElementById('mfaCancel').addEventListener('click', async () => {
+    pendingUser = null;
+    await sb.auth.signOut();
+    currentSession = null;
+    document.getElementById('mfaCode').value = '';
+    showPanel('signin');
   });
 
   // ---------- Sign up ----------
@@ -3247,10 +3497,11 @@
       });
       if(active === 'analytics') loadAnalytics();
       if(active === 'developer') loadDeveloperPanel();
+      if(active === 'security') refreshMfaStatus();
     });
   });
 
-  const ADMIN_TABS = ['analytics', 'books', 'essays', 'audio', 'settings', 'developer'];
+  const ADMIN_TABS = ['analytics', 'books', 'essays', 'audio', 'settings', 'security', 'developer'];
   let isAuthorUser = false, isDeveloperUser = false;
 
   // Shows only the tabs this account is entitled to, and opens the first one.
@@ -3258,7 +3509,7 @@
     const devTab = document.getElementById('devTab');
     if(devTab) devTab.style.display = isDeveloperUser ? '' : 'none';
 
-    const authorTabs = ['analytics', 'books', 'essays', 'audio', 'settings'];
+    const authorTabs = ['analytics', 'books', 'essays', 'audio', 'settings'];   // 'security' is for both roles
     document.querySelectorAll('[data-admin-tab]').forEach(tab => {
       const name = tab.dataset.adminTab;
       if(authorTabs.includes(name)) tab.style.display = isAuthorUser ? '' : 'none';
@@ -3274,6 +3525,246 @@
     const heading = document.querySelector('#admin-dashboard .section-head h2');
     if(heading && !isAuthorUser) heading.textContent = 'Developer access';
   }
+
+  // ================= NAVIGATION CONTROLS =================
+  document.getElementById('navBack')?.addEventListener('click', () => {
+    // If there is app history, step back through it. Otherwise fall back to
+    // home, so the button is never a dead end.
+    if(history.state && history.state.view) history.back();
+    else showView('home');
+  });
+
+  document.getElementById('navReload')?.addEventListener('click', () => {
+    const btn = document.getElementById('navReload');
+    btn.classList.add('spinning');
+    // Re-fetch the live data rather than doing a full page reload, which in the
+    // installed app looks like the whole thing restarting.
+    Promise.allSettled([loadBooks(), loadEssays?.(), loadSiteSettings?.()])
+      .then(() => setTimeout(() => btn.classList.remove('spinning'), 300));
+  });
+
+  // ================= ACCOUNT =================
+  async function signOutEverywhere(){
+    await sb.auth.signOut();
+    currentUser = null;
+    currentSession = null;
+    const authArea = document.getElementById('authArea');
+    authArea.innerHTML = '<a class="nav-cta" id="signInBtn">Sign In</a>';
+    document.getElementById('signInBtn').addEventListener('click', openAuth);
+    updateCommentGates();
+    showView('home');
+  }
+
+  document.getElementById('acctSignOut')?.addEventListener('click', signOutEverywhere);
+
+  async function loadAccountView(){
+    if(!currentSession){ openAuth(); return; }
+    const user = currentSession.user;
+    document.getElementById('acctName').textContent = user.user_metadata?.full_name || 'Not set';
+    document.getElementById('acctEmail').textContent = user.email || 'Not set';
+    document.getElementById('acctSince').textContent = user.created_at
+      ? new Date(user.created_at).toLocaleDateString() : 'Not set';
+
+    // Book Club state
+    try {
+      const res = await fetch(`${API_URL}/api/bookclub/status`, { headers: authHeaders() });
+      const data = await res.json();
+      document.getElementById('acctClub').textContent = data.book_club_active
+        ? `Member (${data.book_club_plan === 'annual' ? 'Annual' : 'Monthly'})` : 'Not a member';
+    } catch(e){ document.getElementById('acctClub').textContent = 'Unknown'; }
+
+    // Two factor state
+    const mfaBox = document.getElementById('acctMfaStatus');
+    try {
+      const { data } = await sb.auth.mfa.listFactors();
+      const on = (data?.totp || []).some(f => f.status === 'verified');
+      mfaBox.innerHTML = '';
+      mfaBox.appendChild(devRow('Status', on ? 'ON' : 'OFF', on ? 'ok' : 'bad'));
+    } catch(e){ mfaBox.innerHTML = '<p class="an-empty">Could not check.</p>'; }
+
+    // Only author and developer accounts can reach the dashboard that holds the
+    // security panel, so hide the link for everyone else.
+    try {
+      const me = await fetch(`${API_URL}/api/auth/me`, { headers: authHeaders() }).then(r => r.json());
+      const link = document.getElementById('acctMfaLink');
+      if(link) link.style.display = (me.is_author || me.is_developer) ? '' : 'none';
+    } catch(e){}
+
+    // Orders
+    const ordersBox = document.getElementById('acctOrders');
+    try {
+      const res = await fetch(`${API_URL}/api/orders/mine`, { headers: authHeaders() });
+      const orders = await res.json();
+      ordersBox.innerHTML = '';
+      if(!Array.isArray(orders) || !orders.length){
+        ordersBox.innerHTML = '<p class="an-empty">No orders yet.</p>';
+      } else {
+        orders.forEach(o => ordersBox.appendChild(devRow(
+          new Date(o.created_at).toLocaleDateString(),
+          `${money(o.total_cents)} · ${o.status}`
+        )));
+      }
+    } catch(e){ ordersBox.innerHTML = '<p class="an-empty">Could not load your orders.</p>'; }
+  }
+
+  // ---------- Change password from the account page ----------
+  document.getElementById('acctNewPassword')?.addEventListener('input', e => paintMeter('acctMeter', e.target.value));
+
+  document.getElementById('acctPwSave')?.addEventListener('click', async () => {
+    const pw = document.getElementById('acctNewPassword').value;
+    setMsg('acctPwOk', null, false);
+    if(pw.length < MIN_PASSWORD){
+      setMsg('acctPwError', `Your password needs at least ${MIN_PASSWORD} characters.`, true);
+      return;
+    }
+    setMsg('acctPwError', null, false);
+    await withBusy(document.getElementById('acctPwSave'), 'Saving…', async () => {
+      const { error } = await sb.auth.updateUser({ password: pw });
+      if(error){ setMsg('acctPwError', friendlyAuthError(error), true); return; }
+      document.getElementById('acctNewPassword').value = '';
+      paintMeter('acctMeter', '');
+      setMsg('acctPwOk', null, true);
+    });
+  });
+
+  // ---------- Delete account ----------
+  // Kept folded away behind a link. It is available to everyone, as Google Play
+  // requires, but it is not a button anyone hits by accident.
+  document.getElementById('dangerToggle')?.addEventListener('click', () => {
+    const body = document.getElementById('dangerBody');
+    const open = body.classList.toggle('open');
+    document.getElementById('dangerToggle').textContent = open ? 'Cancel' : 'Delete my account';
+  });
+
+  document.getElementById('deleteAccountBtn')?.addEventListener('click', async () => {
+    const typed = document.getElementById('deleteConfirm').value.trim();
+    if(typed !== 'DELETE'){
+      setMsg('deleteError', 'Type DELETE in the box to confirm.', true);
+      return;
+    }
+    if(!confirm('This permanently deletes your account. It cannot be undone. Continue?')) return;
+    setMsg('deleteError', null, false);
+
+    await withBusy(document.getElementById('deleteAccountBtn'), 'Deleting…', async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/auth/account`, {
+          method: 'DELETE',
+          headers: authHeaders(),
+          body: JSON.stringify({ confirm: 'DELETE' })
+        });
+        if(!res.ok){
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.error || 'Could not delete the account.');
+        }
+        alert('Your account has been deleted. Thank you for reading.');
+        await signOutEverywhere();
+      } catch(err){
+        setMsg('deleteError', err.message, true);
+      }
+    });
+  });
+
+  // ================= TWO FACTOR AUTHENTICATION =================
+  let enrollingFactorId = null;
+
+  async function refreshMfaStatus(){
+    const box = document.getElementById('mfaStatus');
+    const enrollBtn = document.getElementById('mfaEnrollBtn');
+    const disableBtn = document.getElementById('mfaDisableBtn');
+    if(!box) return;
+    try {
+      const { data, error } = await sb.auth.mfa.listFactors();
+      if(error) throw error;
+      const verified = (data?.totp || []).filter(f => f.status === 'verified');
+      box.innerHTML = '';
+      if(verified.length){
+        box.appendChild(devRow('Two factor authentication', 'ON', 'ok'));
+        verified.forEach(f => box.appendChild(devRow(f.friendly_name || 'Authenticator app',
+          'added ' + new Date(f.created_at).toLocaleDateString())));
+        enrollBtn.style.display = 'none';
+        disableBtn.style.display = '';
+      } else {
+        box.appendChild(devRow('Two factor authentication', 'OFF', 'bad'));
+        box.appendChild(devRow('Your account is protected by a password only', ''));
+        enrollBtn.style.display = '';
+        disableBtn.style.display = 'none';
+      }
+    } catch(err){
+      box.innerHTML = `<p class="an-empty">Could not read security settings: ${err.message}</p>`;
+    }
+  }
+
+  document.getElementById('mfaEnrollBtn')?.addEventListener('click', async () => {
+    const card = document.getElementById('mfaEnrollCard');
+    setMsg('mfaEnrollError', null, false);
+    await withBusy(document.getElementById('mfaEnrollBtn'), 'Preparing…', async () => {
+      // Clear out any half finished attempt, otherwise Supabase refuses a new
+      // enrollment because an unverified factor is already pending.
+      const { data: existing } = await sb.auth.mfa.listFactors();
+      for(const f of (existing?.totp || []).filter(x => x.status !== 'verified')){
+        await sb.auth.mfa.unenroll({ factorId: f.id });
+      }
+
+      const { data, error } = await sb.auth.mfa.enroll({
+        factorType: 'totp',
+        friendlyName: 'Authenticator ' + new Date().toLocaleDateString()
+      });
+      if(error){ setMsg('mfaEnrollError', error.message, true); return; }
+      enrollingFactorId = data.id;
+      // qr_code comes back as an SVG data URI from Supabase.
+      document.getElementById('mfaQr').innerHTML =
+        `<img src="${data.totp.qr_code}" alt="Two factor setup QR code" width="190" height="190" style="background:#fff; padding:8px; border-radius:8px;">`;
+      document.getElementById('mfaSecret').textContent = data.totp.secret;
+      card.style.display = '';
+      document.getElementById('mfaEnrollCode').value = '';
+      document.getElementById('mfaEnrollCode').focus();
+    });
+  });
+
+  document.getElementById('mfaConfirmBtn')?.addEventListener('click', async () => {
+    const code = document.getElementById('mfaEnrollCode').value.replace(/\D/g, '');
+    if(code.length !== 6){ setMsg('mfaEnrollError', 'Enter the 6 digit code from your authenticator app.', true); return; }
+    if(!enrollingFactorId){ setMsg('mfaEnrollError', 'Start the setup again.', true); return; }
+
+    await withBusy(document.getElementById('mfaConfirmBtn'), 'Checking…', async () => {
+      const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: enrollingFactorId, code });
+      if(error){
+        setMsg('mfaEnrollError', /invalid|expired/i.test(error.message || '')
+          ? 'That code was not accepted. Codes change every 30 seconds, so use the one showing now.'
+          : error.message, true);
+        return;
+      }
+      setMsg('mfaEnrollError', null, false);
+      enrollingFactorId = null;
+      document.getElementById('mfaEnrollCard').style.display = 'none';
+      document.getElementById('mfaEnrollCode').value = '';
+      // The session is upgraded to aal2 by verifying, so refresh the token the
+      // API sees, otherwise the next privileged call would be rejected.
+      const { data: sessionData } = await sb.auth.getSession();
+      currentSession = sessionData.session;
+      showAdminToast('Two factor authentication is on.');
+      refreshMfaStatus();
+    });
+  });
+
+  document.getElementById('mfaCancelEnrollBtn')?.addEventListener('click', async () => {
+    if(enrollingFactorId){
+      await sb.auth.mfa.unenroll({ factorId: enrollingFactorId }).catch(() => {});
+      enrollingFactorId = null;
+    }
+    document.getElementById('mfaEnrollCard').style.display = 'none';
+    setMsg('mfaEnrollError', null, false);
+  });
+
+  document.getElementById('mfaDisableBtn')?.addEventListener('click', async () => {
+    if(!confirm('Turn off two factor authentication? Your account will be protected by a password alone.')) return;
+    try {
+      const { data } = await sb.auth.mfa.listFactors();
+      for(const f of (data?.totp || [])) await sb.auth.mfa.unenroll({ factorId: f.id });
+      showAdminToast('Two factor authentication is off.');
+      refreshMfaStatus();
+    } catch(err){ alert('Could not turn it off: ' + err.message); }
+  });
 
   // ================= DEVELOPER DIAGNOSTICS =================
   function devRow(name, value, state){

@@ -31,7 +31,16 @@ jobs:
           cp frontend/manifest.webmanifest dist/manifest.webmanifest
           cp frontend/sw.js dist/sw.js
           cp -r frontend/icons dist/icons
+          # Standalone legal pages. These must work without JavaScript so a
+          # Play reviewer always reaches them.
+          cp frontend/privacy.html dist/privacy.html
+          cp frontend/account-deletion.html dist/account-deletion.html
+          # Digital Asset Links, which lets the Android app drop the address bar.
+          mkdir -p dist/.well-known
+          cp frontend/.well-known/assetlinks.json dist/.well-known/assetlinks.json
           cp CNAME dist/CNAME
+          # Jekyll would otherwise strip the .well-known directory.
+          touch dist/.nojekyll
           # GitHub Pages serves a 404 for unknown paths; the app is a single page
           # with hash routing, so send everything to the app shell.
           cp frontend/app.html dist/404.html
