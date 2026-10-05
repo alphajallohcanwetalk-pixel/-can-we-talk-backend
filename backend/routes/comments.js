@@ -4,9 +4,24 @@ import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// GET /api/comments/summary?target_type=book&target_id=xxx — average rating + count
-router.get('/summary', async (req, res) => {
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Both read endpoints take these straight from the query string. An invalid
+// UUID reaches Postgres as a cast error and surfaces as a 500, so check first.
+function readTarget(req, res) {
   const { target_type, target_id } = req.query;
+  if (!['book', 'essay'].includes(target_type) || !UUID_RE.test(target_id || '')) {
+    res.status(400).json({ error: 'Valid target_type and target_id are required' });
+    return null;
+  }
+  return { target_type, target_id };
+}
+
+// GET /api/comments/summary?target_type=book&target_id=xxx: average rating + count
+router.get('/summary', async (req, res) => {
+  const target = readTarget(req, res);
+  if (!target) return;
+  const { target_type, target_id } = target;
   const { data, error } = await supabaseAdmin
     .from('comments')
     .select('rating')
@@ -21,7 +36,9 @@ router.get('/summary', async (req, res) => {
 
 // GET /api/comments?target_type=book&target_id=xxx
 router.get('/', async (req, res) => {
-  const { target_type, target_id } = req.query;
+  const target = readTarget(req, res);
+  if (!target) return;
+  const { target_type, target_id } = target;
   const { data, error } = await supabaseAdmin
     .from('comments')
     .select('*, profiles(full_name)')
@@ -32,7 +49,7 @@ router.get('/', async (req, res) => {
   res.json(data);
 });
 
-// POST /api/comments — requires sign-in
+// POST /api/comments: requires sign-in
 router.post('/', requireAuth, async (req, res) => {
   const { target_type, target_id, rating, body } = req.body;
   if (!['book', 'essay'].includes(target_type)) return res.status(400).json({ error: 'Invalid target_type' });

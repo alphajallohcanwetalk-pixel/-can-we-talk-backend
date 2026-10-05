@@ -5,7 +5,7 @@ import { requireAuth, requireAuthor } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// GET /api/audiobook/:bookId/chapters — public: list chapters + whether current user owns each
+// GET /api/audiobook/:bookId/chapters: public: list chapters + whether current user owns each
 router.get('/:bookId/chapters', async (req, res) => {
   const { data: chaptersData, error } = await supabaseAdmin
     .from('audiobook_chapters')
@@ -28,10 +28,16 @@ router.get('/:bookId/chapters', async (req, res) => {
       ownedIds = (purchases || []).map((p) => p.chapter_id);
     }
   }
-  res.json(chaptersData.map((c) => ({ ...c, owned: ownedIds.includes(c.id) })));
+  // audio_url is the paid asset. Never send it to someone who has not bought the
+  // chapter: this endpoint is public, so selecting '*' was handing it out free.
+  res.json(chaptersData.map((c) => {
+    const owned = ownedIds.includes(c.id);
+    const { audio_url, ...safe } = c;
+    return owned ? { ...safe, audio_url, owned } : { ...safe, owned };
+  }));
 });
 
-// POST /api/audiobook/chapters/:chapterId/buy — one-off Stripe Checkout for a single chapter
+// POST /api/audiobook/chapters/:chapterId/buy: one-off Stripe Checkout for a single chapter
 router.post('/chapters/:chapterId/buy', requireAuth, async (req, res) => {
   const { data: chapter } = await supabaseAdmin
     .from('audiobook_chapters')
@@ -40,20 +46,35 @@ router.post('/chapters/:chapterId/buy', requireAuth, async (req, res) => {
     .single();
   if (!chapter) return res.status(404).json({ error: 'Chapter not found' });
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    line_items: [{
-      price_data: { currency: 'usd', product_data: { name: chapter.title }, unit_amount: chapter.price_cents },
-      quantity: 1
-    }],
-    metadata: { chapter_purchase_user_id: req.user.id, chapter_id: chapter.id },
-    success_url: `${process.env.FRONTEND_APP_URL}#book-mrp?chapter_unlocked=1`,
-    cancel_url: `${process.env.FRONTEND_APP_URL}#book-mrp`
-  });
-  res.json({ checkout_url: session.url });
+  // Already bought: send them back instead of charging twice.
+  const { data: owned } = await supabaseAdmin
+    .from('chapter_purchases')
+    .select('chapter_id')
+    .eq('user_id', req.user.id)
+    .eq('chapter_id', chapter.id)
+    .maybeSingle();
+  if (owned) return res.status(409).json({ error: 'You already own this chapter' });
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: [{
+        price_data: { currency: 'usd', product_data: { name: chapter.title }, unit_amount: chapter.price_cents },
+        quantity: 1
+      }],
+      customer_email: req.user.email,
+      metadata: { chapter_purchase_user_id: req.user.id, chapter_id: chapter.id },
+      success_url: `${process.env.FRONTEND_APP_URL}#book-mrp?chapter_unlocked=1`,
+      cancel_url: `${process.env.FRONTEND_APP_URL}#book-mrp`
+    });
+    res.json({ checkout_url: session.url });
+  } catch (error) {
+    console.error('Chapter checkout failed:', JSON.stringify({ type: error.type, code: error.code, message: error.message }));
+    res.status(502).json({ error: 'Payment service unavailable' });
+  }
 });
 
-// GET /api/audiobook/chapters/:chapterId/stream — signed URL, only if owned
+// GET /api/audiobook/chapters/:chapterId/stream: signed URL, only if owned
 router.get('/chapters/:chapterId/stream', requireAuth, async (req, res) => {
   const { data: owns } = await supabaseAdmin
     .from('chapter_purchases')
@@ -72,7 +93,7 @@ router.get('/chapters/:chapterId/stream', requireAuth, async (req, res) => {
   res.json({ audio_url: chapter.audio_url });
 });
 
-// POST /api/audiobook/:bookId/chapters — Author Dashboard: add a narrated chapter
+// POST /api/audiobook/:bookId/chapters: Author Dashboard: add a narrated chapter
 router.post('/:bookId/chapters', requireAuth, requireAuthor, async (req, res) => {
   const { title, duration_seconds, price_cents, audio_url } = req.body;
   const { data, error } = await supabaseAdmin

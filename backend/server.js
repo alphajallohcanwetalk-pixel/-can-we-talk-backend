@@ -15,6 +15,7 @@ import bookclubRoutes from './routes/bookclub.js';
 import audiobookRoutes from './routes/audiobook.js';
 import mediaRoutes from './routes/media.js';
 import settingsRoutes from './routes/settings.js';
+import analyticsRoutes from './routes/analytics.js';
 import webhookRoutes from './routes/webhooks.js';
 
 const app = express();
@@ -75,6 +76,7 @@ app.use('/api/bookclub', bookclubRoutes);
 app.use('/api/audiobook', audiobookRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 app.get('/', (req, res) => res.json({
 	name: 'Can We Talk? API',

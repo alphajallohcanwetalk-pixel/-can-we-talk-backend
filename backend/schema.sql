@@ -1,7 +1,7 @@
 -- ============================================================
--- Can We Talk? (The Misfit Voice) — Database Schema
+-- Can We Talk? (The Misfit Voice), Database Schema
 -- Target: Supabase (Postgres). Run this in the Supabase SQL Editor.
--- Supabase Auth already provides auth.users — we extend it with a profile table.
+-- Supabase Auth already provides auth.users, we extend it with a profile table.
 -- ============================================================
 
 -- ---------- Profiles (extends Supabase auth.users) ----------

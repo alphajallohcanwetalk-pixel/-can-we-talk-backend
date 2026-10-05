@@ -5,7 +5,7 @@ import { sendOrderConfirmationEmail, sendBookClubWelcomeEmail } from '../lib/ema
 
 const router = express.Router();
 
-// IMPORTANT: this route must receive the RAW request body (not JSON-parsed) —
+// IMPORTANT: this route must receive the RAW request body (not JSON-parsed), 
 // see server.js where express.raw() is applied specifically to this path.
 router.post('/stripe', async (req, res) => {
   const sig = req.headers['stripe-signature'];
@@ -39,9 +39,33 @@ router.post('/stripe', async (req, res) => {
         .eq('id', orderId)
         .single();
 
+      // Draw down stock for formats that track it. Formats with a null
+      // stock_count are unlimited and are left alone.
+      for (const item of order?.order_items || []) {
+        const { data: format } = await supabaseAdmin
+          .from('book_formats')
+          .select('id,stock_count')
+          .eq('book_id', item.book_id)
+          .eq('format_name', item.format_name)
+          .maybeSingle();
+        if (format && format.stock_count !== null) {
+          await supabaseAdmin
+            .from('book_formats')
+            .update({ stock_count: Math.max(0, format.stock_count - item.qty) })
+            .eq('id', format.id);
+        }
+      }
+
+      // The order is already paid at this point. If the email provider is down,
+      // that must not turn into a 500: Stripe would retry the webhook, and the
+      // retry would be a no-op anyway because the status is now 'paid'.
       if (order?.profiles?.email) {
-        const items = order.order_items.map((i) => ({ ...i, title: i.books?.title || 'Book' }));
-        await sendOrderConfirmationEmail(order.profiles.email, { ...order, items });
+        try {
+          const items = order.order_items.map((i) => ({ ...i, title: i.books?.title || 'Book' }));
+          await sendOrderConfirmationEmail(order.profiles.email, { ...order, items });
+        } catch (emailError) {
+          console.error(JSON.stringify({ type: 'error', scope: 'order_confirmation_email', order_id: orderId, message: emailError.message }));
+        }
       }
     }
 
@@ -66,7 +90,13 @@ router.post('/stripe', async (req, res) => {
       }, { onConflict: 'stripe_subscription_id', ignoreDuplicates: true });
 
       const { data: profile } = await supabaseAdmin.from('profiles').select('email, full_name').eq('id', userId).single();
-      if (profile && !existingSubscription) await sendBookClubWelcomeEmail(profile.email, profile.full_name, plan);
+      if (profile && !existingSubscription) {
+        try {
+          await sendBookClubWelcomeEmail(profile.email, profile.full_name, plan);
+        } catch (emailError) {
+          console.error(JSON.stringify({ type: 'error', scope: 'bookclub_welcome_email', user_id: userId, message: emailError.message }));
+        }
+      }
     }
 
     if (session.metadata?.chapter_purchase_user_id && session.metadata?.chapter_id) {
@@ -75,6 +105,24 @@ router.post('/stripe', async (req, res) => {
         chapter_id: session.metadata.chapter_id
       }, { onConflict: 'user_id,chapter_id', ignoreDuplicates: true });
       if (purchaseError) return res.status(500).json({ error: 'Could not fulfill chapter purchase' });
+    }
+  }
+
+  // A Checkout session expires when the customer never completes payment
+  // (Stripe expires them after ~24h). Without this, every abandoned cart leaves
+  // a 'pending' order behind forever, which is what made the orders table look
+  // like payments were failing. Scoped to 'pending' so a paid order is never
+  // touched, even if events arrive out of order.
+  if (event.type === 'checkout.session.expired') {
+    const session = event.data.object;
+    const orderId = session.metadata?.order_id;
+    if (orderId) {
+      const { error: cleanupError } = await supabaseAdmin
+        .from('orders')
+        .delete()
+        .eq('id', orderId)
+        .eq('status', 'pending');
+      if (cleanupError) console.error(JSON.stringify({ type: 'error', scope: 'expired_order_cleanup', order_id: orderId, message: cleanupError.message }));
     }
   }
 

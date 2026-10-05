@@ -14,7 +14,7 @@ export async function requireAuth(req, res, next) {
   next();
 }
 
-// Use after requireAuth — only lets Alpha's account through (for the Author Dashboard routes).
+// Use after requireAuth, only lets Alpha's account through (for the Author Dashboard routes).
 export async function requireAuthor(req, res, next) {
   const { data: profile } = await supabaseAdmin
     .from('profiles')

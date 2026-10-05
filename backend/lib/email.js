@@ -3,6 +3,17 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.EMAIL_FROM;
 
+// Names, book titles and essay text are interpolated into HTML below. Escape
+// them so a stray angle bracket cannot break the layout or inject markup.
+const esc = (value) => String(value ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+const firstName = (name) => esc(String(name ?? '').trim().split(' ')[0] || 'there');
+
 const wrapper = (bodyHtml) => `
   <div style="font-family: Georgia, serif; background:#faf8f2; padding:40px 20px;">
     <div style="max-width:520px; margin:0 auto; background:#ffffff; border-radius:8px; overflow:hidden; border:1px solid #e5e2d8;">
@@ -23,10 +34,10 @@ const wrapper = (bodyHtml) => `
 
 export async function sendWelcomeEmail(toEmail, name) {
   const html = wrapper(`
-    <h2 style="margin:0 0 14px;">Welcome, ${name.split(' ')[0]}</h2>
+    <h2 style="margin:0 0 14px;">Welcome, ${firstName(name)}</h2>
     <p style="color:#444; line-height:1.6;">
       Your account is live. You can now comment on books and essays, buy audiobook chapters,
-      and — if you join — read every book online through the AJ Book Club.
+      and, if you join, read every book online through the AJ Book Club.
     </p>
     <p style="color:#444; line-height:1.6;">Question Power. Question Society. Question Yourself.</p>
   `);
@@ -41,7 +52,7 @@ export async function sendWelcomeEmail(toEmail, name) {
 export async function sendOrderConfirmationEmail(toEmail, order) {
   const itemsHtml = order.items.map(
     (i) => `<tr>
-      <td style="padding:8px 0; border-bottom:1px solid #eee;">${i.title} (${i.format_name}${i.signed ? ', signed' : ''}) × ${i.qty}</td>
+      <td style="padding:8px 0; border-bottom:1px solid #eee;">${esc(i.title)} (${esc(i.format_name)}${i.signed ? ', signed' : ''}) × ${Number(i.qty) || 0}</td>
       <td style="padding:8px 0; border-bottom:1px solid #eee; text-align:right;">$${(i.unit_price_cents * i.qty / 100).toFixed(2)}</td>
     </tr>`
   ).join('');
@@ -61,7 +72,7 @@ export async function sendOrderConfirmationEmail(toEmail, order) {
   return resend.emails.send({
     from: FROM,
     to: toEmail,
-    subject: `Order confirmed — #${order.id.slice(0, 8)}`,
+    subject: `Order confirmed: #${order.id.slice(0, 8)}`,
     html
   });
 }

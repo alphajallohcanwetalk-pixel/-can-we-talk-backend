@@ -12,6 +12,19 @@ router.post('/subscribe', requireAuth, async (req, res) => {
   const priceId = plan === 'annual'
     ? process.env.STRIPE_PRICE_BOOKCLUB_ANNUAL
     : process.env.STRIPE_PRICE_BOOKCLUB_MONTHLY;
+  if (!priceId) {
+    console.error(`Book Club price ID missing for plan: ${plan}`);
+    return res.status(503).json({ error: 'Book Club signup is not configured yet' });
+  }
+
+  // Already a member: sending them to Checkout again would bill a second
+  // subscription for the same account.
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('book_club_active')
+    .eq('id', req.user.id)
+    .single();
+  if (profile?.book_club_active) return res.status(409).json({ error: 'You are already a Book Club member' });
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -31,7 +44,7 @@ router.post('/subscribe', requireAuth, async (req, res) => {
   }
 });
 
-// GET /api/bookclub/status — does this user have online-reading access?
+// GET /api/bookclub/status: does this user have online-reading access?
 router.get('/status', requireAuth, async (req, res) => {
   const { data } = await supabaseAdmin
     .from('profiles')
@@ -41,7 +54,7 @@ router.get('/status', requireAuth, async (req, res) => {
   res.json(data || { book_club_active: false });
 });
 
-// GET /api/bookclub/read/:bookId — gated: returns full book text only if subscribed
+// GET /api/bookclub/read/:bookId: gated: returns full book text only if subscribed
 router.get('/read/:bookId', requireAuth, async (req, res) => {
   const { data: profile } = await supabaseAdmin
     .from('profiles')

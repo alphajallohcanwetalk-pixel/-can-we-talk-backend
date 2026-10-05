@@ -5,14 +5,17 @@ import { sendNewEssayAlert } from '../lib/email.js';
 
 const router = express.Router();
 
-// GET /api/essays?search=&category= — powers the Essay Library search/filter
+// GET /api/essays?search=&category=: powers the Essay Library search/filter
 router.get('/', async (req, res) => {
   let query = supabaseAdmin.from('essays').select('id,title,category,year,excerpt,cover_image_url,published,created_at').eq('published', true);
   if (req.query.category && req.query.category !== 'all') {
     query = query.eq('category', req.query.category);
   }
-  if (req.query.search) {
-    query = query.ilike('title', `%${req.query.search}%`);
+  if (typeof req.query.search === 'string' && req.query.search.trim()) {
+    // Strip the characters that carry meaning in a PostgREST filter or in LIKE
+    // itself, so a search term cannot widen the match or break out of the filter.
+    const term = req.query.search.trim().slice(0, 100).replace(/[%_,()\\*]/g, '');
+    if (term) query = query.ilike('title', `%${term}%`);
   }
   const { data, error } = await query.order('year', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
@@ -25,7 +28,7 @@ router.get('/:id', async (req, res) => {
   res.json(data);
 });
 
-// POST /api/essays — Author Dashboard: publish new essay + optionally email subscribers
+// POST /api/essays: Author Dashboard: publish new essay + optionally email subscribers
 router.post('/', requireAuth, requireAuthor, async (req, res) => {
   const { title, category, year, excerpt, full_text, notify_subscribers } = req.body;
   if (typeof title !== 'string' || !title.trim() || typeof excerpt !== 'string' || !excerpt.trim()) return res.status(400).json({ error: 'Title and excerpt are required' });
@@ -50,7 +53,7 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
   res.status(201).json(essay);
 });
 
-// PUT /api/essays/:id — Author Dashboard: edit an existing essay
+// PUT /api/essays/:id: Author Dashboard: edit an existing essay
 router.put('/:id', requireAuth, requireAuthor, async (req, res) => {
   const { title, category, year, excerpt, full_text, cover_image_url } = req.body;
   const { data, error } = await supabaseAdmin

@@ -4,7 +4,7 @@ import { requireAuth, requireAuthor } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// GET /api/books — public, powers the homepage grid
+// GET /api/books: public, powers the homepage grid
 router.get('/', async (req, res) => {
   const { data, error } = await supabaseAdmin
     .from('books')
@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
   res.json(data);
 });
 
-// GET /api/books/:id — single book detail
+// GET /api/books/:id: single book detail
 router.get('/:id', async (req, res) => {
   const { data, error } = await supabaseAdmin
     .from('books')
@@ -32,7 +32,7 @@ router.get('/:id/manage', requireAuth, requireAuthor, async (req, res) => {
   res.json(data);
 });
 
-// POST /api/books — Author Dashboard: add a new book
+// POST /api/books: Author Dashboard: add a new book
 router.post('/', requireAuth, requireAuthor, async (req, res) => {
   const { title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text, formats } = req.body;
   if (typeof title !== 'string' || !title.trim() || typeof description !== 'string' || !description.trim()) return res.status(400).json({ error: 'Title and description are required' });
@@ -52,15 +52,28 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
   res.status(201).json(book);
 });
 
-// PUT /api/books/:id — edit
+// PUT /api/books/:id: edit
+const BOOK_FIELDS = ['title', 'subtitle', 'description', 'cover_style', 'cover_image_url',
+  'back_cover_url', 'gallery_urls', 'reader_full_text', 'is_active'];
+
 router.put('/:id', requireAuth, requireAuthor, async (req, res) => {
-  const { price, ...bookFields } = req.body;
-  const { data, error } = await supabaseAdmin
-    .from('books')
-    .update(bookFields)
-    .eq('id', req.params.id)
-    .select()
-    .single();
+  const { price } = req.body;
+  // Only the known columns are forwarded. Spreading the body let an unexpected
+  // key through to the update and failed the whole request on a typo.
+  const bookFields = {};
+  for (const field of BOOK_FIELDS) {
+    if (req.body[field] !== undefined) bookFields[field] = req.body[field];
+  }
+  if (!Object.keys(bookFields).length && price === undefined) {
+    return res.status(400).json({ error: 'No book fields to update' });
+  }
+
+  // A price-only edit has no book columns to write, and an empty update is an
+  // error, so just read the row back in that case.
+  const query = Object.keys(bookFields).length
+    ? supabaseAdmin.from('books').update(bookFields).eq('id', req.params.id).select().single()
+    : supabaseAdmin.from('books').select().eq('id', req.params.id).single();
+  const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
 
   if (price !== undefined) {
@@ -93,7 +106,7 @@ router.put('/:id', requireAuth, requireAuthor, async (req, res) => {
   res.json(data);
 });
 
-// POST /api/books/:id/formats — add a new format (e.g. Hardcover) to a book
+// POST /api/books/:id/formats: add a new format (e.g. Hardcover) to a book
 router.post('/:id/formats', requireAuth, requireAuthor, async (req, res) => {
   const { format_name, price_cents } = req.body;
   const { data, error } = await supabaseAdmin
@@ -105,7 +118,7 @@ router.post('/:id/formats', requireAuth, requireAuthor, async (req, res) => {
   res.status(201).json(data);
 });
 
-// PUT /api/books/formats/:formatId — edit a format's name/price/availability
+// PUT /api/books/formats/:formatId: edit a format's name/price/availability
 router.put('/formats/:formatId', requireAuth, requireAuthor, async (req, res) => {
   const { format_name, price_cents, is_offered } = req.body;
   const { data, error } = await supabaseAdmin
@@ -122,7 +135,7 @@ router.put('/formats/:formatId', requireAuth, requireAuthor, async (req, res) =>
 router.delete('/formats/:formatId', requireAuth, requireAuthor, async (req, res) => {
   const { error } = await supabaseAdmin.from('book_formats').delete().eq('id', req.params.formatId);
   if (error) {
-    // Past orders reference this exact format — can't delete without breaking their
+    // Past orders reference this exact format, can't delete without breaking their
     // history, so hide it from sale instead.
     if (error.code === '23503') {
       const { error: updateError } = await supabaseAdmin
@@ -142,7 +155,7 @@ router.delete('/:id', requireAuth, requireAuthor, async (req, res) => {
   const { error } = await supabaseAdmin.from('books').delete().eq('id', req.params.id);
 
   if (error) {
-    // Foreign key violation (code 23503) means this book has real orders attached —
+    // Foreign key violation (code 23503) means this book has real orders attached, 
     // deleting it would corrupt those order records. Unpublish it instead: it disappears
     // from the store immediately, but order history stays intact.
     if (error.code === '23503') {

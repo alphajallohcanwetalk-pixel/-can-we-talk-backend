@@ -100,7 +100,7 @@ router.get('/confirmation/:id', requireAuth, async (req, res) => {
   res.json({ order: data, confirmed: data.status === 'paid' || data.status === 'shipped' });
 });
 
-// GET /api/orders/mine — order history for the signed-in user
+// GET /api/orders/mine: order history for the signed-in user
 router.get('/mine', requireAuth, async (req, res) => {
   const { data, error } = await supabaseAdmin
     .from('orders')

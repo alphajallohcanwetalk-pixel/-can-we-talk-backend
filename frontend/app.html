@@ -3,12 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Can We Talk? (The Misfit Voice) — Alpha Amadu Jalloh</title>
-<meta name="description" content="Books, essays and reflections from Alpha Amadu Jalloh — Sierra Leonean author, columnist, human rights advocate and peacebuilder. Question Power. Question Society. Question Yourself.">
-<meta property="og:title" content="Can We Talk? (The Misfit Voice) — Alpha Amadu Jalloh">
+<title>Can We Talk? (The Misfit Voice) | Alpha Amadu Jalloh</title>
+<meta name="description" content="Books, essays and reflections from Alpha Amadu Jalloh, Sierra Leonean author, columnist, human rights advocate and peacebuilder. Question Power. Question Society. Question Yourself.">
+<meta property="og:title" content="Can We Talk? (The Misfit Voice) | Alpha Amadu Jalloh">
 <meta property="og:description" content="Books, essays and reflections on leadership, justice, Africa and society from Alpha Amadu Jalloh.">
 <meta property="og:type" content="website">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='33.3' fill='%231eb53a'/%3E%3Crect y='33.3' width='100' height='33.3' fill='%23ffffff'/%3E%3Crect y='66.6' width='100' height='33.4' fill='%230072c6'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0c3d22">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Can We Talk?">
+<meta name="application-name" content="Can We Talk?">
+<!-- Cover images and the auth SDK come from these origins; open the connections early. -->
+<link rel="preconnect" href="https://ppojnjgzrolzjmtblgwf.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="https://ppojnjgzrolzjmtblgwf.supabase.co">
+<link rel="preconnect" href="https://can-we-talk-backend.onrender.com" crossorigin>
+<link rel="dns-prefetch" href="https://can-we-talk-backend.onrender.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -208,12 +222,28 @@
   .press-row .headline{color:var(--ink-soft); margin-top:4px; font-size:0.85rem;}
   .press-row a{font-size:0.82rem; font-weight:600; color:var(--sl-green-deep); white-space:nowrap;}
   .cross-sell{background:var(--paper-dim); padding:70px 0;}
-  .cross-card{display:flex; gap:24px; align-items:center; border:1px solid var(--line); border-radius:8px; padding:24px; background:var(--paper); max-width:700px; flex-wrap:wrap;}
-  .cross-cover{width:110px; aspect-ratio:3/4; border-radius:4px; flex-shrink:0;}
-  .cross-cover.c1{background:linear-gradient(155deg, var(--sl-green-deep), var(--sl-blue-deep));}
+  .cross-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:22px;}
+  .cross-card{display:flex; gap:20px; align-items:center; border:1px solid var(--line); border-radius:10px; padding:20px; background:var(--paper);
+    transition:transform .25s cubic-bezier(.2,.7,.3,1), box-shadow .25s; will-change:transform;}
+  .cross-card:hover{transform:translateY(-4px); box-shadow:0 14px 34px rgba(12,61,34,0.13);}
+  .cross-cover{width:96px; aspect-ratio:3/4; border-radius:5px; flex-shrink:0; overflow:hidden; position:relative;
+    background:linear-gradient(155deg, var(--sl-green-deep), var(--sl-blue-deep));}
   .cross-cover.c2{background:linear-gradient(155deg, #0c3d22, #6b2b12);}
-  .cross-card h3{font-size:1.2rem;} .cross-card p{color:var(--ink-soft); font-size:0.88rem; margin-top:6px;}
-  .cross-card a{display:inline-block; margin-top:12px; font-weight:600; font-size:0.85rem; color:var(--sl-green-deep);}
+  .cross-cover img{width:100%; height:100%; object-fit:cover; display:block; opacity:0; transition:opacity .35s ease;}
+  .cross-cover img.loaded{opacity:1;}
+  .cross-card .cc-body{min-width:0;}
+  .cross-card h3{font-size:1.05rem; line-height:1.3;}
+  .cross-card p{color:var(--ink-soft); font-size:0.84rem; margin-top:6px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+  .cross-card a{display:inline-block; margin-top:12px; font-weight:600; font-size:0.85rem; color:var(--sl-green-deep); cursor:pointer;}
+  .cross-card a:hover{text-decoration:underline;}
+  .cross-empty{color:var(--ink-soft); font-size:0.9rem;}
+
+  /* Shared cover-image loading treatment: a quiet shimmer instead of a blank box. */
+  .img-skeleton{position:relative; overflow:hidden;}
+  .img-skeleton::after{content:''; position:absolute; inset:0; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+    transform:translateX(-100%); animation:shimmer 1.4s infinite;}
+  .img-skeleton.is-loaded::after{display:none; animation:none;}
+  @keyframes shimmer{100%{transform:translateX(100%);}}
 
   /* ================= ESSAY LIBRARY VIEW ================= */
   .lib-hero{padding:64px 0 40px; background:var(--sl-green-deep); color:#fff;}
@@ -404,6 +434,69 @@
   .reader-page-num{text-align:center; margin-top:30px; font-size:0.8rem; color:#8b8367; font-family:'IBM Plex Mono',monospace;}
   .essay-page{width:100%; aspect-ratio:210/297; min-height:900px; overflow:hidden; box-sizing:border-box; padding:60px 56px; background-color:#fffdf6; background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 33px, rgba(126,111,77,0.11) 34px, transparent 35px); border:1px solid #e7e0d2; border-radius:4px; box-shadow:0 18px 45px rgba(0,0,0,0.06);}
   .reader-nav{display:flex; justify-content:space-between; max-width:680px; margin:0 auto; padding:0 4px;}
+
+  /* ---------- Book reader: an open spread with real page turns ---------- */
+  .book-stage{perspective:2600px; perspective-origin:50% 42%; margin:44px auto 0; max-width:1180px; padding:0 18px;}
+  .book-spread{position:relative; display:flex; margin:0 auto; max-width:1120px; transform-style:preserve-3d;
+    filter:drop-shadow(0 26px 46px rgba(40,30,10,0.22));}
+  .book-page{position:relative; width:50%; aspect-ratio:210/297; box-sizing:border-box; padding:54px 48px 44px;
+    background-color:#fffdf6;
+    background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 33px, rgba(126,111,77,0.11) 34px, transparent 35px);
+    overflow:hidden; user-select:none; -webkit-user-select:none;}
+  .book-page.left{border-radius:5px 0 0 5px; box-shadow:inset -22px 0 30px -24px rgba(60,44,16,0.55);}
+  .book-page.right{border-radius:0 5px 5px 0; box-shadow:inset 22px 0 30px -24px rgba(60,44,16,0.55);}
+  .book-page p{font-family:'Fraunces',serif; font-size:1.06rem; line-height:1.85; color:#241d10; margin-bottom:20px;}
+  .book-page .bp-num{position:absolute; bottom:18px; left:0; right:0; text-align:center; font-size:0.72rem;
+    color:#9a9078; font-family:'IBM Plex Mono',monospace;}
+  .book-spine{position:absolute; left:50%; top:0; bottom:0; width:26px; transform:translateX(-50%); pointer-events:none;
+    background:linear-gradient(to right, rgba(74,55,20,0.02), rgba(74,55,20,0.17), rgba(74,55,20,0.30), rgba(74,55,20,0.17), rgba(74,55,20,0.02));}
+
+  /* The turning leaf: front face is the page leaving, back face is the one arriving. */
+  .book-flipper{position:absolute; top:0; width:50%; height:100%;
+    transform-style:preserve-3d; transition:transform .78s cubic-bezier(.46,.03,.52,.96); z-index:5; pointer-events:none;
+    transform:rotateY(0deg); display:none;}
+  .book-flipper.turning{display:block;}
+  /* Forward: the right leaf lifts at the spine and swings left. */
+  .book-flipper.fwd{right:0; left:auto; transform-origin:left center;}
+  .book-flipper.fwd.go{transform:rotateY(-178deg);}
+  /* Backward: the left leaf lifts at the spine and swings right. */
+  .book-flipper.bwd{left:0; right:auto; transform-origin:right center;}
+  .book-flipper.bwd.go{transform:rotateY(178deg);}
+  .book-flipper .leaf{position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+    box-sizing:border-box; padding:54px 48px 44px; overflow:hidden; background-color:#fffdf6;
+    background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 33px, rgba(126,111,77,0.11) 34px, transparent 35px);}
+  .book-flipper .leaf.front{border-radius:0 5px 5px 0; box-shadow:inset 22px 0 30px -24px rgba(60,44,16,0.55);}
+  .book-flipper .leaf.back{transform:rotateY(180deg); border-radius:5px 0 0 5px; box-shadow:inset -22px 0 30px -24px rgba(60,44,16,0.55);}
+  .book-flipper .leaf p{font-family:'Fraunces',serif; font-size:1.06rem; line-height:1.85; color:#241d10; margin-bottom:20px;}
+
+  .book-progress{max-width:1120px; margin:26px auto 0; padding:0 18px;}
+  .book-progress .bp-track{height:5px; background:rgba(60,44,16,0.12); border-radius:3px; overflow:hidden;}
+  .book-progress .bp-fill{height:100%; width:0; border-radius:3px; background:linear-gradient(90deg, var(--sl-green), var(--sl-green-bright));
+    transition:width .4s ease;}
+  .book-progress .bp-meta{display:flex; justify-content:space-between; font-size:0.76rem; color:#8b8367;
+    font-family:'IBM Plex Mono',monospace; margin-top:9px;}
+  .book-controls{display:flex; justify-content:center; align-items:center; gap:14px; margin:22px auto 0;}
+  .book-controls button{background:var(--paper); border:1px solid #d9d2c0; color:var(--ink); padding:10px 20px; border-radius:5px;
+    cursor:pointer; font-size:0.85rem; font-weight:600; transition:transform .18s, background .18s, box-shadow .18s;}
+  .book-controls button:hover:not(:disabled){transform:translateY(-2px); background:#fff; box-shadow:0 8px 20px rgba(60,44,16,0.14);}
+  .book-controls button:disabled{opacity:0.38; cursor:not-allowed;}
+  .book-hint{text-align:center; font-size:0.75rem; color:#9a9078; margin-top:14px;}
+
+  @media(max-width:860px){
+    /* One leaf at a time on phones: a two-page spread is unreadable at this width. */
+    .book-stage{perspective:1600px; padding:0 12px;}
+    .book-page.left{display:none;}
+    .book-page.right{width:100%; border-radius:5px; box-shadow:none;}
+    .book-spine{display:none;}
+    .book-flipper{width:100%;}
+    .book-flipper .leaf.front{border-radius:5px; box-shadow:none;}
+    .book-flipper .leaf.back{border-radius:5px; box-shadow:none;}
+    .book-page{padding:34px 24px 38px;}
+    .book-flipper .leaf{padding:34px 24px 38px;}
+  }
+  @media(prefers-reduced-motion: reduce){
+    .book-flipper{transition:none !important;}
+  }
   .reader-locked{max-width:520px; margin:80px auto; text-align:center;}
   .screenshot-warning{display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); color:#fff; z-index:600; align-items:center; justify-content:center; text-align:center; padding:30px; flex-direction:column; gap:16px;}
   .screenshot-warning.show{display:flex;}
@@ -491,6 +584,69 @@
     .contact-layout{grid-template-columns:1fr;}
     .reader-page-wrap,.essay-page{min-height:560px; padding:38px 28px;}
   }
+  /* ---------- Author analytics ---------- */
+  .an-head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;}
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:14px;}
+  .stat-card{border:1px solid var(--line); border-radius:10px; padding:16px 18px; background:var(--paper);
+    transition:transform .2s cubic-bezier(.2,.7,.3,1), box-shadow .2s;}
+  .stat-card:hover{transform:translateY(-3px); box-shadow:0 10px 26px rgba(12,61,34,0.1);}
+  .stat-card .sv{font-family:'Fraunces',serif; font-size:1.65rem; line-height:1.15; color:var(--sl-green-deep);}
+  .stat-card .sl{font-size:0.74rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); margin-top:6px;}
+  .stat-card .sh{font-size:0.76rem; color:var(--ink-soft); margin-top:8px;}
+  .an-cols{display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:18px;}
+  .an-card{border:1px solid var(--line); border-radius:10px; padding:18px 20px; background:var(--paper);}
+  .an-card h4{font-size:0.82rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); margin-bottom:14px;}
+  .an-list{display:flex; flex-direction:column; gap:9px; font-size:0.86rem;}
+  .an-row{display:flex; justify-content:space-between; gap:12px; align-items:baseline; padding-bottom:8px; border-bottom:1px solid var(--line);}
+  .an-row:last-child{border-bottom:none; padding-bottom:0;}
+  .an-row .ar-name{color:var(--ink); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .an-row .ar-val{color:var(--sl-green-deep); font-weight:600; white-space:nowrap;}
+  .an-row .ar-sub{color:var(--ink-soft); font-size:0.78rem;}
+  .an-empty{color:var(--ink-soft); font-size:0.85rem; font-style:italic;}
+  .bar-chart{display:flex; flex-direction:column; gap:10px;}
+  .bar-row{display:grid; grid-template-columns:76px 1fr auto; gap:10px; align-items:center; font-size:0.8rem;}
+  .bar-track{background:var(--paper-dim); border-radius:4px; height:16px; overflow:hidden;}
+  .bar-fill{height:100%; background:linear-gradient(90deg, var(--sl-green), var(--sl-green-bright)); border-radius:4px;
+    width:0; transition:width .7s cubic-bezier(.2,.7,.3,1);}
+  .bar-row .bl{color:var(--ink-soft);} .bar-row .bv{color:var(--sl-green-deep); font-weight:600;}
+  .an-flag{color:#b3261e;}
+
+  /* ---------- Install the app (PWA) ---------- */
+  .install-band{background:var(--sl-green-deep); color:#fff; padding:56px 0;}
+  .install-band .wrap{display:flex; align-items:center; gap:34px; flex-wrap:wrap; justify-content:space-between;}
+  .install-copy{flex:1 1 380px;}
+  .install-band h2{font-family:'Fraunces',serif; font-size:clamp(1.5rem,3vw,2.1rem); margin:10px 0 12px; color:#fff;}
+  .install-band p{color:rgba(255,255,255,0.78); max-width:56ch; font-size:0.95rem; line-height:1.65;}
+  .install-band .eyebrow{color:var(--sl-green-bright);}
+  .install-actions{display:flex; gap:12px; flex-wrap:wrap; margin-top:22px;}
+  .install-mark{flex:0 0 auto; display:flex; align-items:center; gap:18px;}
+  .install-mark img{width:92px; height:92px; border-radius:20px; box-shadow:0 14px 34px rgba(0,0,0,0.3);}
+  .install-mark .im-meta{font-size:0.8rem; color:rgba(255,255,255,0.7); line-height:1.6;}
+  .install-mark .im-meta strong{display:block; color:#fff; font-size:0.95rem; margin-bottom:3px;}
+
+  #installBanner{position:fixed; left:16px; right:16px; bottom:16px; z-index:4000; display:none;
+    background:#fff; color:var(--ink); border:1px solid var(--line); border-radius:12px;
+    box-shadow:0 18px 46px rgba(12,61,34,0.26); padding:14px 16px; gap:14px; align-items:center;
+    max-width:560px; margin:0 auto;}
+  #installBanner.show{display:flex;}
+  #installBanner img{width:46px; height:46px; border-radius:11px; flex:0 0 auto;}
+  #installBanner .ib-text{flex:1; min-width:0;}
+  #installBanner .ib-text strong{display:block; font-size:0.92rem;}
+  #installBanner .ib-text span{font-size:0.8rem; color:var(--ink-soft);}
+  #installBanner .ib-actions{display:flex; gap:8px; align-items:center; flex:0 0 auto;}
+  #installDismiss{background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:1.25rem; line-height:1; padding:4px 6px;}
+
+  #iosInstallSheet{position:fixed; inset:0; z-index:5000; display:none; align-items:flex-end; justify-content:center; background:rgba(12,25,15,0.5);}
+  #iosInstallSheet.show{display:flex;}
+  #iosInstallSheet .ios-card{background:#fff; border-radius:14px 14px 0 0; padding:26px 22px 30px; max-width:520px; width:100%;}
+  #iosInstallSheet h3{font-family:'Fraunces',serif; font-size:1.2rem; margin-bottom:6px;}
+  #iosInstallSheet ol{margin:16px 0 0 18px; color:var(--ink-soft); font-size:0.9rem; line-height:1.9;}
+  @media(max-width:700px){
+    .install-band{padding:42px 0;}
+    .install-mark{order:-1;}
+    #installBanner{flex-wrap:wrap;}
+    #installBanner .ib-actions{width:100%; justify-content:flex-end;}
+  }
 </style>
 </head>
 <body>
@@ -525,6 +681,7 @@
     <a class="nav-link" data-view="speaking">Speaking</a>
     <a class="nav-link" data-view="about">About Alpha</a>
     <a class="nav-link" data-view="contact">Contact</a>
+    <a data-install-app>Get the App</a>
     <a id="signInBtnMobile">Sign In / Sign Up</a>
   </div>
 </header>
@@ -561,6 +718,7 @@
         <a class="btn btn-primary nav-link" data-view="book-mrp">Explore My Books</a>
         <a class="btn btn-ghost nav-link" data-view="essays">Read My Essays</a>
         <a class="btn btn-ghost nav-link" data-view="misfit">Enter The Misfit Voice</a>
+        <button class="btn btn-ghost" data-install-app>Get the App</button>
       </div>
       <div class="hero-name">ALPHA AMADU JALLOH</div>
       <div class="hero-role">Author · Columnist · Human Rights Advocate · Peacebuilder · Public Commentator</div>
@@ -574,9 +732,30 @@
       <div class="section-head">
         <span class="eyebrow">Books &amp; Writings</span>
         <h2>Not one book. A body of work.</h2>
-        <p>Alpha Amadu Jalloh is presented here as a writer whose work spans books, essays, editorials and public commentary — on leadership, justice, inequality and the African experience.</p>
+        <p>Alpha Amadu Jalloh is presented here as a writer whose work spans books, essays, editorials and public commentary on leadership, justice, inequality and the African experience.</p>
       </div>
       <div class="book-grid" id="homeBookGrid"></div>
+    </div>
+  </section>
+
+  <section class="install-band" id="getTheApp">
+    <div class="wrap">
+      <div class="install-copy">
+        <span class="eyebrow">Read Anywhere</span>
+        <h2>Install Can We Talk? on your device</h2>
+        <p>Add the app to your home screen for a full screen reading experience, faster loading and offline access to pages you have already opened. No app store, no download size, no account needed to install.</p>
+        <div class="install-actions">
+          <button class="btn btn-primary" data-install-app>Install the App</button>
+          <a class="btn btn-ghost nav-link" data-view="books-catalog">Browse Books First</a>
+        </div>
+      </div>
+      <div class="install-mark">
+        <img src="icons/icon-192.png" alt="Can We Talk? app icon" width="92" height="92">
+        <div class="im-meta">
+          <strong>Can We Talk?</strong>
+          The Misfit Voice<br>Works on Android, iPhone and desktop
+        </div>
+      </div>
     </div>
   </section>
 
@@ -585,7 +764,7 @@
       <div class="section-head">
         <span class="eyebrow">From The Misfit Voice</span>
         <h2>Selected essays &amp; reflections</h2>
-        <p>Signature writings from the Essay Library — philosophical, political, social and deeply personal.</p>
+        <p>Signature writings from the Essay Library: philosophical, political, social and deeply personal.</p>
       </div>
       <div class="writings-grid">
         <article class="writing-card">
@@ -597,13 +776,13 @@
         <article class="writing-card">
           <span class="tag">Human Relationships</span>
           <h3>Everyone Is a Relative</h3>
-          <p>A move beyond politics into humanity — the connections, morality and dignity that bind ordinary people together.</p>
+          <p>A move beyond politics into humanity: the connections, morality and dignity that bind ordinary people together.</p>
           <a class="read-more nav-link" data-view="essays">Read More <span>→</span></a>
         </article>
         <article class="writing-card">
           <span class="tag">Democracy &amp; Governance</span>
           <h3>Mr. President, Can We Talk?</h3>
-          <p>Why questioning leadership is not hostility, but citizenship — and why democracy cannot flourish on listening alone.</p>
+          <p>Why questioning leadership is not hostility, but citizenship, and why democracy cannot flourish on listening alone.</p>
           <a class="read-more nav-link" data-view="book-mrp">Read More <span>→</span></a>
         </article>
       </div>
@@ -615,7 +794,7 @@
       <div class="section-head">
         <span class="eyebrow">A Growing Library</span>
         <h2>Search the Essay Library</h2>
-        <p>Every essay and editorial, preserved in one place — searchable by title, subject or year.</p>
+        <p>Every essay and editorial, preserved in one place, searchable by title, subject or year.</p>
       </div>
       <div class="categories">
         <span class="chip">Leadership and Power</span><span class="chip">Sierra Leone</span><span class="chip">Africa</span>
@@ -633,7 +812,7 @@
   <section class="about-writing pad" id="view-home-misfit-anchor">
     <div class="wrap">
       <blockquote>"I write about power, but I also write about people. I write about politics, but I also write about life. Some of these writings challenge authority. Others challenge society. Some challenge the reader. And sometimes, they challenge me."</blockquote>
-      <div class="attribution">— On The Misfit Voice</div>
+      <div class="attribution">On The Misfit Voice</div>
     </div>
   </section>
 
@@ -646,9 +825,9 @@
         <h2>One identity, many forms</h2>
       </div>
       <div class="identity-grid">
-        <div class="identity-item"><h3>Mr. President, Can We Talk?</h3><p>His conversation with power — leadership, democracy and the citizen's right to question.</p></div>
-        <div class="identity-item"><h3>Monopoly of Happiness</h3><p>His examination of inequality and society — who prospers, and who is left outside.</p></div>
-        <div class="identity-item"><h3>The Misfit Essays</h3><p>The philosophical, personal and human dimensions of his writing — on relationships, dignity and belonging.</p></div>
+        <div class="identity-item"><h3>Mr. President, Can We Talk?</h3><p>His conversation with power: leadership, democracy and the citizen's right to question.</p></div>
+        <div class="identity-item"><h3>Monopoly of Happiness</h3><p>His examination of inequality and society: who prospers, and who is left outside.</p></div>
+        <div class="identity-item"><h3>The Misfit Essays</h3><p>The philosophical, personal and human dimensions of his writing on relationships, dignity and belonging.</p></div>
       </div>
       <div class="identity-close">Question Power. Question Society. Question Yourself.<br><span class="misfit">Keep the Conversation Alive.</span></div>
     </div>
@@ -677,7 +856,7 @@
         <h1>Mr. President, Can We Talk?</h1>
         <div class="subtitle">A Citizen's Conversation with Power</div>
         <div class="stars" id="mrp-rating-display"><span class="icons">☆☆☆☆☆</span><span class="count">No ratings yet</span></div>
-        <p class="lede">A direct conversation between the citizen and those entrusted with political authority — examining leadership, democracy, accountability and the right of ordinary people to question those who govern them.</p>
+        <p class="lede">A direct conversation between the citizen and those entrusted with political authority, examining leadership, democracy, accountability and the right of ordinary people to question those who govern them.</p>
         <div class="launch-strip"><strong>Launched in Nairobi, Kenya</strong> on 7 August 2026, officiated by renowned African scholar <strong>Professor P. L. O. Lumumba</strong>.</div>
         <div class="info-tabs">
           <a href="#mrp-description">Description</a><a href="#mrp-audiobook">Audiobook</a><a href="#mrp-reviews">Reviews</a><a href="#mrp-comments">Comments</a><a href="#mrp-gallery">Launch Gallery</a><a href="#mrp-press">Media Coverage</a>
@@ -685,7 +864,7 @@
       </div>
       <div class="buy-box" data-book-id="mrp" data-book-title="Mr. President, Can We Talk?" data-cover="c1">
         <div class="price-row"><span class="price">$24.99</span><span class="price-was">$32.00</span></div>
-        <div class="stock">In stock — ships within 2 business days</div>
+        <div class="stock">In stock. Ships within 2 business days</div>
         <div class="format-select">
           <div class="label">Format</div>
           <div class="format-options" data-group="mrp">
@@ -714,14 +893,14 @@
 
   <section class="detail" id="mrp-reviews">
     <div class="wrap">
-      <div class="section-head"><span class="eyebrow">Endorsements</span><h2>What readers &amp; reviewers are saying</h2><p>Placeholder endorsements — swap in real quotes from Alpha's reviewers.</p></div>
+      <div class="section-head"><span class="eyebrow">Endorsements</span><h2>What readers &amp; reviewers are saying</h2><p>Placeholder endorsements. Swap in real quotes from Alpha's reviewers.</p></div>
       <div class="endorsement-grid">
-        <div class="endorsement"><div class="quote">A fearless, necessary book. Jalloh writes with the clarity of someone who refuses to be silent.</div><div class="who">Reviewer Name <span>— Publication / Title</span></div></div>
-        <div class="endorsement"><div class="quote">This is what citizen journalism and public accountability should sound like across Africa.</div><div class="who">Reviewer Name <span>— Publication / Title</span></div></div>
+        <div class="endorsement"><div class="quote">A fearless, necessary book. Jalloh writes with the clarity of someone who refuses to be silent.</div><div class="who">Reviewer Name <span>, Publication / Title</span></div></div>
+        <div class="endorsement"><div class="quote">This is what citizen journalism and public accountability should sound like across Africa.</div><div class="who">Reviewer Name <span>, Publication / Title</span></div></div>
       </div>
       <div style="margin-top:50px;">
-        <div class="review"><div class="review-head"><span class="review-stars">★★★★★</span><span class="review-name">Reader Name</span><span class="review-date">August 2026</span></div><p>Placeholder reader review — real verified-purchase reviews populate here once the store is live.</p></div>
-        <div class="review"><div class="review-head"><span class="review-stars">★★★★★</span><span class="review-name">Reader Name</span><span class="review-date">August 2026</span></div><p>Placeholder reader review — real verified-purchase reviews populate here once the store is live.</p></div>
+        <div class="review"><div class="review-head"><span class="review-stars">★★★★★</span><span class="review-name">Reader Name</span><span class="review-date">August 2026</span></div><p>Placeholder reader review. Real verified purchase reviews populate here once the store is live.</p></div>
+        <div class="review"><div class="review-head"><span class="review-stars">★★★★★</span><span class="review-name">Reader Name</span><span class="review-date">August 2026</span></div><p>Placeholder reader review. Real verified purchase reviews populate here once the store is live.</p></div>
       </div>
     </div>
   </section>
@@ -740,7 +919,7 @@
 
   <section class="detail comments-section" id="mrp-comments">
     <div class="wrap">
-      <div class="section-head"><span class="eyebrow">Reader Comments</span><h2>Join the conversation</h2><p>Rate the book and share your thoughts — visible to every future reader.</p></div>
+      <div class="section-head"><span class="eyebrow">Reader Comments</span><h2>Join the conversation</h2><p>Rate the book and share your thoughts, visible to every future reader.</p></div>
       <div id="mrp-signin-prompt" class="signin-prompt">Please <a data-open-auth>sign in or create an account</a> to rate this book and leave a comment.</div>
       <form class="comment-form" id="mrp-comment-form" style="display:none;">
         <div>
@@ -774,11 +953,8 @@
 
   <section class="cross-sell">
     <div class="wrap">
-      <div class="section-head" style="margin-bottom:30px;"><span class="eyebrow">You Might Also Like</span><h2>His earlier work</h2></div>
-      <div class="cross-card">
-        <div class="cross-cover c2"></div>
-        <div><h3>Monopoly of Happiness</h3><p>Unveiling Sierra Leone's Social Imbalance — inequality, opportunity and who gets left outside.</p><a class="nav-link" data-view="book-mono">View Book →</a></div>
-      </div>
+      <div class="section-head" style="margin-bottom:30px;"><span class="eyebrow">You Might Also Like</span><h2>More from Alpha Amadu Jalloh</h2></div>
+      <div class="cross-grid" id="mrp-cross"></div>
     </div>
   </section>
 </div>
@@ -804,13 +980,13 @@
         <h1>Monopoly of Happiness</h1>
         <div class="subtitle">Unveiling Sierra Leone's Social Imbalance</div>
         <div class="stars" id="mono-rating-display"><span class="icons">☆☆☆☆☆</span><span class="count">No ratings yet</span></div>
-        <p class="lede">An earlier, foundational work examining inequality and the social imbalances that determine who enjoys opportunity, influence, recognition and prosperity — and who remains outside the circles where privilege is concentrated.</p>
-        <div class="launch-strip">An important earlier work — read alongside <a class="nav-link" data-view="book-mrp" style="color:var(--sl-blue-deep); font-weight:600;">Mr. President, Can We Talk?</a> for the fuller picture of his thinking.</div>
+        <p class="lede">An earlier, foundational work examining inequality and the social imbalances that determine who enjoys opportunity, influence, recognition and prosperity, and who remains outside the circles where privilege is concentrated.</p>
+        <div class="launch-strip">An important earlier work. Read alongside <a class="nav-link" data-view="book-mrp" style="color:var(--sl-blue-deep); font-weight:600;">Mr. President, Can We Talk?</a> for the fuller picture of his thinking.</div>
         <div class="info-tabs"><a href="#mono-description">Description</a><a href="#mono-audiobook">Audiobook</a><a href="#mono-reviews">Reviews</a><a href="#mono-comments">Comments</a><a href="#mono-gallery">Gallery</a><a href="#mono-press">Media Coverage</a></div>
       </div>
       <div class="buy-box" data-book-id="mono" data-book-title="Monopoly of Happiness" data-cover="c2">
         <div class="price-row"><span class="price">$19.99</span></div>
-        <div class="stock">In stock — ships within 2 business days</div>
+        <div class="stock">In stock. Ships within 2 business days</div>
         <div class="format-select">
           <div class="label">Format</div>
           <div class="format-options" data-group="mono">
@@ -833,15 +1009,15 @@
 
   <section class="detail" id="mono-description">
     <div class="wrap"><div class="section-head"><span class="eyebrow">Description</span><h2>About the book</h2>
-    <p><em>Monopoly of Happiness</em> invites readers to examine Sierra Leonean society beyond political slogans — asking difficult questions about inequality, fairness, opportunity and belonging.</p></div></div>
+    <p><em>Monopoly of Happiness</em> invites readers to examine Sierra Leonean society beyond political slogans, asking difficult questions about inequality, fairness, opportunity and belonging.</p></div></div>
   </section>
 
   <section class="detail" id="mono-reviews">
     <div class="wrap">
-      <div class="section-head"><span class="eyebrow">Endorsements</span><h2>What readers &amp; reviewers are saying</h2><p>Placeholder endorsements — swap in real quotes when available.</p></div>
+      <div class="section-head"><span class="eyebrow">Endorsements</span><h2>What readers &amp; reviewers are saying</h2><p>Placeholder endorsements. Swap in real quotes when available.</p></div>
       <div class="endorsement-grid">
-        <div class="endorsement"><div class="quote">A sharp, necessary look at who gets to be happy in Sierra Leone — and who doesn't.</div><div class="who">Reviewer Name <span>— Publication / Title</span></div></div>
-        <div class="endorsement"><div class="quote">Jalloh names the imbalance most public conversation is too polite to touch.</div><div class="who">Reviewer Name <span>— Publication / Title</span></div></div>
+        <div class="endorsement"><div class="quote">A sharp, necessary look at who gets to be happy in Sierra Leone, and who doesn't.</div><div class="who">Reviewer Name <span>, Publication / Title</span></div></div>
+        <div class="endorsement"><div class="quote">Jalloh names the imbalance most public conversation is too polite to touch.</div><div class="who">Reviewer Name <span>, Publication / Title</span></div></div>
       </div>
     </div>
   </section>
@@ -860,7 +1036,7 @@
 
   <section class="detail comments-section" id="mono-comments">
     <div class="wrap">
-      <div class="section-head"><span class="eyebrow">Reader Comments</span><h2>Join the conversation</h2><p>Rate the book and share your thoughts — visible to every future reader.</p></div>
+      <div class="section-head"><span class="eyebrow">Reader Comments</span><h2>Join the conversation</h2><p>Rate the book and share your thoughts, visible to every future reader.</p></div>
       <div id="mono-signin-prompt" class="signin-prompt">Please <a data-open-auth>sign in or create an account</a> to rate this book and leave a comment.</div>
       <form class="comment-form" id="mono-comment-form" style="display:none;">
         <div>
@@ -893,11 +1069,8 @@
 
   <section class="cross-sell">
     <div class="wrap">
-      <div class="section-head" style="margin-bottom:30px;"><span class="eyebrow">You Might Also Like</span><h2>His newest work</h2></div>
-      <div class="cross-card">
-        <div class="cross-cover c1"></div>
-        <div><h3>Mr. President, Can We Talk?</h3><p>A Citizen's Conversation with Power — launched in Nairobi with Professor P. L. O. Lumumba.</p><a class="nav-link" data-view="book-mrp">View Book →</a></div>
-      </div>
+      <div class="section-head" style="margin-bottom:30px;"><span class="eyebrow">You Might Also Like</span><h2>More from Alpha Amadu Jalloh</h2></div>
+      <div class="cross-grid" id="mono-cross"></div>
     </div>
   </section>
 </div>
@@ -925,7 +1098,7 @@
       </div>
       <div class="buy-box" id="gb-buybox" data-book-id="" data-book-title="" data-cover="c1">
         <div class="price-row"><span class="price" id="gb-price">$0.00</span></div>
-        <div class="stock">In stock — ships within 2 business days</div>
+        <div class="stock">In stock. Ships within 2 business days</div>
         <div class="signed-toggle"><div class="label">✒️ Add author's signature</div><div class="toggle-switch" data-sign-toggle tabindex="0" role="switch" aria-checked="false" aria-label="Add author's signature"></div></div>
         <div class="qty-row"><span style="font-size:0.85rem; color:var(--ink-soft); font-weight:600;">Quantity</span><div class="qty-control" data-qty><button data-dec aria-label="Decrease quantity">−</button><span>1</span><button data-inc aria-label="Increase quantity">+</button></div></div>
         <div class="buy-actions"><a href="#" class="btn btn-dark" data-cart-action="add">Add to Cart</a><a href="#" class="btn btn-outline" data-cart-action="buynow">Buy Now</a></div>
@@ -944,6 +1117,12 @@
         <button type="submit" class="btn btn-dark" style="align-self:flex-start;">Post Comment</button>
       </form>
       <div id="gb-comment-list"></div>
+    </div>
+  </section>
+  <section class="cross-sell">
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:30px;"><span class="eyebrow">You Might Also Like</span><h2>More from Alpha Amadu Jalloh</h2></div>
+      <div class="cross-grid" id="gb-cross"></div>
     </div>
   </section>
 </div>
@@ -1004,12 +1183,12 @@
 <div class="view" id="view-about">
   <section class="about-hero-view">
     <div class="wrap about-layout">
-      <div class="portrait" id="aboutPortrait"><span>Author portrait — add photo in Author Dashboard → Settings</span></div>
+      <div class="portrait" id="aboutPortrait"><span>Author portrait. Add photo in Author Dashboard → Settings</span></div>
       <div>
         <span class="eyebrow">About the Author</span>
         <h1>Alpha Amadu Jalloh</h1>
         <div class="role-line">Author · Columnist · Human Rights Advocate · Peacebuilder · Public Commentator</div>
-        <p class="lede" id="aboutBioText" style="margin-top:24px; font-size:1.08rem; color:var(--ink-soft); max-width:60ch;">Alpha Amadu Jalloh writes from Sierra Leone about the questions many are too careful to ask out loud — about power, inequality, leadership and the everyday humanity that connects people across politics. His work spans books, essays, editorials and public commentary, united under one identity: The Misfit Voice.</p>
+        <p class="lede" id="aboutBioText" style="margin-top:24px; font-size:1.08rem; color:var(--ink-soft); max-width:60ch;">Alpha Amadu Jalloh writes from Sierra Leone about the questions many are too careful to ask out loud, about power, inequality, leadership and the everyday humanity that connects people across politics. His work spans books, essays, editorials and public commentary, united under one identity: The Misfit Voice.</p>
         <div class="stat-row">
           <div class="stat"><b>2</b><span>Books Published</span></div>
           <div class="stat"><b>12+</b><span>Essay Categories</span></div>
@@ -1022,12 +1201,12 @@
     <div class="wrap bio-grid">
       <div>
         <h2>A citizen who insists on asking</h2>
-        <p>At the center of Alpha's writing is a simple conviction: questioning leadership is not an act of hostility — it is part of citizenship. That belief runs through <em>Mr. President, Can We Talk?</em>, launched in Nairobi in August 2026 with Professor P. L. O. Lumumba officiating.</p>
-        <p>It was there before that book, too — in <em>Monopoly of Happiness</em>, his earlier examination of who in Sierra Leone gets to enjoy opportunity, and who is left outside it.</p>
+        <p>At the center of Alpha's writing is a simple conviction: questioning leadership is not an act of hostility. It is part of citizenship. That belief runs through <em>Mr. President, Can We Talk?</em>, launched in Nairobi in August 2026 with Professor P. L. O. Lumumba officiating.</p>
+        <p>It was there before that book, too, in <em>Monopoly of Happiness</em>, his earlier examination of who in Sierra Leone gets to enjoy opportunity, and who is left outside it.</p>
       </div>
       <div>
         <h2>Beyond politics, into people</h2>
-        <p>Essays like <em>Everyone Is a Relative</em> turn toward ordinary life — relationships, morality, dignity and the quiet things that connect strangers into something like family.</p>
+        <p>Essays like <em>Everyone Is a Relative</em> turn toward ordinary life: relationships, morality, dignity and the quiet things that connect strangers into something like family.</p>
         <p>And in <em>I Am a Misfit No One Can Tame</em>, he turns the question on himself: what does it cost, and what does it earn, to refuse the shape everyone else expects you to take?</p>
       </div>
     </div>
@@ -1060,7 +1239,7 @@
     <div class="wrap">
       <span class="eyebrow">Get in Touch</span>
       <h1>Can we talk?</h1>
-      <p style="color:var(--ink-soft); margin-top:14px; max-width:560px;">For speaking engagements, press inquiries, book orders, or simply to start a conversation — reach out below.</p>
+      <p style="color:var(--ink-soft); margin-top:14px; max-width:560px;">For speaking engagements, press inquiries, book orders, or simply to start a conversation, reach out below.</p>
     </div>
   </section>
   <section class="contact-body">
@@ -1073,7 +1252,7 @@
         </div>
         <div class="field"><label for="message">Message</label><textarea id="message" required placeholder="How can we help?"></textarea></div>
         <button type="submit" class="btn btn-dark" style="align-self:flex-start;">Send Message</button>
-        <div class="success-msg" id="successMsg">Thank you — your message has been noted. We'll be in touch soon.</div>
+        <div class="success-msg" id="successMsg">Thank you. Your message has been noted. We'll be in touch soon.</div>
       </form>
       <div class="info-card">
         <h3>Direct contact</h3>
@@ -1163,15 +1342,44 @@
     </div>
 
     <div id="reader-content" style="display:none;">
-      <div class="reader-page-wrap" id="readerPageWrap" oncontextmenu="return false;">
-        <div class="reader-watermark" id="readerWatermark"></div>
-        <div id="readerPageText"></div>
+      <!-- Hidden measuring page. paginateText clones this to work out where
+           each page breaks, so it must keep the same box as a real leaf. -->
+      <div class="reader-page-wrap" id="readerPageWrap" aria-hidden="true"
+           style="position:absolute; left:-100000px; top:0; visibility:hidden; margin:0;"></div>
+
+      <div class="book-stage">
+        <div class="book-spread" id="bookSpread" oncontextmenu="return false;">
+          <div class="book-page left" id="bookPageLeft">
+            <div class="reader-watermark" id="readerWatermarkL"></div>
+            <div class="bp-text" id="bookTextLeft"></div>
+            <div class="bp-num" id="bookNumLeft"></div>
+          </div>
+          <div class="book-page right" id="bookPageRight">
+            <div class="reader-watermark" id="readerWatermarkR"></div>
+            <div class="bp-text" id="bookTextRight"></div>
+            <div class="bp-num" id="bookNumRight"></div>
+          </div>
+          <div class="book-spine"></div>
+          <div class="book-flipper" id="bookFlipper">
+            <div class="leaf front" id="flipFront"></div>
+            <div class="leaf back" id="flipBack"></div>
+          </div>
+        </div>
       </div>
-      <div class="reader-page-num" id="readerPageNum">Page 1 of 6</div>
-      <div class="reader-nav" style="margin-top:16px;">
-        <button class="btn btn-outline-dark" data-page-prev>← Previous</button>
-        <button class="btn btn-outline-dark" data-page-next>Next →</button>
+
+      <div class="book-progress">
+        <div class="bp-track"><div class="bp-fill" id="bookProgressFill"></div></div>
+        <div class="bp-meta">
+          <span id="readerPageNum">Page 1</span>
+          <span id="bookPercent">0% read</span>
+        </div>
       </div>
+
+      <div class="book-controls">
+        <button data-page-prev aria-label="Previous page">← Previous</button>
+        <button data-page-next aria-label="Next page">Next →</button>
+      </div>
+      <p class="book-hint">Use the arrow keys, or swipe, to turn the page.</p>
     </div>
   </div>
 </div>
@@ -1248,7 +1456,7 @@
     <div class="wrap">
       <div class="event-card">
         <div class="event-date"><span class="day">TBA</span><span class="mon">2026</span></div>
-        <div class="event-info"><span class="event-tag upcoming">Upcoming</span><h3>Freetown Reader Conversation</h3><p>A public discussion on Mr. President, Can We Talk? — location and date to be announced.</p></div>
+        <div class="event-info"><span class="event-tag upcoming">Upcoming</span><h3>Freetown Reader Conversation</h3><p>A public discussion on Mr. President, Can We Talk? Location and date to be announced.</p></div>
         <a class="btn btn-sm btn-outline-dark nav-link" data-view="contact">Get Notified</a>
       </div>
       <div class="event-card">
@@ -1265,11 +1473,11 @@
   <section class="page-hero"><div class="wrap"><span class="eyebrow">Videos</span><h1>Talks, interviews &amp; conversations</h1></div></section>
   <section style="padding:0 0 90px;">
     <div class="wrap video-grid">
-      <div class="video-card"><div class="video-thumb">▶</div><div class="vt">Nairobi Launch — Full Address</div></div>
+      <div class="video-card"><div class="video-thumb">▶</div><div class="vt">Nairobi Launch: Full Address</div></div>
       <div class="video-card"><div class="video-thumb">▶</div><div class="vt">Interview: On Questioning Power</div></div>
       <div class="video-card"><div class="video-thumb">▶</div><div class="vt">Reading from Monopoly of Happiness</div></div>
     </div>
-    <p style="color:var(--ink-soft); font-size:0.85rem; margin-top:24px;">Video embeds are placeholders — real footage links here once uploaded (e.g. YouTube or Vimeo embeds).</p>
+    <p style="color:var(--ink-soft); font-size:0.85rem; margin-top:24px;">Video embeds are placeholders. Real footage links here once uploaded (e.g. YouTube or Vimeo embeds).</p>
   </section>
 </div>
 
@@ -1286,7 +1494,7 @@
 
 <!-- ============ SPEAKING VIEW ============ -->
 <div class="view" id="view-speaking">
-  <section class="page-hero"><div class="wrap"><span class="eyebrow">Speaking</span><h1>Book Alpha to speak</h1><p>Alpha Amadu Jalloh speaks on leadership, accountability, inequality and civic courage — for universities, conferences, panels and community events.</p></div></section>
+  <section class="page-hero"><div class="wrap"><span class="eyebrow">Speaking</span><h1>Book Alpha to speak</h1><p>Alpha Amadu Jalloh speaks on leadership, accountability, inequality and civic courage, for universities, conferences, panels and community events.</p></div></section>
   <section style="padding:0 0 90px;">
     <div class="wrap">
       <div class="speaking-topics">
@@ -1316,10 +1524,10 @@
   <section class="page-hero"><div class="wrap"><span class="eyebrow">Legal</span><h1>Terms of Service</h1></div></section>
   <div class="wrap legal-body">
     <div class="legal-note">This is a starter template, not legal advice. Have a lawyer review it before real launch.</div>
-    <h2>Use of content</h2><p>All books, essays and audio content are the intellectual property of Alpha Amadu Jalloh. Purchases grant a personal, non-transferable license to read or listen — not a right to redistribute or copy.</p>
+    <h2>Use of content</h2><p>All books, essays and audio content are the intellectual property of Alpha Amadu Jalloh. Purchases grant a personal, nontransferable license to read or listen, not a right to redistribute or copy.</p>
     <h2>Accounts</h2><p>You are responsible for keeping your account credentials secure and for all activity under your account.</p>
     <h2>Book Club membership</h2><p>Subscriptions renew automatically until cancelled. Online reading access is a member benefit and may not be shared outside your account.</p>
-    <h2>Refunds</h2><p>Physical book orders may be returned within 30 days. Digital purchases (eBooks, audiobook chapters, subscriptions) are generally non-refundable once accessed.</p>
+    <h2>Refunds</h2><p>Physical book orders may be returned within 30 days. Digital purchases (eBooks, audiobook chapters, subscriptions) are generally nonrefundable once accessed.</p>
   </div>
 </div>
 
@@ -1368,14 +1576,82 @@
         </div>
 
         <div class="modal-tabs" style="max-width:640px;">
-          <div class="modal-tab active" data-admin-tab="books">Books</div>
+          <div class="modal-tab active" data-admin-tab="analytics">Analytics</div>
+          <div class="modal-tab" data-admin-tab="books">Books</div>
           <div class="modal-tab" data-admin-tab="essays">Essays</div>
           <div class="modal-tab" data-admin-tab="audio">Audiobooks</div>
           <div class="modal-tab" data-admin-tab="settings">Settings</div>
         </div>
 
+        <!-- ANALYTICS -->
+        <div class="modal-panel active" id="admin-panel-analytics" style="display:flex; flex-direction:column; gap:26px; margin-top:30px;">
+          <div class="an-head">
+            <div>
+              <h3 style="font-family:'Fraunces',serif; font-size:1.3rem;">Performance overview</h3>
+              <p style="color:var(--ink-soft); font-size:0.85rem;" id="anGeneratedAt">Loading your numbers…</p>
+            </div>
+            <button class="btn btn-sm btn-outline-dark" id="anRefresh">Refresh</button>
+          </div>
+
+          <div class="stat-grid" id="anStatGrid"></div>
+
+          <div class="an-cols">
+            <div class="an-card">
+              <h4>Revenue by month</h4>
+              <div id="anRevenueChart" class="bar-chart"></div>
+            </div>
+            <div class="an-card">
+              <h4>Rating breakdown</h4>
+              <div id="anRatingChart" class="bar-chart"></div>
+            </div>
+          </div>
+
+          <div class="an-cols">
+            <div class="an-card">
+              <h4>Best selling books</h4>
+              <div id="anBestSellers" class="an-list"></div>
+            </div>
+            <div class="an-card">
+              <h4>Format mix</h4>
+              <div id="anFormats" class="an-list"></div>
+            </div>
+          </div>
+
+          <div class="an-cols">
+            <div class="an-card">
+              <h4>Top rated books</h4>
+              <div id="anTopBooks" class="an-list"></div>
+            </div>
+            <div class="an-card">
+              <h4>Top rated essays</h4>
+              <div id="anTopEssays" class="an-list"></div>
+            </div>
+          </div>
+
+          <div class="an-cols">
+            <div class="an-card">
+              <h4>Audiobook chapters</h4>
+              <div id="anAudio" class="an-list"></div>
+            </div>
+            <div class="an-card">
+              <h4>Top customers</h4>
+              <div id="anCustomers" class="an-list"></div>
+            </div>
+          </div>
+
+          <div class="an-card">
+            <h4>Recent orders</h4>
+            <div id="anRecentOrders" class="an-list"></div>
+          </div>
+
+          <div class="an-card" id="anHealthCard">
+            <h4>Needs your attention</h4>
+            <div id="anHealth" class="an-list"></div>
+          </div>
+        </div>
+
         <!-- BOOKS ADMIN -->
-        <div class="modal-panel active" id="admin-panel-books" style="display:flex; flex-direction:column; gap:30px; margin-top:30px;">
+        <div class="modal-panel" id="admin-panel-books" style="flex-direction:column; gap:30px; margin-top:30px;">
           <div style="overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
               <thead><tr style="text-align:left; border-bottom:2px solid var(--line);">
@@ -1454,7 +1730,7 @@
               </div>
               <div class="field"><label>Year</label><input type="number" id="newEssayYear" placeholder="2026"></div>
               <div class="field"><label>Excerpt</label><textarea id="newEssayExcerpt" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="A short summary for the library card"></textarea></div>
-              <div class="field"><label>Full essay text (optional — shown on the essay's own page)</label><textarea id="newEssayFullText" style="min-height:120px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Paste the full essay here. Leave blank to show just the excerpt for now."></textarea></div>
+              <div class="field"><label>Full essay text (optional, shown on the essay's own page)</label><textarea id="newEssayFullText" style="min-height:120px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Paste the full essay here. Leave blank to show just the excerpt for now."></textarea></div>
               <div class="field"><label>Cover image</label><input type="file" id="newEssayCover" accept="image/*"></div>
               <button class="btn btn-dark" id="addEssayBtn" style="align-self:flex-start;">Publish Essay</button>
               <button class="btn btn-outline-dark" id="cancelEssayEditBtn" style="display:none;">Cancel Edit</button>
@@ -1469,7 +1745,7 @@
               <div class="field"><label>Book</label>
                 <select id="newChapterBook"><option value="mrp">Mr. President, Can We Talk?</option><option value="mono">Monopoly of Happiness</option></select>
               </div>
-              <div class="field"><label>Chapter title</label><input type="text" id="newChapterTitle" placeholder="e.g. Chapter 3 — The Weight of Silence"></div>
+              <div class="field"><label>Chapter title</label><input type="text" id="newChapterTitle" placeholder="e.g. Chapter 3: The Weight of Silence"></div>
               <div class="field"><label>Duration (mm:ss)</label><input type="text" id="newChapterDuration" placeholder="8:24"></div>
               <div class="field"><label>Price (USD)</label><input type="number" id="newChapterPrice" step="0.01" placeholder="2.99"></div>
               <div class="field"><label>Narration audio file</label><input type="file" id="newChapterFile" accept="audio/*">
@@ -1575,7 +1851,7 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <h3>Can We Talk?</h3>
-        <p>The Misfit Voice. Author, columnist, human rights advocate and peacebuilder from Sierra Leone — questioning power, society and himself, one conversation at a time.</p>
+        <p>The Misfit Voice. Author, columnist, human rights advocate and peacebuilder from Sierra Leone, questioning power, society and himself, one conversation at a time.</p>
         <div id="footerSocialLinks" style="display:flex; gap:14px; margin-top:18px; font-family:'IBM Plex Mono',monospace; font-size:0.75rem; letter-spacing:0.05em; text-transform:uppercase;"></div>
       </div>
       <div class="footer-col">
@@ -1603,21 +1879,46 @@
     </div>
     <div class="footer-bottom">
       <span>© 2026 Alpha Amadu Jalloh. All rights reserved. · <a class="nav-link" data-view="privacy" style="text-decoration:underline; color:#8b9285;">Privacy</a> · <a class="nav-link" data-view="terms" style="text-decoration:underline; color:#8b9285;">Terms</a> · Website built by AQ Developers</span>
-      <span>Sierra Leone 🇸🇱 — Question Power. Question Society. Question Yourself. · <a class="nav-link" data-view="admin" style="text-decoration:underline; color:#8b9285;">Author Login</a></span>
+      <span>Sierra Leone 🇸🇱 · Question Power. Question Society. Question Yourself. · <a class="nav-link" data-view="admin" style="text-decoration:underline; color:#8b9285;">Author Login</a></span>
     </div>
   </div>
 </footer>
 
+<div id="installBanner" role="dialog" aria-label="Install the Can We Talk? app">
+  <img src="icons/icon-192.png" alt="" width="46" height="46">
+  <div class="ib-text">
+    <strong>Install Can We Talk?</strong>
+    <span>Add it to your home screen for full screen reading and offline access.</span>
+  </div>
+  <div class="ib-actions">
+    <button class="btn btn-sm btn-dark" data-install-app>Install</button>
+    <button id="installDismiss" aria-label="Dismiss install prompt">&times;</button>
+  </div>
+</div>
+
+<div id="iosInstallSheet" role="dialog" aria-label="How to install on iPhone or iPad">
+  <div class="ios-card">
+    <h3>Add to your Home Screen</h3>
+    <p style="color:var(--ink-soft); font-size:0.88rem;">Safari installs web apps from the Share menu.</p>
+    <ol>
+      <li>Tap the <strong>Share</strong> button at the bottom of Safari.</li>
+      <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
+      <li>Tap <strong>Add</strong>. Can We Talk? will appear with your other apps.</li>
+    </ol>
+    <button class="btn btn-dark" id="iosSheetClose" style="margin-top:20px; width:100%;">Got it</button>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
-  // ================= CONFIG — fill these in =================
+  // ================= CONFIG: fill these in =================
   const SUPABASE_URL = "https://ppojnjgzrolzjmtblgwf.supabase.co";        // e.g. https://abcdefgh.supabase.co
   const SUPABASE_ANON_KEY = "sb_publishable_slVay-YwkZRin-oGiUDGYQ_aoROXBsx";
   const API_URL = "https://can-we-talk-backend.onrender.com";
 
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentSession = null; // holds the Supabase session (access_token etc.) once signed in
-  let cart = []; // shopping cart — declared early since the Stripe-redirect check below needs it immediately on page load
+  let cart = []; // shopping cart, declared early since the Stripe-redirect check below needs it immediately on page load
 
   function authHeaders(extra = {}) {
     const headers = { 'Content-Type': 'application/json', ...extra };
@@ -1691,7 +1992,7 @@
     if(el) openLightbox(el.dataset.lightbox);
   });
 
-  // Stripe redirects back here after payment — check for that and show confirmation
+  // Stripe redirects back here after payment, check for that and show confirmation
   const orderConfirmId = new URLSearchParams(location.hash.split('?')[1] || '').get('order');
   async function verifyOrderConfirmation(){
     if(!orderConfirmId || !currentSession) return;
@@ -1705,7 +2006,7 @@
     showView('order-confirm');
   }
   if(location.hash.includes('joined=1')){
-    // Book Club subscription succeeded — the /api/bookclub/status check below will reflect it
+    // Book Club subscription succeeded, the /api/bookclub/status check below will reflect it
   }
 
   // ---------- Essay library search + filter (loaded from backend) ----------
@@ -1939,7 +2240,7 @@
   });
 
   // Keep currentSession in sync whenever Supabase silently refreshes the token in the
-  // background — without this, tokens go stale after ~1 hour and every request starts
+  // background. Without this, tokens go stale after ~1 hour and every request starts
   // failing with "Invalid or expired session" even though you're still signed in.
   sb.auth.onAuthStateChange((event, session) => {
     currentSession = session;
@@ -1967,7 +2268,7 @@
     const { data, error } = await sb.auth.signUp({ email, password: pw, options: { data: { full_name: name } } });
     if(error){ err.textContent = error.message; err.style.display = 'block'; return; }
     err.style.display = 'none';
-    // Trigger the welcome email (fire-and-forget — don't block sign-up on this)
+    // Trigger the welcome email (fire and forget, do not block sign-up on this)
     fetch(`${API_URL}/api/auth/welcome`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, full_name: name }) }).catch(() => {});
     if(data.session){
       currentSession = data.session;
@@ -1978,7 +2279,7 @@
     }
   });
 
-  // ================= COMMENTS (real — backend-driven, works for any book by its UUID) =================
+  // ================= COMMENTS (real, backend driven, works for any book by its UUID) =================
   async function loadMediaCoverage(key, bookId){
     const list = document.getElementById(key + '-press-list');
     if(!list || !bookId) return;
@@ -2008,7 +2309,7 @@
       const res = await fetch(`${API_URL}/api/comments/summary?target_type=book&target_id=${bookId}`);
       const data = await res.json();
       if(data.count === 0){
-        el.innerHTML = `<span class="icons">☆☆☆☆☆</span><span class="count">No ratings yet — be the first to rate it</span>`;
+        el.innerHTML = `<span class="icons">☆☆☆☆☆</span><span class="count">No ratings yet. Be the first to rate it</span>`;
       } else {
         const rounded = Math.round(data.average);
         el.innerHTML = `<span class="icons">${starString(rounded)}</span><span class="count">${data.average} out of 5 · ${data.count} rating${data.count === 1 ? '' : 's'}</span>`;
@@ -2113,16 +2414,54 @@
     return data.publicUrl;
   }
 
+  // Covers are set as background images, which the browser cannot preload and
+  // which pop in abruptly. Decode off the main thread first, show a shimmer in
+  // the meantime, then swap the image in. Already-cached images swap instantly.
+  const coverCache = new Set();
+
   function applyCoverImage(el, url){
-    if(url){
-      el.style.backgroundImage = `url('${url}')`; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = 'center';
-      el.classList.add('has-photo');
-      el.setAttribute('data-lightbox', url);
-    } else {
-      el.classList.remove('has-photo');
+    if(!el) return;
+    if(!url){
+      el.classList.remove('has-photo', 'img-skeleton', 'is-loaded');
       el.style.backgroundImage = '';
       el.removeAttribute('data-lightbox');
+      return;
     }
+
+    const show = () => {
+      el.style.backgroundImage = `url('${url}')`;
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.classList.add('has-photo', 'is-loaded');
+      el.classList.remove('img-skeleton');
+      el.setAttribute('data-lightbox', url);
+    };
+
+    if(coverCache.has(url)){ show(); return; }
+
+    el.classList.add('img-skeleton');
+    const img = new Image();
+    img.decoding = 'async';
+    img.addEventListener('load', () => { coverCache.add(url); show(); });
+    img.addEventListener('error', () => {
+      el.classList.remove('img-skeleton');
+      el.classList.add('is-loaded');
+    });
+    img.src = url;
+  }
+
+  // Warm the connection to Supabase Storage as soon as a cover URL is known, so
+  // the TLS handshake is not on the critical path for every image.
+  function preconnectStorage(url){
+    try {
+      const origin = new URL(url).origin;
+      if(document.querySelector(`link[rel="preconnect"][href="${origin}"]`)) return;
+      const link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = origin;
+      link.crossOrigin = '';
+      document.head.appendChild(link);
+    } catch(e){}
   }
 
   function applyBookExtras(key, book){
@@ -2139,14 +2478,32 @@
       galleryGrid.innerHTML = '';
       book.gallery_urls.forEach(url => {
         const item = document.createElement('div');
-        item.className = 'gallery-item';
-        item.style.backgroundImage = `url('${url}')`;
-        item.style.backgroundSize = 'cover';
-        item.style.backgroundPosition = 'center';
+        item.className = 'gallery-item img-skeleton';
         item.setAttribute('data-lightbox', url);
+        // Deferred: the gallery sits well below the fold, and loading six
+        // full-size launch photos up front was competing with the cover art.
+        lazyLoadCover(item, url);
         galleryGrid.appendChild(item);
       });
     }
+  }
+
+  // Loads a background image only once the element is near the viewport.
+  const lazyObserver = ('IntersectionObserver' in window)
+    ? new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if(!entry.isIntersecting) return;
+          obs.unobserve(entry.target);
+          applyCoverImage(entry.target, entry.target.dataset.lazySrc);
+        });
+      }, { rootMargin: '300px' })
+    : null;
+
+  function lazyLoadCover(el, url){
+    if(!url) return;
+    el.dataset.lazySrc = url;
+    if(lazyObserver) lazyObserver.observe(el);
+    else applyCoverImage(el, url);   // no observer support: just load it
   }
 
   function applyBookFormats(key, book){
@@ -2192,6 +2549,8 @@
           back_cover_url: b.back_cover_url, gallery_urls: normalizeGalleryUrls(b.gallery_urls), reader_full_text: b.reader_full_text || '', formats: b.book_formats || []
         };
       });
+      const firstCover = books.find(b => b.cover_image_url);
+      if(firstCover) preconnectStorage(firstCover.cover_image_url);
       // Match the two flagship books by title so their dedicated rich pages can use real IDs
       const richestBook = (matches) => matches.sort((a, b) => {
         const mediaScore = (book) => (book.gallery_urls.length * 2) + Number(Boolean(book.cover_image_url)) + Number(Boolean(book.back_cover_url));
@@ -2217,6 +2576,8 @@
       const extras = books.filter(b => b.id !== mrpBookId && b.id !== monoBookId);
       renderHomeBooks(extras);
       renderBooksCatalog();
+      renderCrossSell('mrp-cross', mrpBookId);
+      renderCrossSell('mono-cross', monoBookId);
     } catch(err){
       console.error('Failed to load books:', err);
       renderHomeBooks([]);
@@ -2284,9 +2645,56 @@
     });
   }
 
+  // "You Might Also Like" used to be hardcoded markup showing a single book with
+  // a gradient placeholder where the cover should be. It now renders every other
+  // published book, with the real cover art.
+  function renderCrossSell(containerId, excludeId){
+    const box = document.getElementById(containerId);
+    if(!box) return;
+    const others = books.filter(b => b.id && b.id !== excludeId);
+    box.innerHTML = '';
+    if(!others.length){
+      box.innerHTML = '<p class="cross-empty">More books are on the way.</p>';
+      return;
+    }
+    others.forEach(b => {
+      const card = document.createElement('article');
+      card.className = 'cross-card';
+      const coverClass = b.cover === 'cover-2' ? 'cross-cover c2' : 'cross-cover';
+      card.innerHTML = `
+        <div class="${coverClass} img-skeleton"></div>
+        <div class="cc-body">
+          <h3></h3>
+          <p></p>
+          <a data-open-book="${b.id}">View Book →</a>
+        </div>`;
+      // textContent, not innerHTML: titles and descriptions are author supplied.
+      card.querySelector('h3').textContent = b.title;
+      card.querySelector('p').textContent = b.subtitle || b.description || '';
+      const coverEl = card.querySelector('.cross-cover');
+      if(b.cover_image_url){
+        const img = new Image();
+        img.alt = `${b.title} cover`;
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.addEventListener('load', () => { img.classList.add('loaded'); coverEl.classList.add('is-loaded'); });
+        img.addEventListener('error', () => coverEl.classList.add('is-loaded'));
+        img.src = b.cover_image_url;
+        coverEl.appendChild(img);
+      } else {
+        coverEl.classList.add('is-loaded');
+      }
+      box.appendChild(card);
+    });
+    box.querySelectorAll('[data-open-book]').forEach(el => {
+      el.addEventListener('click', () => openBook(el.dataset.openBook));
+    });
+  }
+
   function openBook(id){
     const b = books.find(x => x.id === id);
     if(!b) return;
+    renderCrossSell('gb-cross', id);
     if(id === mrpBookId){ showView('book-mrp'); return; }
     if(id === monoBookId){ showView('book-mono'); return; }
     // populate generic view
@@ -2326,6 +2734,7 @@
       renderAdminBooksTable();
       renderAdminEssaysTable();
       renderAdminAudioTable();
+      loadAnalytics();   // Analytics is the tab the dashboard opens on.
       } else {
         throw new Error('Author access is required.');
       }
@@ -2339,12 +2748,158 @@
     tab.addEventListener('click', () => {
       document.querySelectorAll('[data-admin-tab]').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      document.getElementById('admin-panel-books').style.display = tab.dataset.adminTab === 'books' ? 'flex' : 'none';
-      document.getElementById('admin-panel-essays').style.display = tab.dataset.adminTab === 'essays' ? 'flex' : 'none';
-      document.getElementById('admin-panel-audio').style.display = tab.dataset.adminTab === 'audio' ? 'flex' : 'none';
-      document.getElementById('admin-panel-settings').style.display = tab.dataset.adminTab === 'settings' ? 'flex' : 'none';
+      const active = tab.dataset.adminTab;
+      ['analytics', 'books', 'essays', 'audio', 'settings'].forEach(name => {
+        const panel = document.getElementById('admin-panel-' + name);
+        if(panel) panel.style.display = name === active ? 'flex' : 'none';
+      });
+      if(active === 'analytics') loadAnalytics();
     });
   });
+
+  // ================= AUTHOR ANALYTICS =================
+  const money = (c) => '$' + (Number(c || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const monthLabel = (ym) => {
+    const [y, m] = String(ym).split('-');
+    const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${names[Number(m) - 1] || ym} ${String(y).slice(2)}`;
+  };
+
+  function anRows(container, rows, emptyText){
+    const box = document.getElementById(container);
+    if(!box) return;
+    box.innerHTML = '';
+    if(!rows.length){
+      box.innerHTML = `<p class="an-empty">${emptyText}</p>`;
+      return;
+    }
+    rows.forEach(r => {
+      const row = document.createElement('div');
+      row.className = 'an-row';
+      row.innerHTML = `<span class="ar-name"></span><span class="ar-val"></span>`;
+      row.querySelector('.ar-name').textContent = r.name;
+      row.querySelector('.ar-val').textContent = r.value;
+      if(r.flag) row.querySelector('.ar-val').classList.add('an-flag');
+      box.appendChild(row);
+    });
+  }
+
+  function anBars(container, rows, emptyText){
+    const box = document.getElementById(container);
+    if(!box) return;
+    box.innerHTML = '';
+    if(!rows.length){
+      box.innerHTML = `<p class="an-empty">${emptyText}</p>`;
+      return;
+    }
+    const max = Math.max(...rows.map(r => r.amount), 1);
+    rows.forEach(r => {
+      const row = document.createElement('div');
+      row.className = 'bar-row';
+      row.innerHTML = `<span class="bl"></span><span class="bar-track"><span class="bar-fill"></span></span><span class="bv"></span>`;
+      row.querySelector('.bl').textContent = r.label;
+      row.querySelector('.bv').textContent = r.display;
+      box.appendChild(row);
+      // Width is set on the next frame so the CSS transition actually animates.
+      requestAnimationFrame(() => {
+        row.querySelector('.bar-fill').style.width = Math.round((r.amount / max) * 100) + '%';
+      });
+    });
+  }
+
+  let analyticsLoading = false;
+
+  async function loadAnalytics(){
+    if(analyticsLoading) return;
+    analyticsLoading = true;
+    const stamp = document.getElementById('anGeneratedAt');
+    try {
+      const res = await fetch(`${API_URL}/api/analytics/overview`, { headers: authHeaders() });
+      if(!res.ok) throw new Error(res.status === 403 ? 'This account is not flagged as the author yet.' : await res.text());
+      const a = await res.json();
+
+      // Headline figures
+      const stats = [
+        { v: money(a.revenue.total_cents), l: 'Total revenue', h: `${a.revenue.paid_orders} paid orders` },
+        { v: money(a.revenue.avg_order_cents), l: 'Average order', h: 'Across all paid orders' },
+        { v: String(a.orders.total), l: 'Orders placed', h: `${a.orders.by_status.pending || 0} not completed` },
+        { v: a.ratings.overall_average ? a.ratings.overall_average.toFixed(1) + ' / 5' : 'No ratings', l: 'Average rating', h: `${a.ratings.total_reviews} reviews` },
+        { v: String(a.customers.total), l: 'Registered readers', h: `${a.customers.new_30d} joined in 30 days` },
+        { v: String(a.customers.repeat_buyers), l: 'Repeat buyers', h: `${a.customers.buyers} total buyers` },
+        { v: String(a.book_club.active_members), l: 'Book Club members', h: 'Active subscriptions' },
+        { v: money(a.audiobook.revenue_cents), l: 'Audiobook revenue', h: `${a.audiobook.units_sold} chapters sold` },
+        { v: String(a.catalog.active_books), l: 'Books on sale', h: `${a.catalog.books} in catalogue` },
+        { v: String(a.essays.published), l: 'Essays published', h: `${a.essays.total} written` }
+      ];
+      const grid = document.getElementById('anStatGrid');
+      grid.innerHTML = '';
+      stats.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'stat-card';
+        card.innerHTML = `<div class="sv"></div><div class="sl"></div><div class="sh"></div>`;
+        card.querySelector('.sv').textContent = s.v;
+        card.querySelector('.sl').textContent = s.l;
+        card.querySelector('.sh').textContent = s.h;
+        grid.appendChild(card);
+      });
+
+      anBars('anRevenueChart',
+        a.revenue.by_month.map(m => ({ label: monthLabel(m.month), amount: m.cents, display: money(m.cents) })),
+        'No paid orders yet. Revenue appears here after the first sale.');
+
+      anBars('anRatingChart',
+        [5,4,3,2,1].map(star => ({ label: star + ' star', amount: a.ratings.distribution[star] || 0, display: String(a.ratings.distribution[star] || 0) })),
+        'No ratings yet.');
+
+      anRows('anBestSellers',
+        a.best_sellers.map(b => ({ name: b.title, value: `${b.units} sold · ${money(b.revenue_cents)}` })),
+        'No sales yet. Your best sellers will rank here.');
+
+      anRows('anFormats',
+        a.formats.map(f => ({ name: f.format_name, value: `${f.units} sold · ${money(f.revenue_cents)}` })),
+        'No format sales yet.');
+
+      anRows('anTopBooks',
+        a.ratings.by_book.map(b => ({ name: b.title, value: `${b.average || 0} ★ (${b.reviews})` })),
+        'No book reviews yet.');
+
+      anRows('anTopEssays',
+        a.ratings.by_essay.map(e => ({ name: e.title, value: `${e.average || 0} ★ (${e.reviews})` })),
+        'No essay reviews yet.');
+
+      anRows('anAudio',
+        a.audiobook.top_chapters.map(c => ({ name: c.title, value: `${c.units} sold · ${money(c.revenue_cents)}` })),
+        a.audiobook.chapters ? 'No chapters sold yet.' : 'No audiobook chapters uploaded yet.');
+
+      anRows('anCustomers',
+        a.customers.top.map(c => ({ name: c.name, value: `${c.orders} orders · ${money(c.spend_cents)}` })),
+        'No purchases yet.');
+
+      anRows('anRecentOrders',
+        a.orders.recent.map(o => ({
+          name: `${o.customer_name || 'Guest'} · ${new Date(o.created_at).toLocaleDateString()}`,
+          value: `${money(o.total_cents)} · ${o.status}`,
+          flag: o.status === 'pending'
+        })),
+        'No orders yet.');
+
+      // Things the author should act on.
+      const health = [];
+      (a.catalog.missing_cover || []).forEach(b => health.push({ name: `${b.title} has no cover image`, value: 'Add one', flag: true }));
+      (a.catalog.low_stock || []).forEach(f => health.push({ name: `${f.title} (${f.format_name}) low stock`, value: `${f.stock_count} left`, flag: true }));
+      if((a.orders.by_status.pending || 0) > 0) health.push({ name: 'Checkouts started but never paid', value: `${a.orders.by_status.pending}`, flag: true });
+      if(!a.essays.published) health.push({ name: 'No essays published yet', value: 'Add one', flag: true });
+      anRows('anHealth', health, 'Everything looks healthy.');
+
+      if(stamp) stamp.textContent = 'Updated ' + new Date(a.generated_at).toLocaleString();
+    } catch(err){
+      if(stamp) stamp.textContent = 'Could not load analytics: ' + err.message;
+    } finally {
+      analyticsLoading = false;
+    }
+  }
+
+  document.getElementById('anRefresh')?.addEventListener('click', loadAnalytics);
 
   let editingBookId = null;
 
@@ -2592,7 +3147,7 @@
       data.forEach(m => {
         const row = document.createElement('div');
         row.style.cssText = 'display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); font-size:0.85rem;';
-        row.innerHTML = `<span style="flex:1;"><strong>${m.outlet}</strong> — ${m.headline}</span><button class="btn btn-sm" style="color:#b3261e;" data-delete-media="${m.id}">Remove</button>`;
+        row.innerHTML = `<span style="flex:1;"><strong>${m.outlet}</strong>: ${m.headline}</span><button class="btn btn-sm" style="color:#b3261e;" data-delete-media="${m.id}">Remove</button>`;
         list.appendChild(row);
       });
       list.querySelectorAll('[data-delete-media]').forEach(btn => {
@@ -2894,10 +3449,12 @@
       document.getElementById('readerBookTitle').textContent = book.title;
       document.getElementById('reader-locked-msg').style.display = 'none';
       document.getElementById('reader-content').style.display = 'block';
-      readerState = { bookId: bookKey, sourceText: book.reader_full_text || '', pages: [], page:0, fontSize:1.12 };
-      readerState.pages = paginateText(readerState.sourceText, '#readerPageWrap', readerState.fontSize);
+      readerState = { bookId: bookKey, sourceText: book.reader_full_text || '', pages: [], page:0, fontSize:1.06 };
       if(!readerState.sourceText.trim()) throw new Error('This book is not available in the reader yet.');
       buildWatermark();
+      // Measure against the real leaf, now that it is laid out, so page breaks
+      // match the box the text is actually rendered into.
+      readerState.pages = paginateText(readerState.sourceText, '#bookPageRight', readerState.fontSize);
       renderReaderPage();
     } catch(err) {
       document.getElementById('reader-locked-msg').style.display = 'block';
@@ -2907,46 +3464,159 @@
   }
 
   function buildWatermark(){
-    const wm = document.getElementById('readerWatermark');
     const tag = currentUser ? `${currentUser.name} · ${currentUser.email}` : 'AJ Book Club Member';
-    wm.innerHTML = Array(40).fill(tag).join(' &nbsp;&nbsp; ');
+    const markup = Array(40).fill(tag).join(' &nbsp;&nbsp; ');
+    ['readerWatermarkL', 'readerWatermarkR'].forEach(id => {
+      const wm = document.getElementById(id);
+      if(wm) wm.innerHTML = markup;
+    });
+  }
+
+  // Two leaves side by side on a desktop screen, one on a phone.
+  const pagesPerSpread = () => (window.innerWidth > 860 ? 2 : 1);
+
+  function paragraphsFor(pageText){
+    return (pageText || []).map(text => {
+      const p = document.createElement('p');
+      p.style.fontSize = `${readerState.fontSize}rem`;
+      p.textContent = text;
+      return p;
+    });
   }
 
   function renderReaderPage(){
-    const pageText = readerState.pages[readerState.page] || [];
-    const page = document.getElementById('readerPageText');
-    page.replaceChildren(...pageText.map(text => {
-      const paragraph = document.createElement('p');
-      paragraph.style.fontSize = `${readerState.fontSize}rem`;
-      paragraph.textContent = text;
-      return paragraph;
-    }));
-    document.getElementById('readerPageNum').textContent = `Page ${readerState.page + 1} of ${readerState.pages.length}`;
+    const per = pagesPerSpread();
+    const total = readerState.pages.length;
+    const i = readerState.page;
+
+    const leftText  = per === 2 ? readerState.pages[i] : null;
+    const rightText = per === 2 ? readerState.pages[i + 1] : readerState.pages[i];
+
+    document.getElementById('bookTextLeft').replaceChildren(...paragraphsFor(leftText));
+    document.getElementById('bookTextRight').replaceChildren(...paragraphsFor(rightText));
+
+    // Page numbers follow the leaf they sit on, and blank out on a trailing
+    // empty leaf at the end of the book.
+    const leftNum  = per === 2 && leftText ? String(i + 1) : '';
+    const rightNum = per === 2
+      ? (readerState.pages[i + 1] ? String(i + 2) : '')
+      : String(i + 1);
+    document.getElementById('bookNumLeft').textContent = leftNum;
+    document.getElementById('bookNumRight').textContent = rightNum;
+    document.getElementById('bookPageLeft').style.visibility = (per === 2 && !leftText) ? 'hidden' : 'visible';
+    document.getElementById('bookPageRight').style.visibility = rightText ? 'visible' : 'hidden';
+
+    const shown = Math.min(i + per, total);
+    document.getElementById('readerPageNum').textContent =
+      total ? `Page ${Math.min(i + 1, total)}${per === 2 && readerState.pages[i + 1] ? ' and ' + (i + 2) : ''} of ${total}` : '';
+    const pct = total ? Math.round((shown / total) * 100) : 0;
+    document.getElementById('bookProgressFill').style.width = pct + '%';
+    document.getElementById('bookPercent').textContent = pct + '% read';
+
+    document.querySelector('[data-page-prev]').disabled = i <= 0;
+    document.querySelector('[data-page-next]').disabled = i + per >= total;
+  }
+
+  let flipping = false;
+
+  function animateTurn(direction){
+    const per = pagesPerSpread();
+    const total = readerState.pages.length;
+    const i = readerState.page;
+    const target = direction === 'fwd' ? i + per : i - per;
+    if(flipping || target < 0 || (direction === 'fwd' && i + per >= total)) return;
+
+    const flipper = document.getElementById('bookFlipper');
+    const front = document.getElementById('flipFront');
+    const back = document.getElementById('flipBack');
+
+    // Forward: the leaf leaving is the current right page, and its reverse is
+    // the page that becomes the new left. Backward is the mirror of that.
+    const frontText = direction === 'fwd'
+      ? (per === 2 ? readerState.pages[i + 1] : readerState.pages[i])
+      : (per === 2 ? readerState.pages[i] : readerState.pages[i]);
+    const backText = direction === 'fwd'
+      ? readerState.pages[target]
+      : (per === 2 ? readerState.pages[target + 1] : readerState.pages[target]);
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduceMotion){
+      readerState.page = Math.max(0, target);
+      renderReaderPage();
+      return;
+    }
+
+    front.replaceChildren(...paragraphsFor(frontText));
+    back.replaceChildren(...paragraphsFor(backText));
+
+    flipping = true;
+    flipper.className = 'book-flipper ' + direction;
+    flipper.classList.add('turning');
+    void flipper.offsetWidth;          // force a reflow so the transition runs
+    flipper.classList.add('go');
+
+    const finish = () => {
+      flipper.removeEventListener('transitionend', finish);
+      clearTimeout(guard);
+      flipper.className = 'book-flipper';
+      front.replaceChildren();
+      back.replaceChildren();
+      readerState.page = Math.max(0, target);
+      renderReaderPage();
+      flipping = false;
+    };
+    flipper.addEventListener('transitionend', finish);
+    // transitionend can be missed if the view is hidden mid turn.
+    const guard = setTimeout(finish, 950);
   }
 
   function repaginateReader(){
     if(!readerState.sourceText) return;
-    readerState.pages = paginateText(readerState.sourceText, '#readerPageWrap', readerState.fontSize);
-    readerState.page = Math.min(readerState.page, readerState.pages.length - 1);
+    const per = pagesPerSpread();
+    readerState.pages = paginateText(readerState.sourceText, '#bookPageRight', readerState.fontSize);
+    const maxIndex = Math.max(0, readerState.pages.length - 1);
+    readerState.page = Math.min(readerState.page, maxIndex);
+    // Keep the left leaf on an even page so spreads stay aligned.
+    if(per === 2) readerState.page -= readerState.page % 2;
     renderReaderPage();
   }
 
+  let readerResizeTimer = null;
   window.addEventListener('resize', () => {
     repaginateEssay();
-    if(document.getElementById('view-reader').classList.contains('active')) repaginateReader();
+    if(document.getElementById('view-reader').classList.contains('active')){
+      clearTimeout(readerResizeTimer);
+      readerResizeTimer = setTimeout(repaginateReader, 150);
+    }
   });
 
-  document.querySelector('[data-page-prev]').addEventListener('click', () => {
-    if(readerState.page > 0){ readerState.page--; renderReaderPage(); window.scrollTo({top:0, behavior:'smooth'}); }
-  });
-  document.querySelector('[data-page-next]').addEventListener('click', () => {
-    const total = readerState.pages.length;
-    if(readerState.page < total - 1){ readerState.page++; renderReaderPage(); window.scrollTo({top:0, behavior:'smooth'}); }
-  });
+  document.querySelector('[data-page-prev]').addEventListener('click', () => animateTurn('bwd'));
+  document.querySelector('[data-page-next]').addEventListener('click', () => animateTurn('fwd'));
+
+  // Swipe to turn, for phones and tablets.
+  (function readerSwipe(){
+    const stage = document.getElementById('bookSpread');
+    if(!stage) return;
+    let x0 = null, y0 = null;
+    stage.addEventListener('touchstart', e => {
+      x0 = e.changedTouches[0].clientX;
+      y0 = e.changedTouches[0].clientY;
+    }, { passive: true });
+    stage.addEventListener('touchend', e => {
+      if(x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      const dy = e.changedTouches[0].clientY - y0;
+      // Horizontal intent only, so vertical scrolling still works.
+      if(Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.6){
+        animateTurn(dx < 0 ? 'fwd' : 'bwd');
+      }
+      x0 = y0 = null;
+    }, { passive: true });
+  })();
   document.querySelector('[data-font-inc]').addEventListener('click', () => { readerState.fontSize = Math.min(1.6, readerState.fontSize + 0.1); repaginateReader(); });
   document.querySelector('[data-font-dec]').addEventListener('click', () => { readerState.fontSize = Math.max(0.85, readerState.fontSize - 0.1); repaginateReader(); });
 
-  // ---------- Copy-deterrence (best-effort — cannot fully block screenshots; see notes) ----------
+  // ---------- Copy deterrence (best effort, cannot fully block screenshots; see notes) ----------
   document.addEventListener('copy', e => {
     if(document.getElementById('view-reader').classList.contains('active')) e.preventDefault();
   });
@@ -2956,17 +3626,24 @@
     if(blockedCombo || e.key === 'PrintScreen'){
       e.preventDefault();
       document.getElementById('screenshotWarning').classList.add('show');
+      return;
+    }
+    // Page turning from the keyboard.
+    if(e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' '){
+      e.preventDefault(); animateTurn('fwd');
+    } else if(e.key === 'ArrowLeft' || e.key === 'PageUp'){
+      e.preventDefault(); animateTurn('bwd');
     }
   });
   document.getElementById('dismissWarning').addEventListener('click', () => {
     document.getElementById('screenshotWarning').classList.remove('show');
   });
   window.addEventListener('blur', () => {
-    const wrap = document.getElementById('readerPageWrap');
+    const wrap = document.getElementById('bookSpread');
     if(wrap && document.getElementById('view-reader').classList.contains('active')) wrap.style.filter = 'blur(6px)';
   });
   window.addEventListener('focus', () => {
-    const wrap = document.getElementById('readerPageWrap');
+    const wrap = document.getElementById('bookSpread');
     if(wrap) wrap.style.filter = 'none';
   });
 
@@ -2984,7 +3661,7 @@
     const title = buyBox.dataset.bookTitle;
     const cover = buyBox.dataset.cover || 'c1';
     if(!bookId || !title) return null;
-    // The two flagship pages use static placeholder ids in their markup — swap in the real backend UUID
+    // The two flagship pages use static placeholder ids in their markup, swap in the real backend UUID
     if(bookId === 'mrp') bookId = mrpBookId;
     if(bookId === 'mono') bookId = monoBookId;
     if(!bookId){ alert('This book isn\'t published in the catalog yet. Add it via the Author Dashboard first.'); return null; }
@@ -3082,7 +3759,7 @@
   document.getElementById('checkoutForm').addEventListener('submit', async e => {
     e.preventDefault();
     if(cart.length === 0){ alert('Your cart is empty.'); return; }
-    if(!currentSession){ alert('Please sign in first — order history is tied to your account.'); openAuth(); return; }
+    if(!currentSession){ alert('Please sign in first. Order history is tied to your account.'); openAuth(); return; }
     const shipping_address = document.getElementById('checkoutAddress').value;
     const customer_name = document.getElementById('checkoutName').value;
     const customer_phone = document.getElementById('checkoutPhone').value;
@@ -3103,7 +3780,7 @@
       });
       if(!res.ok) throw new Error(await res.text());
       const { checkout_url } = await res.json();
-      window.location.href = checkout_url; // real Stripe-hosted checkout page — leaves this site briefly
+      window.location.href = checkout_url; // real Stripe hosted checkout page, leaves this site briefly
     } catch(err){
       alert('Checkout failed: ' + err.message);
     }
@@ -3151,13 +3828,13 @@
   renderAdminBooksTable = function(){
     origRenderAdminBooksTable();
     const tbody = document.getElementById('admin-books-table');
-    if(books.length === 0) tbody.innerHTML = '<tr><td colspan="3" style="padding:16px; color:var(--ink-soft);">No books yet — add your first one below.</td></tr>';
+    if(books.length === 0) tbody.innerHTML = '<tr><td colspan="3" style="padding:16px; color:var(--ink-soft);">No books yet. Add your first one below.</td></tr>';
   };
   const origRenderAdminEssaysTable2 = renderAdminEssaysTable;
   renderAdminEssaysTable = function(){
     origRenderAdminEssaysTable2();
     const tbody = document.getElementById('admin-essays-table');
-    if(essays.length === 0) tbody.innerHTML = '<tr><td colspan="4" style="padding:16px; color:var(--ink-soft);">No essays yet — add your first one below.</td></tr>';
+    if(essays.length === 0) tbody.innerHTML = '<tr><td colspan="4" style="padding:16px; color:var(--ink-soft);">No essays yet. Add your first one below.</td></tr>';
   };
 
   // ================= Keyboard support for custom controls =================
@@ -3228,6 +3905,108 @@
       loadSiteSettings();
     } catch(err){ alert('Could not save settings: ' + err.message); }
   });
+
+  // ================= INSTALLABLE APP (PWA) =================
+  // Chrome, Edge and Android fire beforeinstallprompt and give us a real install
+  // prompt. iOS Safari does not, so there we show the Share sheet instructions.
+  (function setupInstall(){
+    const banner = document.getElementById('installBanner');
+    const iosSheet = document.getElementById('iosInstallSheet');
+    const DISMISS_KEY = 'cwt_install_dismissed';
+    let deferredPrompt = null;
+
+    const isStandalone = () =>
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.matchMedia('(display-mode: minimal-ui)').matches ||
+      window.navigator.standalone === true;
+
+    const isIOS = () =>
+      /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+      // iPadOS 13+ reports itself as a Mac, so check for touch as well.
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    function hideInstallUI(){
+      if(banner) banner.classList.remove('show');
+      document.querySelectorAll('[data-install-app]').forEach(el => { el.style.display = 'none'; });
+      const band = document.getElementById('getTheApp');
+      if(band) band.style.display = 'none';
+    }
+
+    // Already installed and running as an app: nothing to offer.
+    if(isStandalone()){ hideInstallUI(); return; }
+
+    function maybeShowBanner(){
+      if(!banner || isStandalone()) return;
+      let dismissed = false;
+      try { dismissed = localStorage.getItem(DISMISS_KEY) === '1'; } catch(e){}
+      if(dismissed) return;
+      if(!deferredPrompt && !isIOS()) return;
+      banner.classList.add('show');
+    }
+
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();          // stop Chrome's own mini infobar
+      deferredPrompt = e;
+      maybeShowBanner();
+    });
+
+    async function triggerInstall(){
+      if(deferredPrompt){
+        deferredPrompt.prompt();
+        try { await deferredPrompt.userChoice; } catch(e){}
+        deferredPrompt = null;
+        if(banner) banner.classList.remove('show');
+        return;
+      }
+      if(isIOS()){
+        if(iosSheet) iosSheet.classList.add('show');
+        return;
+      }
+      // Desktop browsers that support installing but have not fired the event yet,
+      // and browsers with no install support at all, both land here.
+      alert('To install, open your browser menu and choose "Install app" or "Add to Home Screen". If you do not see it, this browser may not support installing web apps yet.');
+    }
+
+    document.addEventListener('click', e => {
+      const trigger = e.target.closest('[data-install-app]');
+      if(trigger){ e.preventDefault(); triggerInstall(); }
+    });
+
+    const dismissBtn = document.getElementById('installDismiss');
+    if(dismissBtn) dismissBtn.addEventListener('click', () => {
+      banner.classList.remove('show');
+      try { localStorage.setItem(DISMISS_KEY, '1'); } catch(e){}
+    });
+
+    const iosClose = document.getElementById('iosSheetClose');
+    if(iosClose) iosClose.addEventListener('click', () => iosSheet.classList.remove('show'));
+    if(iosSheet) iosSheet.addEventListener('click', e => {
+      if(e.target === iosSheet) iosSheet.classList.remove('show');
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = null;
+      hideInstallUI();
+      try { localStorage.setItem(DISMISS_KEY, '1'); } catch(e){}
+    });
+
+    // On iOS there is no install event to wait for, so offer it shortly after load.
+    if(isIOS()) setTimeout(maybeShowBanner, 2500);
+  })();
+
+  // Service worker: offline support and the installability requirement.
+  // Skipped on file:// so opening app.html directly for a preview still works.
+  if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.warn('Service worker registration failed:', err));
+    });
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if(refreshing) return;
+      refreshing = true;
+      location.reload();
+    });
+  }
 </script>
 </body>
 </html>
