@@ -1,6 +1,7 @@
 import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
+import { normalizeVideoList } from '../lib/validate.js';
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   const { data, error } = await supabaseAdmin
     .from('books')
-    .select('id,title,subtitle,description,cover_style,cover_image_url,back_cover_url,gallery_urls,is_active,created_at,book_formats(*)')
+    .select('id,title,subtitle,description,cover_style,cover_image_url,back_cover_url,gallery_urls,video_urls,is_active,created_at,book_formats(*)')
     .eq('is_active', true)
     .order('created_at', { ascending: false });
   if (error) return res.status(500).json({ error: error.message });
@@ -19,7 +20,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const { data, error } = await supabaseAdmin
     .from('books')
-    .select('id,title,subtitle,description,cover_style,cover_image_url,back_cover_url,gallery_urls,is_active,created_at,book_formats(*)')
+    .select('id,title,subtitle,description,cover_style,cover_image_url,back_cover_url,gallery_urls,video_urls,is_active,created_at,book_formats(*)')
     .eq('id', req.params.id)
     .single();
   if (error) return res.status(404).json({ error: 'Book not found' });
@@ -34,13 +35,14 @@ router.get('/:id/manage', requireAuth, requireAuthor, async (req, res) => {
 
 // POST /api/books: Author Dashboard: add a new book
 router.post('/', requireAuth, requireAuthor, async (req, res) => {
-  const { title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text, formats } = req.body;
+  const { title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text, formats, video_urls } = req.body;
   if (typeof title !== 'string' || !title.trim() || typeof description !== 'string' || !description.trim()) return res.status(400).json({ error: 'Title and description are required' });
   const { data: existing } = await supabaseAdmin.from('books').select('id').ilike('title', title.trim()).limit(1).maybeSingle();
   if (existing) return res.status(409).json({ error: 'A book with this title already exists. Edit the existing book instead.' });
   const { data: book, error } = await supabaseAdmin
     .from('books')
-    .insert({ title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text })
+    .insert({ title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text,
+      video_urls: normalizeVideoList(video_urls) ?? [] })
     .select()
     .single();
   if (error) return res.status(500).json({ error: error.message });
@@ -54,7 +56,7 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
 
 // PUT /api/books/:id: edit
 const BOOK_FIELDS = ['title', 'subtitle', 'description', 'cover_style', 'cover_image_url',
-  'back_cover_url', 'gallery_urls', 'reader_full_text', 'is_active'];
+  'back_cover_url', 'gallery_urls', 'reader_full_text', 'is_active', 'video_urls'];
 
 router.put('/:id', requireAuth, requireAuthor, async (req, res) => {
   const { price } = req.body;
@@ -63,6 +65,10 @@ router.put('/:id', requireAuth, requireAuthor, async (req, res) => {
   const bookFields = {};
   for (const field of BOOK_FIELDS) {
     if (req.body[field] !== undefined) bookFields[field] = req.body[field];
+  }
+  // Video links are pasted as free text, so normalise them into the stored shape.
+  if (bookFields.video_urls !== undefined) {
+    bookFields.video_urls = normalizeVideoList(bookFields.video_urls);
   }
   if (!Object.keys(bookFields).length && price === undefined) {
     return res.status(400).json({ error: 'No book fields to update' });

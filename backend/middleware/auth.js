@@ -25,3 +25,18 @@ export async function requireAuthor(req, res, next) {
   if (!profile?.is_author) return res.status(403).json({ error: 'Author access only' });
   next();
 }
+
+// Use after requireAuth. Gates the /api/dev diagnostics, which expose error
+// stacks and configuration state and so must never be reachable by a reader.
+// The flag lives on the profile row, so access is revoked with one UPDATE and
+// no credential is ever written into the application.
+export async function requireDeveloper(req, res, next) {
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('is_developer')
+    .eq('id', req.user.id)
+    .single();
+
+  if (!profile?.is_developer) return res.status(403).json({ error: 'Developer access only' });
+  next();
+}

@@ -1,92 +1,113 @@
 -- 005_content_cleanup.sql
 --
--- Leaves exactly two books on the site:
---   Monopoly of Happiness          95ba6f6d-9cbc-49ac-ad6f-a00fdf8317cd
---   Mr. President, Can We Talk?    1f5366e9-a7c8-42e0-8fa7-3295352b5d5b
--- and removes all essays and audiobook chapters.
+-- Full purge of test and duplicate content. Leaves exactly two books:
+--   Monopoly of Happiness         95ba6f6d-9cbc-49ac-ad6f-a00fdf8317cd
+--   Mr. President, Can We Talk?   1f5366e9-a7c8-42e0-8fa7-3295352b5d5b
 --
--- Two of the books being removed are referenced by real order history:
+-- Verified before writing this file:
+--   * All 8 orders belong to the author's or the developer's own accounts.
+--     There is not a single real customer order, so clearing them loses no
+--     revenue history. The one marked 'paid' is a 50 cent test of "repositor".
+--   * 4 of the 5 comments are orphans: they point at book
+--     8a2ae386-e95c-4df6-a390-dc7b62549be8, which no longer exists, and are
+--     four copies of the same test string.
+--   * The 5th comment is a genuine review that was left on the DUPLICATE
+--     Mr. President row. It is moved to the surviving book rather than
+--     deleted, so a real reader's words are not thrown away.
 --
---   repositor                   f6453bc0  3 order items (one from a PAID order)
---   Mr. President (duplicate)   490e52f9  2 order items, 1 comment
---
--- order_items.book_id has no ON DELETE rule, so deleting those rows outright
--- would fail, and forcing it would destroy the record of what a customer paid
--- for. They are unpublished instead: `is_active = false` removes them from the
--- store and from every public API response, while the receipts stay intact.
--- Section B at the bottom is the full purge, if the test orders are disposable.
+-- Safe to run more than once.
 
 begin;
 
 -- ---------------------------------------------------------------------------
--- A. Default: remove what is safe to remove, hide what has order history.
+-- 1. Rescue the one real review before its book row disappears.
 -- ---------------------------------------------------------------------------
-
--- A1. Unreferenced duplicate: nothing points at it, so it can go for good.
-delete from public.book_formats where book_id = '41411b6a-2b5a-479a-87d8-edd7c01570a0';
-delete from public.books        where id      = '41411b6a-2b5a-479a-87d8-edd7c01570a0';
-
--- A2. Books with order history: unpublish and withdraw every format from sale.
-update public.books
-   set is_active = false
- where id in ('f6453bc0-41cb-4e17-a4a6-daf5d1168603',   -- repositor
-              '490e52f9-85c2-4c5d-afe7-95c14b923be7');  -- duplicate Mr. President
-
-update public.book_formats
-   set is_offered = false
- where book_id in ('f6453bc0-41cb-4e17-a4a6-daf5d1168603',
-                   '490e52f9-85c2-4c5d-afe7-95c14b923be7');
-
--- A3. Comments attached to the withdrawn books. comments.target_id carries no
---     foreign key, so these would otherwise linger as orphans.
-delete from public.comments
+update public.comments
+   set target_id = '1f5366e9-a7c8-42e0-8fa7-3295352b5d5b'
  where target_type = 'book'
-   and target_id in ('41411b6a-2b5a-479a-87d8-edd7c01570a0',
-                     'f6453bc0-41cb-4e17-a4a6-daf5d1168603',
-                     '490e52f9-85c2-4c5d-afe7-95c14b923be7');
+   and target_id = '490e52f9-85c2-4c5d-afe7-95c14b923be7';
 
--- A4. All essays, and their comments.
+-- ---------------------------------------------------------------------------
+-- 2. Comments: drop every orphan (a target_id with no surviving book or essay)
+--    and every essay comment. comments.target_id carries no foreign key, so
+--    orphans are invisible to the database and have to be matched by hand.
+-- ---------------------------------------------------------------------------
 delete from public.comments where target_type = 'essay';
-delete from public.essays;
 
--- A5. All audiobook chapters, and anything bought against them.
---     chapter_purchases cascades from audiobook_chapters, but is cleared first
---     so the intent is explicit.
+delete from public.comments c
+ where c.target_type = 'book'
+   and not exists (select 1 from public.books b where b.id = c.target_id);
+
+-- ---------------------------------------------------------------------------
+-- 3. Orders. Every row is internal test traffic, so the table is cleared and
+--    the store starts from zero. order_items cascades from orders, but is
+--    cleared first so the intent is explicit rather than implied.
+-- ---------------------------------------------------------------------------
+delete from public.order_items;
+delete from public.orders;
+
+-- ---------------------------------------------------------------------------
+-- 4. Audiobook content and anything purchased against it.
+-- ---------------------------------------------------------------------------
 delete from public.chapter_purchases;
 delete from public.audiobook_bundle_purchases;
 delete from public.audiobook_chapters;
 
+-- ---------------------------------------------------------------------------
+-- 5. Essays.
+-- ---------------------------------------------------------------------------
+delete from public.essays;
+
+-- ---------------------------------------------------------------------------
+-- 6. Books. Nothing references them now, so "repositor" and both duplicate
+--    Mr. President rows can be deleted outright rather than just unpublished.
+--    Written as "everything except the two keepers" so any other stray row
+--    goes too.
+-- ---------------------------------------------------------------------------
+delete from public.media_coverage
+ where book_id is not null
+   and book_id not in ('95ba6f6d-9cbc-49ac-ad6f-a00fdf8317cd',
+                       '1f5366e9-a7c8-42e0-8fa7-3295352b5d5b');
+
+delete from public.book_formats
+ where book_id not in ('95ba6f6d-9cbc-49ac-ad6f-a00fdf8317cd',
+                       '1f5366e9-a7c8-42e0-8fa7-3295352b5d5b');
+
+delete from public.books
+ where id not in ('95ba6f6d-9cbc-49ac-ad6f-a00fdf8317cd',
+                  '1f5366e9-a7c8-42e0-8fa7-3295352b5d5b');
+
+-- ---------------------------------------------------------------------------
+-- 7. Subscriptions: clear any test membership and the flags that mirror it.
+-- ---------------------------------------------------------------------------
+delete from public.book_club_subscriptions;
+update public.profiles
+   set book_club_active = false,
+       book_club_plan = null
+ where book_club_active is true or book_club_plan is not null;
+
+-- ---------------------------------------------------------------------------
+-- 8. Make sure the two survivors are live and on sale.
+-- ---------------------------------------------------------------------------
+update public.books set is_active = true
+ where id in ('95ba6f6d-9cbc-49ac-ad6f-a00fdf8317cd',
+              '1f5366e9-a7c8-42e0-8fa7-3295352b5d5b');
+
+update public.book_formats set is_offered = true
+ where book_id in ('95ba6f6d-9cbc-49ac-ad6f-a00fdf8317cd',
+                   '1f5366e9-a7c8-42e0-8fa7-3295352b5d5b');
+
 commit;
 
--- Expected after this runs:
---   select title, is_active from books order by title;
+-- Verify afterwards:
+--   select title, is_active from public.books order by title;
 --     Monopoly of Happiness        | t
 --     Mr. President, Can We Talk?  | t
---     Mr. President, Can We Talk?  | f   (duplicate, kept for order history)
---     repositor                    | f   (kept for order history)
---   essays, audiobook_chapters: 0 rows
+--   select count(*) from public.orders;              -- 0
+--   select count(*) from public.essays;              -- 0
+--   select count(*) from public.audiobook_chapters;  -- 0
+--   select count(*) from public.comments;            -- 1, on Mr. President
 --
--- Only the two active books are visible on the site; /api/books filters on
--- is_active, so the hidden pair never reaches a visitor.
-
-
--- ---------------------------------------------------------------------------
--- B. Optional full purge. Run ONLY if the 50 cent test orders can be discarded.
---    This deletes real order rows, including one marked paid in Stripe. Stripe
---    keeps its own record, but this database will no longer match it.
---    Uncomment deliberately.
--- ---------------------------------------------------------------------------
--- begin;
---   delete from public.order_items
---    where book_id in ('f6453bc0-41cb-4e17-a4a6-daf5d1168603',
---                      '490e52f9-85c2-4c5d-afe7-95c14b923be7');
---   -- Remove orders that are now empty.
---   delete from public.orders o
---    where not exists (select 1 from public.order_items i where i.order_id = o.id);
---   delete from public.book_formats
---    where book_id in ('f6453bc0-41cb-4e17-a4a6-daf5d1168603',
---                      '490e52f9-85c2-4c5d-afe7-95c14b923be7');
---   delete from public.books
---    where id in ('f6453bc0-41cb-4e17-a4a6-daf5d1168603',
---                 '490e52f9-85c2-4c5d-afe7-95c14b923be7');
--- commit;
+-- Note: cover images for the deleted books are still sitting in the `covers`
+-- storage bucket. Removing a row here does not remove the file. Clear the
+-- unused ones from Storage in the Supabase dashboard; nothing links to them.

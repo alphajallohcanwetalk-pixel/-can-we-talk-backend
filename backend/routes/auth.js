@@ -23,11 +23,24 @@ router.post('/welcome', async (req, res) => {
 });
 
 router.get('/me', requireAuth, async (req, res) => {
-  const { data, error } = await supabaseAdmin
+  // is_developer arrives with migration 007. Until that has been run the column
+  // does not exist and selecting it fails the whole query, which would lock the
+  // author out of the dashboard, so fall back to the original column set.
+  let { data, error } = await supabaseAdmin
     .from('profiles')
-    .select('id,email,is_author')
+    .select('id,email,is_author,is_developer')
     .eq('id', req.user.id)
     .single();
+
+  if (error) {
+    ({ data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id,email,is_author')
+      .eq('id', req.user.id)
+      .single());
+    if (data) data.is_developer = false;
+  }
+
   if (error || !data) return res.status(404).json({ error: 'Profile not found' });
   res.json(data);
 });

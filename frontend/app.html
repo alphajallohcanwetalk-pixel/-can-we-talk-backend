@@ -611,6 +611,30 @@
   .bar-row .bl{color:var(--ink-soft);} .bar-row .bv{color:var(--sl-green-deep); font-weight:600;}
   .an-flag{color:#b3261e;}
 
+  /* ---------- Author supplied video ---------- */
+  .video-grid-live{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;}
+  .book-video{border:1px solid var(--line); border-radius:9px; overflow:hidden; background:#0f140d;
+    transition:transform .25s cubic-bezier(.2,.7,.3,1), box-shadow .25s;}
+  .book-video:hover{transform:translateY(-3px); box-shadow:0 14px 32px rgba(12,61,34,0.16);}
+  .book-video iframe, .book-video video{width:100%; aspect-ratio:16/9; display:block; border:0; background:#000;}
+  .book-video .bv-title{padding:11px 14px; font-size:0.85rem; color:var(--paper); background:var(--sl-green-deep);}
+  .book-video-link{display:block; padding:28px 18px; text-align:center; color:var(--paper); font-weight:600; font-size:0.9rem;}
+  .book-video-link:hover{text-decoration:underline;}
+
+  /* ---------- Developer diagnostics ---------- */
+  .dev-filter{display:flex; align-items:center; gap:10px;}
+  .dev-log{display:flex; flex-direction:column; gap:10px; max-height:520px; overflow-y:auto;}
+  .dev-entry{border:1px solid var(--line); border-left:3px solid #b3261e; border-radius:6px; padding:12px 14px; background:var(--paper);}
+  .dev-entry.warn{border-left-color:#c99a2e;} .dev-entry.info{border-left-color:var(--sl-blue);}
+  .dev-entry .de-top{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; font-size:0.74rem; color:var(--ink-soft);
+    font-family:'IBM Plex Mono',monospace;}
+  .dev-entry .de-msg{font-size:0.88rem; color:var(--ink); margin-top:7px; font-weight:600; word-break:break-word;}
+  .dev-entry .de-meta{font-size:0.76rem; color:var(--ink-soft); margin-top:5px; font-family:'IBM Plex Mono',monospace; word-break:break-all;}
+  .dev-entry pre{margin-top:9px; background:#1d2419; color:#d7e3d0; padding:11px 13px; border-radius:5px; overflow-x:auto;
+    font-size:0.72rem; line-height:1.55; white-space:pre-wrap; word-break:break-word; max-height:220px;}
+  .dev-entry .de-toggle{margin-top:8px; font-size:0.76rem; color:var(--sl-green-deep); cursor:pointer; font-weight:600;}
+  .check-ok{color:#12622f; font-weight:600;} .check-bad{color:#b3261e; font-weight:600;}
+
   /* ---------- Install the app (PWA) ---------- */
   .install-band{background:var(--sl-green-deep); color:#fff; padding:56px 0;}
   .install-band .wrap{display:flex; align-items:center; gap:34px; flex-wrap:wrap; justify-content:space-between;}
@@ -944,6 +968,13 @@
       </div>
     </div>
   </section>
+  <section class="detail" id="mrp-video-section" style="display:none;">
+    <div class="wrap">
+      <div class="section-head"><span class="eyebrow">Watch</span><h2>Readings, interviews and launch footage</h2></div>
+      <div class="video-grid-live" id="mrp-video-grid"></div>
+    </div>
+  </section>
+
 
   <section class="detail" id="mrp-press">
     <div class="wrap"><div class="section-head"><span class="eyebrow">Media Coverage</span><h2>In the press</h2></div>
@@ -1060,6 +1091,13 @@
       </div>
     </div>
   </section>
+  <section class="detail" id="mono-video-section" style="display:none;">
+    <div class="wrap">
+      <div class="section-head"><span class="eyebrow">Watch</span><h2>Readings, interviews and launch footage</h2></div>
+      <div class="video-grid-live" id="mono-video-grid"></div>
+    </div>
+  </section>
+
 
   <section class="detail" id="mono-press">
     <div class="wrap"><div class="section-head"><span class="eyebrow">Media Coverage</span><h2>In the press</h2></div>
@@ -1117,6 +1155,13 @@
         <button type="submit" class="btn btn-dark" style="align-self:flex-start;">Post Comment</button>
       </form>
       <div id="gb-comment-list"></div>
+    </div>
+  </section>
+
+  <section class="detail" id="gb-video-section" style="display:none;">
+    <div class="wrap">
+      <div class="section-head"><span class="eyebrow">Watch</span><h2>Readings, interviews and footage</h2></div>
+      <div class="video-grid-live" id="gb-video-grid"></div>
     </div>
   </section>
   <section class="cross-sell">
@@ -1561,11 +1606,11 @@
     <div class="wrap">
 
       <div id="admin-lock" style="max-width:380px; margin:40px auto; text-align:center;">
-        <span class="eyebrow">Author Access</span>
+        <span class="eyebrow">Restricted Access</span>
         <h2 style="margin-top:14px;">Author Dashboard</h2>
-        <p style="color:var(--ink-soft); margin-top:10px; font-size:0.92rem;">Sign in with the author account to continue.</p>
-        <div class="modal-error" id="adminError" style="text-align:left;">Author access is required.</div>
-        <button class="btn btn-dark" id="adminUnlock" style="margin-top:16px; width:100%;">Verify Author Access</button>
+        <p style="color:var(--ink-soft); margin-top:10px; font-size:0.92rem;">Sign in with the author account, or a developer account, to continue.</p>
+        <div class="modal-error" id="adminError" style="text-align:left;">Author or developer access is required.</div>
+        <button class="btn btn-dark" id="adminUnlock" style="margin-top:16px; width:100%;">Verify Access</button>
       </div>
 
       <div id="admin-dashboard" style="display:none;">
@@ -1581,6 +1626,7 @@
           <div class="modal-tab" data-admin-tab="essays">Essays</div>
           <div class="modal-tab" data-admin-tab="audio">Audiobooks</div>
           <div class="modal-tab" data-admin-tab="settings">Settings</div>
+          <div class="modal-tab" data-admin-tab="developer" id="devTab" style="display:none;">Developer</div>
         </div>
 
         <!-- ANALYTICS -->
@@ -1673,6 +1719,13 @@
               <div class="field"><label>Front cover image</label><input type="file" id="newBookCover" accept="image/*"></div>
               <div class="field"><label>Back cover image</label><input type="file" id="newBookBackCover" accept="image/*"></div>
               <div class="field"><label>Launch / gallery photos (up to 6)</label><input type="file" id="newBookGallery" accept="image/*" multiple></div>
+              <div class="field"><label>Video links (one per line)</label>
+                <textarea id="newBookVideos" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="https://www.youtube.com/watch?v=...&#10;https://vimeo.com/...&#10;https://.../launch.mp4"></textarea>
+                <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Paste YouTube or Vimeo links straight from the address bar, or a direct video file link. They play on the book page.</div>
+              </div>
+              <div class="field"><label>Upload a video file</label><input type="file" id="newBookVideoFile" accept="video/mp4,video/webm,video/ogg,video/quicktime">
+                <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Up to 500 MB. For long films, a YouTube link streams better and costs nothing.</div>
+              </div>
               <button class="btn btn-dark" id="addBookBtn" style="align-self:flex-start;">Publish Book</button>
               <button class="btn btn-outline-dark" id="cancelBookEditBtn" style="display:none;">Cancel Edit</button>
             </div>
@@ -1749,7 +1802,7 @@
               <div class="field"><label>Duration (mm:ss)</label><input type="text" id="newChapterDuration" placeholder="8:24"></div>
               <div class="field"><label>Price (USD)</label><input type="number" id="newChapterPrice" step="0.01" placeholder="2.99"></div>
               <div class="field"><label>Narration audio file</label><input type="file" id="newChapterFile" accept="audio/*">
-                <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Audio must be uploaded to private storage before a chapter can be published.</div>
+                <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Uploaded straight to private storage. Listeners only ever get a link that expires after an hour, and only once they have bought the chapter.</div>
               </div>
               <button class="btn btn-dark" id="addChapterBtn" style="align-self:flex-start;">Publish Chapter</button>
             </div>
@@ -1782,6 +1835,55 @@
           <div class="field"><label>YouTube URL</label><input type="text" id="settingsYoutube" placeholder="https://youtube.com/..."></div>
           <div class="field"><label>TikTok URL</label><input type="text" id="settingsTiktok" placeholder="https://tiktok.com/..."></div>
           <button class="btn btn-dark" id="saveSettingsBtn" style="align-self:flex-start;">Save Social Links</button>
+        </div>
+
+        <!-- DEVELOPER DIAGNOSTICS -->
+        <div class="modal-panel" id="admin-panel-developer" style="flex-direction:column; gap:22px; margin-top:30px;">
+          <div class="an-head">
+            <div>
+              <h3 style="font-family:'Fraunces',serif; font-size:1.3rem;">Developer diagnostics</h3>
+              <p style="color:var(--ink-soft); font-size:0.85rem;" id="devStatusLine">Loading system state…</p>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-sm btn-outline-dark" id="devRefresh">Refresh</button>
+              <button class="btn btn-sm btn-outline-dark" id="devClearErrors" style="color:#b3261e;">Clear log</button>
+            </div>
+          </div>
+
+          <div class="an-card">
+            <h4>System checks</h4>
+            <div id="devChecks" class="an-list"></div>
+          </div>
+
+          <div class="an-cols">
+            <div class="an-card">
+              <h4>Runtime</h4>
+              <div id="devRuntime" class="an-list"></div>
+            </div>
+            <div class="an-card">
+              <h4>Table row counts</h4>
+              <div id="devCounts" class="an-list"></div>
+            </div>
+          </div>
+
+          <div class="an-card">
+            <h4>Errors, last 7 days</h4>
+            <div id="devErrorSummary" class="an-list" style="margin-bottom:16px;"></div>
+            <div class="dev-filter">
+              <label style="font-size:0.78rem; color:var(--ink-soft);">Level</label>
+              <select id="devLevelFilter" style="padding:7px 10px; border:1px solid var(--line); border-radius:5px; font-size:0.82rem;">
+                <option value="">All</option>
+                <option value="error">Error</option>
+                <option value="warn">Warning</option>
+                <option value="info">Info</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="an-card">
+            <h4>Error log</h4>
+            <div id="devErrorList" class="dev-log"></div>
+          </div>
         </div>
 
       </div>
@@ -2419,6 +2521,55 @@
   // the meantime, then swap the image in. Already-cached images swap instantly.
   const coverCache = new Set();
 
+  // Some browsers hand over a File with an empty `type`, which Storage then
+  // sees as application/octet-stream and rejects against the bucket's allowed
+  // MIME list. Fall back to the extension so a valid file is never refused.
+  const MIME_BY_EXT = {
+    mp3:'audio/mpeg', m4a:'audio/mp4', mp4:'video/mp4', aac:'audio/aac', ogg:'audio/ogg',
+    oga:'audio/ogg', wav:'audio/wav', webm:'video/webm', mov:'video/quicktime',
+    jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', webp:'image/webp'
+  };
+  function resolveMime(file, fallback){
+    if(file.type && file.type !== 'application/octet-stream') return file.type;
+    const ext = (file.name.split('.').pop() || '').toLowerCase();
+    return MIME_BY_EXT[ext] || fallback;
+  }
+
+  // Uploads to the public `media` bucket (video and large public assets).
+  // Covers still go through uploadCover, which targets the image-only bucket.
+  async function uploadMedia(file, folder){
+    if(!file) return null;
+    const MAX = 500 * 1024 * 1024;
+    if(file.size > MAX){ alert('Video files must be 500 MB or smaller. For anything longer, use a YouTube link.'); return null; }
+    const path = `${folder}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
+    const { error } = await sb.storage.from('media').upload(path, file, { contentType: resolveMime(file, 'video/mp4') });
+    if(error){ alert('Video upload failed: ' + error.message); return null; }
+    const { data } = sb.storage.from('media').getPublicUrl(path);
+    return data.publicUrl;
+  }
+
+  // Narration audio is paid content, so it goes to a private bucket. The API
+  // decides whether the upload is allowed and hands back a one-off signed URL;
+  // the file itself goes straight from the browser to Storage, never through
+  // the API, which would choke on a 300 MB body.
+  async function uploadChapterAudio(file, onProgress){
+    if(!file) return null;
+    const res = await fetch(`${API_URL}/api/audiobook/upload-url`, {
+      method: 'POST', headers: authHeaders(), body: JSON.stringify({ filename: file.name })
+    });
+    if(!res.ok){
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.hint || body.error || 'Could not start the upload.');
+    }
+    const { path, token } = await res.json();
+    if(onProgress) onProgress('Uploading audio…');
+    const { error } = await sb.storage.from('audiobook').uploadToSignedUrl(path, token, file, {
+      contentType: resolveMime(file, 'audio/mpeg')
+    });
+    if(error) throw new Error('Audio upload failed: ' + error.message);
+    return path;   // stored as audio_path; playback is signed on demand
+  }
+
   function applyCoverImage(el, url){
     if(!el) return;
     if(!url){
@@ -2486,6 +2637,60 @@
         galleryGrid.appendChild(item);
       });
     }
+
+    renderBookVideos(key, book);
+  }
+
+  // Author supplied videos: a YouTube or Vimeo embed, an uploaded file played
+  // inline, or an outbound link for anything that will not embed. Iframes are
+  // created with their src set from the normalised list the API returns, which
+  // has already rejected everything that is not http(s).
+  function renderBookVideos(key, book){
+    const grid = document.getElementById(key + '-video-grid');
+    const section = document.getElementById(key + '-video-section');
+    if(!grid) return;
+
+    const videos = Array.isArray(book?.video_urls) ? book.video_urls : [];
+    grid.innerHTML = '';
+    if(section) section.style.display = videos.length ? '' : 'none';
+    if(!videos.length) return;
+
+    videos.forEach(v => {
+      const card = document.createElement('div');
+      card.className = 'book-video';
+      if(v.type === 'embed'){
+        const frame = document.createElement('iframe');
+        frame.src = v.url;
+        frame.loading = 'lazy';
+        frame.title = v.title || 'Video';
+        frame.allow = 'accelerometer; clipboard-write; encrypted-media; picture-in-picture; fullscreen';
+        frame.allowFullscreen = true;
+        frame.referrerPolicy = 'strict-origin-when-cross-origin';
+        card.appendChild(frame);
+      } else if(v.type === 'file'){
+        const video = document.createElement('video');
+        video.src = v.url;
+        video.controls = true;
+        video.preload = 'none';     // do not pull megabytes before a click
+        video.playsInline = true;
+        card.appendChild(video);
+      } else {
+        const link = document.createElement('a');
+        link.href = v.source || v.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.className = 'book-video-link';
+        link.textContent = v.title || 'Watch the video';
+        card.appendChild(link);
+      }
+      if(v.title){
+        const caption = document.createElement('div');
+        caption.className = 'bv-title';
+        caption.textContent = v.title;
+        card.appendChild(caption);
+      }
+      grid.appendChild(card);
+    });
   }
 
   // Loads a background image only once the element is near the viewport.
@@ -2546,7 +2751,8 @@
         return {
           id: b.id, title: b.title, subtitle: b.subtitle || '', price: paperback ? paperback.price_cents / 100 : 0,
           meta: '', description: b.description || '', cover: b.cover_style || 'cover-1', cover_image_url: b.cover_image_url,
-          back_cover_url: b.back_cover_url, gallery_urls: normalizeGalleryUrls(b.gallery_urls), reader_full_text: b.reader_full_text || '', formats: b.book_formats || []
+          back_cover_url: b.back_cover_url, gallery_urls: normalizeGalleryUrls(b.gallery_urls), reader_full_text: b.reader_full_text || '', formats: b.book_formats || [],
+          video_urls: Array.isArray(b.video_urls) ? b.video_urls : []
         };
       });
       const firstCover = books.find(b => b.cover_image_url);
@@ -2715,6 +2921,7 @@
     gbBuyBox.dataset.bookTitle = b.title;
     gbBuyBox.dataset.cover = b.cover === 'cover-2' ? 'c2' : 'c1';
     gbBuyBox.dataset.price = b.price;
+    renderBookVideos('gb', b);
     showView('book-generic');
     loadAndRenderComments('gb-comment-list', b.id);
     loadRatingSummary('gb', b.id);
@@ -2728,15 +2935,24 @@
     try {
       const res = await fetch(`${API_URL}/api/auth/me`, { headers: authHeaders() });
       const profile = await res.json();
-      if(res.ok && profile.is_author){
-      document.getElementById('admin-lock').style.display = 'none';
-      document.getElementById('admin-dashboard').style.display = 'block';
-      renderAdminBooksTable();
-      renderAdminEssaysTable();
-      renderAdminAudioTable();
-      loadAnalytics();   // Analytics is the tab the dashboard opens on.
+      // A developer who is not the author still gets in, but only sees the
+      // Developer tab. The author tabs stay hidden for them.
+      if(res.ok && (profile.is_author || profile.is_developer)){
+        isAuthorUser = Boolean(profile.is_author);
+        isDeveloperUser = Boolean(profile.is_developer);
+        document.getElementById('admin-lock').style.display = 'none';
+        document.getElementById('admin-dashboard').style.display = 'block';
+        applyDashboardRole();
+        if(isAuthorUser){
+          renderAdminBooksTable();
+          renderAdminEssaysTable();
+          renderAdminAudioTable();
+          loadAnalytics();   // Analytics is the tab the dashboard opens on.
+        } else {
+          loadDeveloperPanel();
+        }
       } else {
-        throw new Error('Author access is required.');
+        throw new Error('Author or developer access is required.');
       }
     } catch(err) {
       document.getElementById('adminError').textContent = err.message;
@@ -2749,12 +2965,168 @@
       document.querySelectorAll('[data-admin-tab]').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       const active = tab.dataset.adminTab;
-      ['analytics', 'books', 'essays', 'audio', 'settings'].forEach(name => {
+      ADMIN_TABS.forEach(name => {
         const panel = document.getElementById('admin-panel-' + name);
         if(panel) panel.style.display = name === active ? 'flex' : 'none';
       });
       if(active === 'analytics') loadAnalytics();
+      if(active === 'developer') loadDeveloperPanel();
     });
+  });
+
+  const ADMIN_TABS = ['analytics', 'books', 'essays', 'audio', 'settings', 'developer'];
+  let isAuthorUser = false, isDeveloperUser = false;
+
+  // Shows only the tabs this account is entitled to, and opens the first one.
+  function applyDashboardRole(){
+    const devTab = document.getElementById('devTab');
+    if(devTab) devTab.style.display = isDeveloperUser ? '' : 'none';
+
+    const authorTabs = ['analytics', 'books', 'essays', 'audio', 'settings'];
+    document.querySelectorAll('[data-admin-tab]').forEach(tab => {
+      const name = tab.dataset.adminTab;
+      if(authorTabs.includes(name)) tab.style.display = isAuthorUser ? '' : 'none';
+    });
+
+    const first = isAuthorUser ? 'analytics' : 'developer';
+    document.querySelectorAll('[data-admin-tab]').forEach(t => t.classList.toggle('active', t.dataset.adminTab === first));
+    ADMIN_TABS.forEach(name => {
+      const panel = document.getElementById('admin-panel-' + name);
+      if(panel) panel.style.display = name === first ? 'flex' : 'none';
+    });
+
+    const heading = document.querySelector('#admin-dashboard .section-head h2');
+    if(heading && !isAuthorUser) heading.textContent = 'Developer access';
+  }
+
+  // ================= DEVELOPER DIAGNOSTICS =================
+  function devRow(name, value, state){
+    const row = document.createElement('div');
+    row.className = 'an-row';
+    row.innerHTML = '<span class="ar-name"></span><span class="ar-val"></span>';
+    row.querySelector('.ar-name').textContent = name;
+    const val = row.querySelector('.ar-val');
+    val.textContent = value;
+    if(state === 'ok') val.classList.add('check-ok');
+    if(state === 'bad') val.classList.add('check-bad');
+    return row;
+  }
+
+  function fillList(id, rows, emptyText){
+    const box = document.getElementById(id);
+    if(!box) return;
+    box.innerHTML = '';
+    if(!rows.length){ box.innerHTML = `<p class="an-empty">${emptyText}</p>`; return; }
+    rows.forEach(r => box.appendChild(r));
+  }
+
+  async function loadDeveloperPanel(){
+    const status = document.getElementById('devStatusLine');
+    try {
+      const res = await fetch(`${API_URL}/api/dev/health`, { headers: authHeaders() });
+      if(!res.ok){
+        const body = await res.json().catch(() => ({}));
+        throw new Error(res.status === 403
+          ? 'This account does not have the developer flag yet. Run migration 007.'
+          : (body.hint || body.error || 'Could not load diagnostics.'));
+      }
+      const h = await res.json();
+
+      fillList('devChecks', h.checks.map(c =>
+        devRow(c.name + (c.detail ? '. ' + c.detail : ''), c.ok ? 'OK' : 'FAIL', c.ok ? 'ok' : 'bad')
+      ), 'No checks returned.');
+
+      fillList('devRuntime', [
+        devRow('Environment', h.environment),
+        devRow('Node version', h.node),
+        devRow('Uptime', Math.floor(h.uptime_seconds / 60) + ' min'),
+        devRow('Checked at', new Date(h.checked_at).toLocaleString())
+      ], '');
+
+      fillList('devCounts', Object.entries(h.row_counts).map(([t, c]) =>
+        devRow(t, String(c), typeof c === 'number' ? null : 'bad')
+      ), '');
+
+      status.textContent = h.ok ? 'All system checks passing.' : 'Some checks are failing. See below.';
+
+      await loadDevErrors();
+    } catch(err){
+      status.textContent = err.message;
+      fillList('devChecks', [], err.message);
+    }
+  }
+
+  async function loadDevErrors(){
+    const level = document.getElementById('devLevelFilter')?.value || '';
+    try {
+      const [listRes, sumRes] = await Promise.all([
+        fetch(`${API_URL}/api/dev/errors?limit=100${level ? '&level=' + level : ''}`, { headers: authHeaders() }),
+        fetch(`${API_URL}/api/dev/errors/summary`, { headers: authHeaders() })
+      ]);
+
+      if(sumRes.ok){
+        const s = await sumRes.json();
+        const rows = [devRow('Total logged', String(s.total))];
+        Object.entries(s.by_level).forEach(([lvl, n]) => rows.push(devRow(lvl, String(n), lvl === 'error' && n ? 'bad' : null)));
+        s.top_paths.slice(0, 5).forEach(p => rows.push(devRow(p.path, String(p.count))));
+        fillList('devErrorSummary', rows, 'No errors in the last 7 days.');
+      }
+
+      const box = document.getElementById('devErrorList');
+      if(!listRes.ok){
+        const body = await listRes.json().catch(() => ({}));
+        box.innerHTML = `<p class="an-empty">${body.hint || body.error || 'Could not load the error log.'}</p>`;
+        return;
+      }
+      const errors = await listRes.json();
+      box.innerHTML = '';
+      if(!errors.length){
+        box.innerHTML = '<p class="an-empty">No errors logged. That is the good outcome.</p>';
+        return;
+      }
+      errors.forEach(e => {
+        const entry = document.createElement('div');
+        entry.className = 'dev-entry ' + (e.level || 'error');
+        entry.innerHTML = `
+          <div class="de-top"><span class="de-when"></span><span class="de-req"></span></div>
+          <div class="de-msg"></div>
+          <div class="de-meta"></div>`;
+        entry.querySelector('.de-when').textContent = new Date(e.occurred_at).toLocaleString();
+        entry.querySelector('.de-req').textContent = (e.source || 'api') + (e.request_id ? ' · ' + e.request_id : '');
+        entry.querySelector('.de-msg').textContent = e.message;
+        entry.querySelector('.de-meta').textContent =
+          [e.method, e.path, e.status ? 'status ' + e.status : null, e.user_agent].filter(Boolean).join('  ·  ');
+        if(e.stack){
+          const toggle = document.createElement('div');
+          toggle.className = 'de-toggle';
+          toggle.textContent = 'Show stack trace';
+          const pre = document.createElement('pre');
+          pre.textContent = e.stack;
+          pre.style.display = 'none';
+          toggle.addEventListener('click', () => {
+            const open = pre.style.display !== 'none';
+            pre.style.display = open ? 'none' : 'block';
+            toggle.textContent = open ? 'Show stack trace' : 'Hide stack trace';
+          });
+          entry.appendChild(toggle);
+          entry.appendChild(pre);
+        }
+        box.appendChild(entry);
+      });
+    } catch(err){
+      document.getElementById('devErrorList').innerHTML = `<p class="an-empty">${err.message}</p>`;
+    }
+  }
+
+  document.getElementById('devRefresh')?.addEventListener('click', loadDeveloperPanel);
+  document.getElementById('devLevelFilter')?.addEventListener('change', loadDevErrors);
+  document.getElementById('devClearErrors')?.addEventListener('click', async () => {
+    if(!confirm('Clear the entire error log? This cannot be undone.')) return;
+    try {
+      const res = await fetch(`${API_URL}/api/dev/errors`, { method: 'DELETE', headers: authHeaders() });
+      if(!res.ok) throw new Error(await res.text());
+      loadDevErrors();
+    } catch(err){ alert('Could not clear the log: ' + err.message); }
   });
 
   // ================= AUTHOR ANALYTICS =================
@@ -2923,6 +3295,9 @@
       document.getElementById('newBookPrice').value = b.price;
       document.getElementById('newBookDescription').value = b.description || '';
       document.getElementById('newBookReaderText').value = b.reader_full_text || '';
+      // Show the links the author originally pasted, not the embed form.
+      document.getElementById('newBookVideos').value =
+        (b.video_urls || []).map(v => v.source || v.url).join('\n');
       document.getElementById('bookFormHeading').textContent = 'Editing: ' + b.title;
       document.getElementById('addBookBtn').textContent = 'Update Book';
       document.getElementById('cancelBookEditBtn').style.display = 'inline-block';
@@ -2957,6 +3332,8 @@
     document.getElementById('newBookBackCover').value = '';
     document.getElementById('newBookGallery').value = '';
     document.getElementById('newBookReaderFile').value = '';
+    document.getElementById('newBookVideos').value = '';
+    document.getElementById('newBookVideoFile').value = '';
     document.getElementById('bookFormHeading').textContent = '+ Add New Book';
     document.getElementById('addBookBtn').textContent = 'Publish Book';
     document.getElementById('cancelBookEditBtn').style.display = 'none';
@@ -3046,8 +3423,20 @@
         gallery_urls = uploaded.filter(Boolean);
       }
 
+      // Pasted links, plus any uploaded video file, go to the server as plain
+      // text. It normalises YouTube and Vimeo links into embeddable form and
+      // discards anything that is not a real http(s) URL.
+      const videoLines = document.getElementById('newBookVideos').value
+        .split(/[\r\n]+/).map(v => v.trim()).filter(Boolean);
+      const videoFile = document.getElementById('newBookVideoFile').files[0];
+      if(videoFile){
+        const uploadedVideo = await uploadMedia(videoFile, 'videos');
+        if(uploadedVideo) videoLines.push(uploadedVideo);
+      }
+      const video_urls = videoLines;
+
       if(editingBookId){
-        const body = { title, subtitle, description, reader_full_text, price };
+        const body = { title, subtitle, description, reader_full_text, price, video_urls };
         if(cover_image_url) body.cover_image_url = cover_image_url;
         if(back_cover_url) body.back_cover_url = back_cover_url;
         if(gallery_urls) body.gallery_urls = gallery_urls;
@@ -3061,7 +3450,7 @@
           body: JSON.stringify({
             title, subtitle, description, reader_full_text,
             cover_style: books.length % 2 === 0 ? 'cover-1' : 'cover-2',
-            cover_image_url, back_cover_url, gallery_urls,
+            cover_image_url, back_cover_url, gallery_urls, video_urls,
             formats: [{ format_name: 'Paperback', price_cents: Math.round(price * 100), sort_order: 0 }]
           })
         });
@@ -3385,13 +3774,56 @@
     }));
   }
 
-  document.getElementById('addChapterBtn').addEventListener('click', () => {
-    const bookId = document.getElementById('newChapterBook').value;
+  document.getElementById('addChapterBtn').addEventListener('click', async () => {
+    const button = document.getElementById('addChapterBtn');
+    const key = document.getElementById('newChapterBook').value;
+    const bookId = key === 'mrp' ? mrpBookId : key === 'mono' ? monoBookId : key;
     const title = document.getElementById('newChapterTitle').value.trim();
     const duration = document.getElementById('newChapterDuration').value.trim();
     const price = parseFloat(document.getElementById('newChapterPrice').value);
-    if(!title || !/^\d+:\d{2}$/.test(duration) || !price){ alert('Please fill in a valid title, duration (mm:ss) and price.'); return; }
-    alert('Chapter publishing requires a private audio URL. Upload the audio to private storage, then publish it through the secured backend.');
+    const file = document.getElementById('newChapterFile').files[0];
+
+    if(!bookId){ alert('That book is not published yet, so a chapter cannot be attached to it.'); return; }
+    if(!title || !/^\d+:\d{2}$/.test(duration) || !(price >= 0)){
+      alert('Please fill in a valid title, duration (mm:ss) and price.');
+      return;
+    }
+    if(!file){ alert('Choose the narration audio file to upload.'); return; }
+    if(!currentSession){ alert('Please sign in as the author account first.'); return; }
+
+    const [minutes, seconds] = duration.split(':').map(Number);
+    const originalLabel = button.textContent;
+    button.disabled = true;
+
+    try {
+      button.textContent = 'Uploading audio…';
+      const audio_path = await uploadChapterAudio(file, msg => { button.textContent = msg; });
+
+      button.textContent = 'Publishing…';
+      const res = await fetch(`${API_URL}/api/audiobook/${bookId}/chapters`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          title,
+          duration_seconds: minutes * 60 + seconds,
+          price_cents: Math.round(price * 100),
+          audio_path
+        })
+      });
+      if(!res.ok) throw new Error(res.status === 403 ? 'This account is not flagged as the author yet.' : await res.text());
+
+      showAdminToast('Chapter published.');
+      document.getElementById('newChapterTitle').value = '';
+      document.getElementById('newChapterDuration').value = '';
+      document.getElementById('newChapterPrice').value = '';
+      document.getElementById('newChapterFile').value = '';
+      renderAdminAudioTable();
+    } catch(err){
+      alert('Could not publish the chapter: ' + err.message);
+    } finally {
+      button.disabled = false;
+      button.textContent = originalLabel;
+    }
   });
 
   // ================= AJ BOOK CLUB =================

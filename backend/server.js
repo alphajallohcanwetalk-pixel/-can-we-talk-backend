@@ -16,7 +16,9 @@ import audiobookRoutes from './routes/audiobook.js';
 import mediaRoutes from './routes/media.js';
 import settingsRoutes from './routes/settings.js';
 import analyticsRoutes from './routes/analytics.js';
+import devRoutes from './routes/dev.js';
 import webhookRoutes from './routes/webhooks.js';
+import { logAppError } from './lib/errorLog.js';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -77,6 +79,7 @@ app.use('/api/audiobook', audiobookRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/dev', devRoutes);
 
 app.get('/', (req, res) => res.json({
 	name: 'Can We Talk? API',
@@ -92,6 +95,10 @@ app.use((err, req, res, next) => {
 	}
 	console.error(JSON.stringify({ type: 'error', request_id: req.requestId, message: err.message, path: req.path }));
 	if (process.env.SENTRY_DSN) Sentry.captureException(err, { tags: { request_id: req.requestId, path: req.path } });
+	// Persist it so the developer panel can show the stack without needing
+	// access to the hosting provider's logs. Never awaited: logging must not
+	// delay or fail the response.
+	logAppError({ error: err, req, status: 500 });
 	res.status(500).json({ error: 'Internal server error', request_id: req.requestId });
 });
 
