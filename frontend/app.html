@@ -611,6 +611,30 @@
   .bar-row .bl{color:var(--ink-soft);} .bar-row .bv{color:var(--sl-green-deep); font-weight:600;}
   .an-flag{color:#b3261e;}
 
+  /* ---------- Auth form extras ---------- */
+  .pw-wrap{position:relative; display:flex; align-items:center;}
+  .pw-wrap input{width:100%; padding-right:62px;}
+  .pw-toggle{position:absolute; right:8px; background:none; border:0; cursor:pointer; font-size:0.76rem; font-weight:700;
+    color:var(--sl-green-deep); padding:6px 8px; border-radius:4px;}
+  .pw-toggle:hover{background:var(--paper-dim);}
+  .pw-meter{height:5px; border-radius:3px; background:var(--paper-dim); margin-top:8px; overflow:hidden;}
+  .pw-meter span{display:block; height:100%; width:0; border-radius:3px; background:#b3261e; transition:width .3s ease, background .3s ease;}
+  .pw-meter.ok span{background:var(--gold);} .pw-meter.good span{background:var(--sl-green-bright);}
+  .pw-hint{font-size:0.76rem; color:var(--ink-soft); margin-top:6px;}
+  .link-btn{background:none; border:0; cursor:pointer; color:var(--sl-green-deep); font-size:0.83rem; font-weight:600;
+    padding:10px 2px 0; text-decoration:underline; align-self:flex-start;}
+  .link-btn:hover{color:var(--sl-green);}
+  .modal-ok{display:none; background:rgba(30,181,58,0.1); border:1px solid rgba(18,98,47,0.35); color:#0c3d22;
+    padding:11px 13px; border-radius:5px; font-size:0.84rem; margin-bottom:12px; line-height:1.55;}
+  .modal-ok.show{display:block;}
+
+  /* ---------- Built by credit ---------- */
+  .built-by{display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .built-by img{border-radius:5px; flex:0 0 auto;}
+  .built-by strong{color:#b9c2b0; font-weight:700;}
+  .built-by a{color:#8b9285; text-decoration:underline; white-space:nowrap;}
+  .built-by a:hover{color:#b9c2b0;}
+
   /* ---------- Author supplied video ---------- */
   .video-grid-live{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;}
   .book-video{border:1px solid var(--line); border-radius:9px; overflow:hidden; background:#0f140d;
@@ -1901,24 +1925,70 @@
       <div class="modal-tab" data-tab="signup">Join / Sign Up</div>
     </div>
 
-    <div class="modal-panel active" id="panel-signin">
+    <form class="modal-panel active" id="panel-signin" novalidate>
       <h3>Welcome back</h3>
       <div class="modal-sub">Sign in to comment, rate books, and access the AJ Book Club.</div>
       <div class="modal-error" id="signinError">Please enter a valid email and password.</div>
-      <div class="field"><label>Email</label><input type="email" id="signinEmail" placeholder="you@example.com"></div>
-      <div class="field"><label>Password</label><input type="password" id="signinPassword" placeholder="Your password"></div>
-      <button class="btn btn-dark" id="signinSubmit">Sign In</button>
-    </div>
+      <div class="field"><label for="signinEmail">Email</label>
+        <input type="email" id="signinEmail" autocomplete="username" inputmode="email" placeholder="you@example.com"></div>
+      <div class="field"><label for="signinPassword">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="signinPassword" autocomplete="current-password" placeholder="Your password">
+          <button type="button" class="pw-toggle" data-pw-toggle="signinPassword" aria-label="Show password">Show</button>
+        </div>
+      </div>
+      <button class="btn btn-dark" id="signinSubmit" type="submit">Sign In</button>
+      <button type="button" class="link-btn" id="forgotLink">Forgot your password?</button>
+    </form>
 
-    <div class="modal-panel" id="panel-signup">
+    <form class="modal-panel" id="panel-signup" novalidate>
       <h3>Join Can We Talk?</h3>
       <div class="modal-sub">Create an account to comment, rate, buy books, and join the AJ Book Club.</div>
       <div class="modal-error" id="signupError">Please fill in all fields with a valid email.</div>
-      <div class="field"><label>Full name</label><input type="text" id="signupName" placeholder="Your name"></div>
-      <div class="field"><label>Email</label><input type="email" id="signupEmail" placeholder="you@example.com"></div>
-      <div class="field"><label>Password</label><input type="password" id="signupPassword" placeholder="Create a password"></div>
-      <button class="btn btn-dark" id="signupSubmit">Create Account</button>
-    </div>
+      <div class="field"><label for="signupName">Full name</label>
+        <input type="text" id="signupName" autocomplete="name" placeholder="Your name"></div>
+      <div class="field"><label for="signupEmail">Email</label>
+        <input type="email" id="signupEmail" autocomplete="email" inputmode="email" placeholder="you@example.com"></div>
+      <div class="field"><label for="signupPassword">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="signupPassword" autocomplete="new-password" placeholder="At least 8 characters">
+          <button type="button" class="pw-toggle" data-pw-toggle="signupPassword" aria-label="Show password">Show</button>
+        </div>
+        <div class="pw-meter" id="signupMeter" aria-live="polite"><span></span></div>
+        <div class="pw-hint" id="signupHint">Use at least 8 characters. Longer is stronger than complicated.</div>
+      </div>
+      <button class="btn btn-dark" id="signupSubmit" type="submit">Create Account</button>
+    </form>
+
+    <!-- Request a reset link -->
+    <form class="modal-panel" id="panel-forgot" novalidate>
+      <h3>Reset your password</h3>
+      <div class="modal-sub">Enter the email you signed up with and we will send you a link to set a new password.</div>
+      <div class="modal-error" id="forgotError">Please enter a valid email address.</div>
+      <div class="modal-ok" id="forgotOk">If an account exists for that address, a reset link is on its way. The link is valid for one hour.</div>
+      <div class="field"><label for="forgotEmail">Email</label>
+        <input type="email" id="forgotEmail" autocomplete="email" inputmode="email" placeholder="you@example.com"></div>
+      <button class="btn btn-dark" id="forgotSubmit" type="submit">Email me a reset link</button>
+      <button type="button" class="link-btn" id="backToSignin">Back to sign in</button>
+    </form>
+
+    <!-- Shown after the emailed link is opened -->
+    <form class="modal-panel" id="panel-reset" novalidate>
+      <h3>Choose a new password</h3>
+      <div class="modal-sub">You followed a reset link. Pick a new password to finish signing in.</div>
+      <div class="modal-error" id="resetError">Passwords do not match.</div>
+      <div class="modal-ok" id="resetOk">Password updated. You are signed in.</div>
+      <div class="field"><label for="resetPassword">New password</label>
+        <div class="pw-wrap">
+          <input type="password" id="resetPassword" autocomplete="new-password" placeholder="At least 8 characters">
+          <button type="button" class="pw-toggle" data-pw-toggle="resetPassword" aria-label="Show password">Show</button>
+        </div>
+        <div class="pw-meter" id="resetMeter" aria-live="polite"><span></span></div>
+      </div>
+      <div class="field"><label for="resetPassword2">Confirm new password</label>
+        <input type="password" id="resetPassword2" autocomplete="new-password" placeholder="Type it again"></div>
+      <button class="btn btn-dark" id="resetSubmit" type="submit">Save new password</button>
+    </form>
   </div>
 </div>
 
@@ -1980,7 +2050,12 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 Alpha Amadu Jalloh. All rights reserved. · <a class="nav-link" data-view="privacy" style="text-decoration:underline; color:#8b9285;">Privacy</a> · <a class="nav-link" data-view="terms" style="text-decoration:underline; color:#8b9285;">Terms</a> · Website built by AQ Developers</span>
+      <span>© 2026 Alpha Amadu Jalloh. All rights reserved. · <a class="nav-link" data-view="privacy" style="text-decoration:underline; color:#8b9285;">Privacy</a> · <a class="nav-link" data-view="terms" style="text-decoration:underline; color:#8b9285;">Terms</a></span>
+      <span class="built-by">
+        <img src="icons/bna-developers-icon.png" alt="" width="22" height="22" loading="lazy" decoding="async">
+        Website built by <strong>B&amp;A&nbsp;Developers</strong>
+        <a href="tel:+254794698660" aria-label="Call B and A Developers on 0794 698 660">0794&nbsp;698&nbsp;660</a>
+      </span>
       <span>Sierra Leone 🇸🇱 · Question Power. Question Society. Question Yourself. · <a class="nav-link" data-view="admin" style="text-decoration:underline; color:#8b9285;">Author Login</a></span>
     </div>
   </div>
@@ -2298,12 +2373,7 @@
   });
 
   document.querySelectorAll('#authModal .modal-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('#authModal .modal-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('#authModal .modal-panel').forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
-    });
+    tab.addEventListener('click', () => showPanel(tab.dataset.tab));
   });
 
   function initials(name){
@@ -2348,38 +2418,244 @@
     currentSession = session;
   });
 
-  document.getElementById('signinSubmit').addEventListener('click', async () => {
-    const email = document.getElementById('signinEmail').value.trim();
-    const password = document.getElementById('signinPassword').value;
-    const err = document.getElementById('signinError');
-    if(!isValidEmail(email) || !password){ err.textContent = 'Please enter a valid email and password.'; err.style.display = 'block'; return; }
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    if(error){ err.textContent = error.message; err.style.display = 'block'; return; }
-    err.style.display = 'none';
-    currentSession = data.session;
-    const name = data.user.user_metadata?.full_name || data.user.email;
-    setSignedIn({ name, email: data.user.email });
+  // ---------- Auth helpers ----------
+  const MIN_PASSWORD = 8;
+
+  function showPanel(name){
+    document.querySelectorAll('#authModal .modal-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('#authModal .modal-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    const tab = document.querySelector(`#authModal .modal-tab[data-tab="${name}"]`);
+    if(tab) tab.classList.add('active');
+    // Forgot and reset are reached from links, not tabs, so hide the tab strip there.
+    const strip = document.querySelector('#authModal .modal-tabs');
+    if(strip) strip.style.display = (name === 'forgot' || name === 'reset') ? 'none' : '';
+  }
+
+  const setMsg = (id, text, show) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(text) el.textContent = text;
+    if(el.classList.contains('modal-ok')) el.classList.toggle('show', !!show);
+    else el.style.display = show ? 'block' : 'none';
+  };
+
+  // Supabase returns messages that distinguish "no such user" from "wrong
+  // password" and "email not confirmed". Echoing them verbatim lets anyone test
+  // whether an address has an account here, so they are collapsed into one
+  // answer. Only genuinely actionable cases get their own wording.
+  function friendlyAuthError(error){
+    const raw = (error?.message || '').toLowerCase();
+    if(raw.includes('email not confirmed')) return 'Please confirm your email first. Check your inbox for the confirmation link.';
+    if(raw.includes('rate limit') || raw.includes('too many')) return 'Too many attempts. Please wait a few minutes and try again.';
+    if(raw.includes('password should be') || raw.includes('weak')) return `Please choose a password of at least ${MIN_PASSWORD} characters.`;
+    if(raw.includes('already registered') || raw.includes('already been registered')) return 'That email is already registered. Try signing in, or reset your password.';
+    if(raw.includes('network') || raw.includes('fetch')) return 'Could not reach the server. Check your connection and try again.';
+    return 'That email and password combination did not work. Please try again.';
+  }
+
+  // Length first, variety second: a long simple passphrase beats a short messy one.
+  function passwordScore(pw){
+    if(!pw) return 0;
+    let score = 0;
+    if(pw.length >= MIN_PASSWORD) score += 1;
+    if(pw.length >= 12) score += 1;
+    if(/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score += 1;
+    if(/\d/.test(pw) || /[^A-Za-z0-9]/.test(pw)) score += 1;
+    return Math.min(score, 4);
+  }
+
+  function paintMeter(meterId, pw){
+    const meter = document.getElementById(meterId);
+    if(!meter) return;
+    const score = passwordScore(pw);
+    meter.querySelector('span').style.width = (score * 25) + '%';
+    meter.classList.toggle('ok', score === 2 || score === 3);
+    meter.classList.toggle('good', score >= 4);
+  }
+
+  // Show / hide, for every password field at once.
+  document.querySelectorAll('[data-pw-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.pwToggle);
+      if(!input) return;
+      const hidden = input.type === 'password';
+      input.type = hidden ? 'text' : 'password';
+      btn.textContent = hidden ? 'Hide' : 'Show';
+      btn.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
+      input.focus();
+    });
   });
 
-  document.getElementById('signupSubmit').addEventListener('click', async () => {
+  document.getElementById('signupPassword').addEventListener('input', e => paintMeter('signupMeter', e.target.value));
+  document.getElementById('resetPassword').addEventListener('input', e => paintMeter('resetMeter', e.target.value));
+
+  // Runs an async submit with the button disabled, so a slow network cannot be
+  // turned into a dozen duplicate requests by an impatient click.
+  async function withBusy(button, label, fn){
+    const original = button.textContent;
+    button.disabled = true;
+    button.textContent = label;
+    try { await fn(); }
+    finally { button.disabled = false; button.textContent = original; }
+  }
+
+  // ---------- Sign in ----------
+  document.getElementById('panel-signin').addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = document.getElementById('signinEmail').value.trim();
+    const password = document.getElementById('signinPassword').value;
+    if(!isValidEmail(email) || !password){
+      setMsg('signinError', 'Please enter a valid email and your password.', true);
+      return;
+    }
+    await withBusy(document.getElementById('signinSubmit'), 'Signing in…', async () => {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if(error){ setMsg('signinError', friendlyAuthError(error), true); return; }
+      setMsg('signinError', null, false);
+      document.getElementById('signinPassword').value = '';
+      currentSession = data.session;
+      const name = data.user.user_metadata?.full_name || data.user.email;
+      setSignedIn({ name, email: data.user.email });
+    });
+  });
+
+  // ---------- Sign up ----------
+  document.getElementById('panel-signup').addEventListener('submit', async e => {
+    e.preventDefault();
     const name = document.getElementById('signupName').value.trim();
     const email = document.getElementById('signupEmail').value.trim();
     const pw = document.getElementById('signupPassword').value;
-    const err = document.getElementById('signupError');
-    if(!name || !isValidEmail(email) || pw.length < 6){ err.textContent = 'Please fill in all fields (password needs 6+ characters).'; err.style.display = 'block'; return; }
-    const { data, error } = await sb.auth.signUp({ email, password: pw, options: { data: { full_name: name } } });
-    if(error){ err.textContent = error.message; err.style.display = 'block'; return; }
-    err.style.display = 'none';
-    // Trigger the welcome email (fire and forget, do not block sign-up on this)
-    fetch(`${API_URL}/api/auth/welcome`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, full_name: name }) }).catch(() => {});
-    if(data.session){
-      currentSession = data.session;
-      setSignedIn({ name, email });
-    } else {
-      alert('Account created! Check your email to confirm it, then sign in.');
-      document.querySelector('[data-tab="signin"]').click();
+    if(name.length < 2 || !isValidEmail(email)){
+      setMsg('signupError', 'Please enter your name and a valid email address.', true);
+      return;
+    }
+    if(pw.length < MIN_PASSWORD){
+      setMsg('signupError', `Your password needs at least ${MIN_PASSWORD} characters.`, true);
+      return;
+    }
+    await withBusy(document.getElementById('signupSubmit'), 'Creating account…', async () => {
+      const { data, error } = await sb.auth.signUp({
+        email,
+        password: pw,
+        options: {
+          data: { full_name: name },
+          // Send the confirmation link back to this site rather than Supabase's
+          // default, which would otherwise drop the reader on a blank page.
+          emailRedirectTo: `${location.origin}${location.pathname}`
+        }
+      });
+      if(error){ setMsg('signupError', friendlyAuthError(error), true); return; }
+      setMsg('signupError', null, false);
+      document.getElementById('signupPassword').value = '';
+      // Welcome email is fire and forget: sign-up must not fail because the
+      // mail provider is slow.
+      fetch(`${API_URL}/api/auth/welcome`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, full_name: name }) }).catch(() => {});
+      if(data.session){
+        currentSession = data.session;
+        setSignedIn({ name, email });
+      } else {
+        alert('Account created. Check your email to confirm it, then sign in.');
+        showPanel('signin');
+      }
+    });
+  });
+
+  // ---------- Forgot password ----------
+  document.getElementById('forgotLink').addEventListener('click', () => {
+    document.getElementById('forgotEmail').value = document.getElementById('signinEmail').value.trim();
+    setMsg('forgotError', null, false);
+    setMsg('forgotOk', null, false);
+    showPanel('forgot');
+  });
+  document.getElementById('backToSignin').addEventListener('click', () => showPanel('signin'));
+
+  document.getElementById('panel-forgot').addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = document.getElementById('forgotEmail').value.trim();
+    if(!isValidEmail(email)){ setMsg('forgotError', 'Please enter a valid email address.', true); return; }
+    setMsg('forgotError', null, false);
+
+    await withBusy(document.getElementById('forgotSubmit'), 'Sending…', async () => {
+      // redirectTo must be listed in Supabase Auth > URL Configuration, or the
+      // link in the email will bounce to the site root with no recovery token.
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: `${location.origin}${location.pathname}#password-reset`
+      });
+      // The same confirmation is shown whether or not the address exists. Saying
+      // "no account found" would turn this form into an account checker.
+      if(error && /rate limit|too many/i.test(error.message || '')){
+        setMsg('forgotError', 'Too many requests. Please wait a few minutes before trying again.', true);
+        return;
+      }
+      setMsg('forgotOk', null, true);
+    });
+  });
+
+  // ---------- Set a new password after following the emailed link ----------
+  document.getElementById('panel-reset').addEventListener('submit', async e => {
+    e.preventDefault();
+    const pw = document.getElementById('resetPassword').value;
+    const pw2 = document.getElementById('resetPassword2').value;
+    if(pw.length < MIN_PASSWORD){
+      setMsg('resetError', `Your password needs at least ${MIN_PASSWORD} characters.`, true);
+      return;
+    }
+    if(pw !== pw2){ setMsg('resetError', 'Those two passwords do not match.', true); return; }
+    setMsg('resetError', null, false);
+
+    await withBusy(document.getElementById('resetSubmit'), 'Saving…', async () => {
+      const { data, error } = await sb.auth.updateUser({ password: pw });
+      if(error){
+        // The usual cause is an expired or already used link.
+        setMsg('resetError', /expired|invalid|session/i.test(error.message || '')
+          ? 'That reset link has expired or was already used. Request a new one.'
+          : friendlyAuthError(error), true);
+        return;
+      }
+      setMsg('resetOk', null, true);
+      document.getElementById('resetPassword').value = '';
+      document.getElementById('resetPassword2').value = '';
+      const user = data.user;
+      if(user){
+        const { data: sessionData } = await sb.auth.getSession();
+        currentSession = sessionData.session;
+        setSignedIn({ name: user.user_metadata?.full_name || user.email, email: user.email });
+      }
+      // Clear the recovery token out of the address bar and history. Supabase
+      // usually strips it already, but a token left in the URL can leak through
+      // the back button or a shared link.
+      if(location.hash) history.replaceState(null, '', location.pathname + location.search);
+    });
+  });
+
+  // Supabase parses the recovery token out of the URL and fires this event. The
+  // reader must land on the "choose a new password" form, not on the homepage
+  // with an invisible half-session.
+  let inPasswordRecovery = false;
+  sb.auth.onAuthStateChange((event) => {
+    if(event === 'PASSWORD_RECOVERY'){
+      inPasswordRecovery = true;
+      setMsg('resetError', null, false);
+      setMsg('resetOk', null, false);
+      openAuth();
+      showPanel('reset');
     }
   });
+
+  // Belt and braces: if the event was missed (it can fire before this script
+  // runs), fall back to the hash the reset link carries.
+  function checkRecoveryHash(){
+    const hash = location.hash || '';
+    if(inPasswordRecovery) return;
+    if(hash.includes('type=recovery') || hash.startsWith('#password-reset')){
+      inPasswordRecovery = true;
+      openAuth();
+      showPanel('reset');
+    }
+  }
+  checkRecoveryHash();
+  window.addEventListener('hashchange', checkRecoveryHash);
 
   // ================= COMMENTS (real, backend driven, works for any book by its UUID) =================
   async function loadMediaCoverage(key, bookId){
