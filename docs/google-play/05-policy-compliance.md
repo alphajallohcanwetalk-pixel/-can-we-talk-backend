@@ -4,6 +4,22 @@ The issues most likely to get this app rejected, and what to do about each.
 
 ---
 
+## 0. None of this applies to the app installed from the website
+
+Everything in this file is about a build distributed **through Google Play**.
+
+The PWA that people install from `canwetalkvoice.com`, by tapping "Download the
+App" or "Add to Home Screen", is not distributed by Google. It is the website,
+running full screen. Google Play's payment rules do not reach it.
+
+So the installed-from-web app keeps **everything**: eBooks, audiobook chapters,
+the Book Club subscription, all of it, paid through Stripe with no Play fee.
+Nothing in the sections below should be applied to it.
+
+Only a `.aab` uploaded to the Play Console is bound by section 1.
+
+---
+
 ## 1. Play Billing and digital goods (the serious one)
 
 Covered in `00-READ-THIS-FIRST.md`. Short version: printed books may be sold

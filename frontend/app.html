@@ -611,6 +611,25 @@
   .bar-row .bl{color:var(--ink-soft);} .bar-row .bv{color:var(--sl-green-deep); font-weight:600;}
   .an-flag{color:#b3261e;}
 
+  /* ---------- Comment reporting and moderation ---------- */
+  .comment-report{margin-top:8px;}
+  .report-btn{background:none; border:0; color:var(--ink-soft); font-size:0.74rem; cursor:pointer; padding:2px 0;
+    text-decoration:underline; opacity:0.6; transition:opacity .2s, color .2s;}
+  .report-btn:hover{opacity:1; color:#b3261e;}
+  .report-btn:disabled{cursor:default; text-decoration:none;}
+  .comment-report.done .report-btn{color:#12622f; opacity:1;}
+  .mod-item{border:1px solid var(--line); border-radius:8px; padding:14px 16px; background:var(--paper); margin-bottom:10px;}
+  .mod-item.flagged{border-left:3px solid #b3261e;}
+  .mod-item.hidden-c{opacity:0.55;}
+  .mod-top{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; font-size:0.76rem; color:var(--ink-soft);}
+  .mod-body{font-size:0.88rem; margin:8px 0; word-break:break-word;}
+  .mod-flags{font-size:0.75rem; color:#b3261e; font-weight:600;}
+  .mod-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+  .mod-actions button{font-size:0.76rem; padding:5px 11px; border-radius:4px; border:1px solid var(--line);
+    background:var(--paper-dim); cursor:pointer;}
+  .mod-actions button:hover{background:#fff;}
+  .mod-actions .danger{color:#b3261e; border-color:rgba(179,38,30,0.4);}
+
   /* ---------- Hero install button ---------- */
   .btn-install{display:inline-flex; align-items:center; gap:11px; background:#fff; color:var(--sl-green-deep);
     border:1px solid rgba(255,255,255,0.9); box-shadow:0 10px 28px rgba(0,0,0,0.22); font-weight:700;}
@@ -1756,6 +1775,7 @@
           <div class="modal-tab" data-admin-tab="essays">Essays</div>
           <div class="modal-tab" data-admin-tab="audio">Audiobooks</div>
           <div class="modal-tab" data-admin-tab="settings">Settings</div>
+          <div class="modal-tab" data-admin-tab="moderation" id="moderationTab">Comments</div>
           <div class="modal-tab" data-admin-tab="security" id="securityTab">Security</div>
           <div class="modal-tab" data-admin-tab="developer" id="devTab" style="display:none;">Developer</div>
         </div>
@@ -1966,6 +1986,18 @@
           <div class="field"><label>YouTube URL</label><input type="text" id="settingsYoutube" placeholder="https://youtube.com/..."></div>
           <div class="field"><label>TikTok URL</label><input type="text" id="settingsTiktok" placeholder="https://tiktok.com/..."></div>
           <button class="btn btn-dark" id="saveSettingsBtn" style="align-self:flex-start;">Save Social Links</button>
+        </div>
+
+        <!-- COMMENT MODERATION -->
+        <div class="modal-panel" id="admin-panel-moderation" style="flex-direction:column; gap:18px; margin-top:30px;">
+          <div class="an-head">
+            <div>
+              <h3 style="font-family:'Fraunces',serif; font-size:1.3rem;">Reader comments</h3>
+              <p style="color:var(--ink-soft); font-size:0.85rem;" id="modStatus">Loading…</p>
+            </div>
+            <button class="btn btn-sm btn-outline-dark" id="modRefresh">Refresh</button>
+          </div>
+          <div id="modList"></div>
         </div>
 
         <!-- SECURITY / TWO FACTOR -->
@@ -2945,6 +2977,47 @@
     } catch(err){ console.error('Could not load rating summary:', err); }
   }
 
+  // Every public comment carries a quiet report link. Play's user-generated
+  // content policy requires a way to flag content, and a site that lets
+  // strangers publish text needs one regardless.
+  function buildReportControl(commentId){
+    const wrap = document.createElement('div');
+    wrap.className = 'comment-report';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'report-btn';
+    btn.textContent = 'Report';
+    btn.addEventListener('click', async () => {
+      if(!currentSession){ openAuth(); return; }
+      const reason = prompt(
+        'Why are you reporting this comment?\n\nType one of: spam, abuse, off_topic, other'
+      );
+      if(reason === null) return;
+      const clean = String(reason).trim().toLowerCase().replace(/\s+/g, '_');
+      if(!['spam','abuse','off_topic','other'].includes(clean)){
+        alert('Please type one of: spam, abuse, off_topic, other');
+        return;
+      }
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${API_URL}/api/comments/${commentId}/report`, {
+          method: 'POST', headers: authHeaders(), body: JSON.stringify({ reason: clean })
+        });
+        if(!res.ok){
+          const b = await res.json().catch(() => ({}));
+          throw new Error(b.hint || b.error || 'Could not send the report.');
+        }
+        btn.textContent = 'Reported';
+        wrap.classList.add('done');
+      } catch(err){
+        btn.disabled = false;
+        alert(err.message);
+      }
+    });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
   async function loadAndRenderComments(listElementId, bookId){
     const list = document.getElementById(listElementId);
     if(!bookId){ list.innerHTML = '<p style="color:var(--ink-soft); font-size:0.88rem;">This book hasn\'t been published in the catalog yet.</p>'; return; }
@@ -2975,6 +3048,7 @@
         body.className = 'comment-body';
         body.textContent = c.body;
         div.append(head, body);
+        div.appendChild(buildReportControl(c.id));
         list.appendChild(div);
       });
     } catch(err){
@@ -3498,10 +3572,11 @@
       if(active === 'analytics') loadAnalytics();
       if(active === 'developer') loadDeveloperPanel();
       if(active === 'security') refreshMfaStatus();
+      if(active === 'moderation') loadModeration();
     });
   });
 
-  const ADMIN_TABS = ['analytics', 'books', 'essays', 'audio', 'settings', 'security', 'developer'];
+  const ADMIN_TABS = ['analytics', 'books', 'essays', 'audio', 'settings', 'moderation', 'security', 'developer'];
   let isAuthorUser = false, isDeveloperUser = false;
 
   // Shows only the tabs this account is entitled to, and opens the first one.
@@ -3509,7 +3584,7 @@
     const devTab = document.getElementById('devTab');
     if(devTab) devTab.style.display = isDeveloperUser ? '' : 'none';
 
-    const authorTabs = ['analytics', 'books', 'essays', 'audio', 'settings'];   // 'security' is for both roles
+    const authorTabs = ['analytics', 'books', 'essays', 'audio', 'settings', 'moderation'];   // 'security' is for both roles
     document.querySelectorAll('[data-admin-tab]').forEach(tab => {
       const name = tab.dataset.adminTab;
       if(authorTabs.includes(name)) tab.style.display = isAuthorUser ? '' : 'none';
@@ -3663,6 +3738,81 @@
       }
     });
   });
+
+  // ================= COMMENT MODERATION =================
+  async function loadModeration(){
+    const list = document.getElementById('modList');
+    const status = document.getElementById('modStatus');
+    if(!list) return;
+    list.innerHTML = '';
+    try {
+      const res = await fetch(`${API_URL}/api/comments/moderation/queue`, { headers: authHeaders() });
+      if(!res.ok){
+        const b = await res.json().catch(() => ({}));
+        throw new Error(b.hint || b.error || 'Could not load comments.');
+      }
+      const rows = await res.json();
+      const flagged = rows.filter(r => r.report_count > 0).length;
+      status.textContent = rows.length
+        ? `${rows.length} comment${rows.length === 1 ? '' : 's'}, ${flagged} reported.`
+        : 'No comments yet.';
+
+      if(!rows.length){ list.innerHTML = '<p class="an-empty">Nothing to moderate.</p>'; return; }
+
+      rows.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'mod-item' + (c.report_count ? ' flagged' : '') + (c.is_hidden ? ' hidden-c' : '');
+        item.innerHTML = `
+          <div class="mod-top"><span class="mt-who"></span><span class="mt-when"></span></div>
+          <div class="mod-flags"></div>
+          <div class="mod-body"></div>
+          <div class="mod-actions"></div>`;
+        item.querySelector('.mt-who').textContent =
+          `${c.profiles?.full_name || 'Reader'} · ${c.rating ? c.rating + '/5' : 'no rating'}${c.is_hidden ? ' · HIDDEN' : ''}`;
+        item.querySelector('.mt-when').textContent = new Date(c.created_at).toLocaleString();
+        const flags = item.querySelector('.mod-flags');
+        flags.textContent = c.report_count
+          ? `${c.report_count} report${c.report_count === 1 ? '' : 's'}: ${[...new Set(c.reasons)].join(', ')}`
+          : '';
+        item.querySelector('.mod-body').textContent = c.body;
+
+        const actions = item.querySelector('.mod-actions');
+        const toggle = document.createElement('button');
+        toggle.textContent = c.is_hidden ? 'Show again' : 'Hide from the site';
+        toggle.addEventListener('click', async () => {
+          toggle.disabled = true;
+          try {
+            const r = await fetch(`${API_URL}/api/comments/${c.id}/visibility`, {
+              method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ hidden: !c.is_hidden })
+            });
+            if(!r.ok){ const b = await r.json().catch(()=>({})); throw new Error(b.hint || b.error); }
+            loadModeration();
+          } catch(err){ toggle.disabled = false; alert('Could not update: ' + err.message); }
+        });
+
+        const del = document.createElement('button');
+        del.className = 'danger';
+        del.textContent = 'Delete permanently';
+        del.addEventListener('click', async () => {
+          if(!confirm('Delete this comment for good? Hiding it is usually enough.')) return;
+          del.disabled = true;
+          try {
+            const r = await fetch(`${API_URL}/api/comments/${c.id}`, { method: 'DELETE', headers: authHeaders() });
+            if(!r.ok) throw new Error(await r.text());
+            loadModeration();
+          } catch(err){ del.disabled = false; alert('Could not delete: ' + err.message); }
+        });
+
+        actions.append(toggle, del);
+        list.appendChild(item);
+      });
+    } catch(err){
+      status.textContent = err.message;
+      list.innerHTML = `<p class="an-empty">${err.message}</p>`;
+    }
+  }
+
+  document.getElementById('modRefresh')?.addEventListener('click', loadModeration);
 
   // ================= TWO FACTOR AUTHENTICATION =================
   let enrollingFactorId = null;

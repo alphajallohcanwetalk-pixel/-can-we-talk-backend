@@ -2,9 +2,18 @@
 
 Written for: Alpha and the B&A Developers team, preparing the first Play Store submission.
 
-There is one policy problem that has to be settled **before** the app is built,
-because the answer changes what the app is allowed to contain. Everything else
-in this folder is mechanical.
+> **This folder is only about publishing through the Google Play Store.**
+>
+> The app people install from the website itself, by tapping "Download the App",
+> is not affected by any of it. That one is the website running full screen, it
+> is not distributed by Google, and it keeps every feature including eBook,
+> audiobook and Book Club purchases through Stripe. It is ready to use now.
+>
+> Read on only when you decide to put a listing on the Play Store.
+
+There is one policy problem that has to be settled **before** a Play build is
+made, because the answer changes what that build is allowed to contain.
+Everything else in this folder is mechanical.
 
 ---
 
