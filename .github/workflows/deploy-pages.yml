@@ -45,6 +45,14 @@ jobs:
           # with hash routing, so send everything to the app shell.
           cp frontend/app.html dist/404.html
 
+      - name: Build share pages
+        # One static page per book carrying its own Open Graph tags, so a link
+        # shared to WhatsApp or Facebook shows that book's cover rather than the
+        # generic site preview. Crawlers do not run JavaScript, so this cannot
+        # be done from the app itself. Never fails the deploy.
+        continue-on-error: true
+        run: node scripts/build-og-pages.mjs
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 

@@ -642,6 +642,31 @@
     border:1px solid var(--line); border-radius:5px;}
   .format-setup .fs-row input[type="checkbox"]{width:16px; height:16px; accent-color:var(--sl-green);}
 
+  /* ---------- Author photo preview ---------- */
+  .photo-preview{width:110px; height:110px; border-radius:50%; margin-top:12px;
+    background-size:cover; background-position:center top; border:3px solid var(--paper);
+    box-shadow:0 8px 20px rgba(12,61,34,0.18);}
+
+  /* ---------- Shipping rates editor ---------- */
+  .ship-row{display:grid; grid-template-columns:1fr 92px 108px auto; gap:9px; align-items:center;
+    padding:9px 0; border-bottom:1px solid var(--line); font-size:0.86rem;}
+  .ship-row .sr-name{font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis;}
+  .ship-row input{padding:6px 8px; border:1px solid var(--line); border-radius:4px; width:100%;}
+  .ship-row .sr-fallback{color:var(--ink-soft); font-weight:500;}
+  @media(max-width:620px){ .ship-row{grid-template-columns:1fr 1fr; } }
+
+  /* ---------- Stock state ---------- */
+  .stock.low-stock{color:#a86b10; font-weight:600;}
+  .stock.sold-out{color:#b3261e; font-weight:700;}
+  .btn.disabled{opacity:0.45; pointer-events:none; filter:grayscale(0.4);}
+  .sample-btn{margin-top:8px;}
+
+  /* ---------- Sample banner ---------- */
+  .sample-banner{max-width:1120px; margin:22px auto 0; padding:13px 18px; display:flex; gap:14px;
+    align-items:center; justify-content:space-between; flex-wrap:wrap;
+    background:rgba(201,154,46,0.14); border:1px solid rgba(201,154,46,0.45); border-radius:8px;
+    font-size:0.86rem; color:#5b4410;}
+
   /* ---------- Newsletter ---------- */
   .news-form{margin:20px 0 6px; max-width:380px;}
   .news-form label{display:block; font-size:0.8rem; color:rgba(255,255,255,0.72); margin-bottom:8px;}
@@ -773,9 +798,31 @@
   .view.active{animation:viewIn var(--dur-slow) var(--ease-out);}
   @keyframes viewIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
 
-  /* Sections reveal as they scroll into range. */
-  .reveal{opacity:0; transform:translateY(18px); transition:opacity .6s var(--ease-out), transform .6s var(--ease-out);}
-  .reveal.in{opacity:1; transform:none;}
+  /* Sections reveal as they scroll into range.
+     Three variants so a long page does not repeat one motion, and a stagger so
+     a grid arrives as a sequence rather than a block. The elements are only
+     hidden once the observer is known to be running: if anything goes wrong
+     the content stays visible, because an invisible page is far worse than a
+     missing animation. */
+  [data-reveal]{will-change:opacity, transform;}
+  html.reveal-ready [data-reveal]{opacity:0;}
+  html.reveal-ready [data-reveal="up"]{transform:translate3d(0, 34px, 0);}
+  html.reveal-ready [data-reveal="fade"]{transform:none;}
+  html.reveal-ready [data-reveal="scale"]{transform:scale(.94);}
+  html.reveal-ready [data-reveal="left"]{transform:translate3d(-28px, 0, 0);}
+
+  html.reveal-ready [data-reveal]{
+    transition:opacity .7s cubic-bezier(.16,.84,.44,1), transform .7s cubic-bezier(.16,.84,.44,1);
+    transition-delay:var(--reveal-delay, 0ms);}
+  html.reveal-ready [data-reveal].is-in{opacity:1; transform:none;}
+
+  /* Children of a revealed grid arrive one after another. */
+  html.reveal-ready [data-reveal-stagger] > *{opacity:0; transform:translate3d(0, 26px, 0);
+    transition:opacity .6s cubic-bezier(.16,.84,.44,1), transform .6s cubic-bezier(.16,.84,.44,1);}
+  html.reveal-ready [data-reveal-stagger].is-in > *{opacity:1; transform:none;}
+
+  /* The hero drifts very slightly as the page moves, for depth without parallax jitter. */
+  .hero-content{will-change:transform;}
 
   /* Buttons: a consistent lift, and a real press. */
   .btn{transition:transform var(--dur-fast) var(--ease-out), background var(--dur) var(--ease-soft),
@@ -820,7 +867,7 @@
     *, *::before, *::after{
       animation-duration:.001ms !important; animation-iteration-count:1 !important;
       transition-duration:.001ms !important; scroll-behavior:auto !important;}
-    .reveal{opacity:1; transform:none;}
+    html.reveal-ready [data-reveal], html.reveal-ready [data-reveal-stagger] > *{opacity:1 !important; transform:none !important;}
   }
 
   /* ---------- Hero install button ---------- */
@@ -1745,6 +1792,11 @@
         </div>
       </div>
 
+      <div class="sample-banner" id="sampleBanner" style="display:none;">
+        <span id="sampleBannerText">You are reading a free sample.</span>
+        <a class="btn btn-sm btn-dark nav-link" data-view="books-catalog">Buy the full book</a>
+      </div>
+
       <div class="book-progress">
         <div class="bp-track"><div class="bp-fill" id="bookProgressFill"></div></div>
         <div class="bp-meta">
@@ -2147,6 +2199,9 @@
                 <div class="field"><label>Language</label><input type="text" id="newBookLanguage" placeholder="English"></div>
                 <div class="field"><label>Genre</label><input type="text" id="newBookGenre" placeholder="Nonfiction, Politics"></div>
                 <div class="field"><label>Edition</label><input type="text" id="newBookEdition" placeholder="First edition"></div>
+                <div class="field"><label>Free sample (words)</label><input type="number" id="newBookSampleWords" min="0" step="50" placeholder="0">
+                  <div style="font-size:0.72rem; color:var(--ink-soft); margin-top:5px;">How much anyone may read before buying. 0 means none.</div>
+                </div>
               </div>
               <div class="field"><label>Video links (one per line)</label>
                 <textarea id="newBookVideos" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="https://www.youtube.com/watch?v=...&#10;https://vimeo.com/...&#10;https://.../launch.mp4"></textarea>
@@ -2251,7 +2306,17 @@
             <h3 style="font-size:1.05rem; margin-top:8px;">Author bio &amp; photo</h3>
           </div>
           <div class="field"><label>Bio text (shown on the About page)</label><textarea id="settingsBio" style="min-height:120px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Write the author bio shown on the About page"></textarea></div>
-          <div class="field"><label>Author photo</label><input type="file" id="settingsPhoto" accept="image/*"></div>
+          <div class="field"><label>Author photo</label>
+            <input type="file" id="settingsPhoto" accept="image/jpeg,image/png,image/webp">
+            <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">
+              JPG, PNG or WebP, up to 10 MB. iPhone photos save as HEIC by default, which will not upload:
+              in Settings, Camera, Formats, choose Most Compatible, or send the photo to yourself first to convert it.
+            </div>
+            <div class="photo-preview" id="settingsPhotoPreview" style="display:none;"></div>
+          </div>
+          <div class="modal-error" id="settingsBioError">Something went wrong.</div>
+          <div class="modal-ok" id="settingsBioOk">Saved. The photo now appears across the site.</div>
+          <button class="btn btn-dark" id="saveBioBtn" style="align-self:flex-start;">Save bio and photo</button>
 
           <div class="section-head" style="margin-bottom:0; margin-top:10px;">
             <span class="eyebrow">Social Links</span>
@@ -2263,7 +2328,19 @@
           <div class="field"><label>X (Twitter) URL</label><input type="text" id="settingsTwitter" placeholder="https://x.com/..."></div>
           <div class="field"><label>YouTube URL</label><input type="text" id="settingsYoutube" placeholder="https://youtube.com/..."></div>
           <div class="field"><label>TikTok URL</label><input type="text" id="settingsTiktok" placeholder="https://tiktok.com/..."></div>
-          <button class="btn btn-dark" id="saveSettingsBtn" style="align-self:flex-start;">Save Social Links</button>
+          <div class="modal-error" id="settingsSocialError">Something went wrong.</div>
+          <div class="modal-ok" id="settingsSocialOk">Social links saved.</div>
+          <button class="btn btn-dark" id="saveSettingsBtn" style="align-self:flex-start;">Save social links</button>
+
+          <div class="section-head" style="margin-bottom:0; margin-top:30px;">
+            <span class="eyebrow">Postage</span>
+            <h3 style="font-size:1.05rem; margin-top:8px;">Shipping rates by destination</h3>
+            <p style="font-size:0.85rem; color:var(--ink-soft); margin-top:6px;">
+              What a reader pays to have a printed book posted. Set a free postage threshold, or leave it blank for none.
+              The last row, Everywhere else, is the fallback for any country not listed. Do not delete it.
+            </p>
+          </div>
+          <div id="shippingRates" class="an-list"></div>
         </div>
 
         <!-- COMMENT MODERATION -->
@@ -3327,6 +3404,21 @@
     }
   }
   checkRecoveryHash();
+
+  // Deep link from a shared book page. The generated share pages point at
+  // #book-<id>, so opening one of those links has to land on that book rather
+  // than the home page.
+  function openBookFromHash(){
+    const m = (location.hash || '').match(/^#book-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i);
+    if(!m) return false;
+    const id = m[1];
+    // Books may not have loaded yet on a cold open.
+    if(!books.length){ setTimeout(openBookFromHash, 300); return true; }
+    if(books.some(b => b.id === id)) openBook(id);
+    return true;
+  }
+  openBookFromHash();
+  window.addEventListener('hashchange', openBookFromHash);
   window.addEventListener('hashchange', checkRecoveryHash);
 
   // ================= COMMENTS (real, backend driven, works for any book by its UUID) =================
@@ -3495,8 +3587,14 @@
   // ================= COVER IMAGE UPLOAD (Supabase Storage) =================
   async function uploadCover(file, folder){
     if(!file) return null;
-    if(!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024){
-      alert('Images must be JPG, PNG, or WebP files no larger than 10 MB.');
+    if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
+      alert('That file is ' + (file.type || 'an unrecognised type') + ', which cannot be uploaded.\n\n'
+        + 'Use JPG, PNG or WebP. iPhone photos are often HEIC: in Settings, Camera, Formats, '
+        + 'choose Most Compatible, or email the photo to yourself first to convert it.');
+      return null;
+    }
+    if(file.size > 10 * 1024 * 1024){
+      alert('That image is ' + (file.size / 1048576).toFixed(1) + ' MB. The limit is 10 MB.');
       return null;
     }
     const path = `${folder}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
@@ -3743,9 +3841,49 @@
     else applyCoverImage(el, url);   // no observer support: just load it
   }
 
+  // Shows remaining stock, and blocks buying a format that has run out.
+  // stock_count null means the format is unlimited, which is the normal case
+  // for print on demand.
+  function applyStockState(buyBox, format){
+    const stockEl = buyBox.querySelector('.stock');
+    if(!stockEl) return;
+    const count = format && format.stock_count;
+    const soldOut = count !== null && count !== undefined && Number(count) <= 0;
+    const low = count !== null && count !== undefined && Number(count) > 0 && Number(count) <= 5;
+
+    stockEl.classList.toggle('sold-out', soldOut);
+    stockEl.classList.toggle('low-stock', low);
+    if(soldOut) stockEl.textContent = 'Sold out. Check back soon.';
+    else if(low) stockEl.textContent = `Only ${count} left. Ships within 2 business days`;
+    else stockEl.textContent = 'In stock. Ships within 2 business days';
+
+    buyBox.querySelectorAll('[data-cart-action]').forEach(btn => {
+      btn.classList.toggle('disabled', soldOut);
+      btn.setAttribute('aria-disabled', soldOut ? 'true' : 'false');
+    });
+  }
+
+  // A sample button appears only when the author has opened one.
+  function applySampleButton(key, book){
+    const buyBox = document.querySelector(`.buy-box[data-book-id="${key}"]`);
+    if(!buyBox) return;
+    let btn = buyBox.querySelector('[data-read-sample]');
+    const chars = Number(book?.sample_chars) || 0;
+    if(!chars){ if(btn) btn.remove(); return; }
+    if(!btn){
+      btn = document.createElement('a');
+      btn.className = 'btn btn-outline sample-btn';
+      btn.setAttribute('data-read-sample', '');
+      btn.textContent = 'Read a free sample';
+      btn.addEventListener('click', () => openReader(book.id));
+      buyBox.querySelector('.buy-actions')?.appendChild(btn);
+    }
+  }
+
   function applyBookFormats(key, book){
     const buyBox = document.querySelector(`.buy-box[data-book-id="${key}"]`);
     if(!buyBox || !book) return;
+    applySampleButton(key, book);
     const formats = (book.formats || []).filter(format => format.is_offered !== false);
     const options = buyBox.querySelector('.format-options');
     if(!options || !formats.length) return;
@@ -3760,6 +3898,15 @@
     }));
     const selected = formats[0];
     buyBox.dataset.price = (selected.price_cents / 100).toFixed(2);
+    applyStockState(buyBox, selected);
+
+    // Keep stock in step with the chosen format.
+    options.querySelectorAll('.format-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const match = formats.find(f => f.format_name === opt.dataset.formatName);
+        if(match) applyStockState(buyBox, match);
+      });
+    });
   }
 
   function normalizeGalleryUrls(value){
@@ -3785,6 +3932,7 @@
           meta: '', description: b.description || '', cover: b.cover_style || 'cover-1', cover_image_url: b.cover_image_url,
           back_cover_url: b.back_cover_url, gallery_urls: normalizeGalleryUrls(b.gallery_urls), reader_full_text: b.reader_full_text || '', formats: b.book_formats || [],
           video_urls: Array.isArray(b.video_urls) ? b.video_urls : [],
+          sample_chars: b.sample_chars || 0,
           isbn: b.isbn, publisher: b.publisher, published_date: b.published_date, page_count: b.page_count, language: b.language, genre: b.genre, edition: b.edition
         };
       });
@@ -4007,6 +4155,7 @@
       if(active === 'developer') loadDeveloperPanel();
       if(active === 'security') refreshMfaStatus();
       if(active === 'moderation') loadModeration();
+      if(active === 'settings') loadShippingRates();
     });
   });
 
@@ -4276,33 +4425,118 @@
   });
 
   // ================= SCROLL REVEAL =================
-  // Marks sections so they fade in as they come into range. Skipped entirely
-  // when the system asks for reduced motion, and everything stays visible if
-  // IntersectionObserver is unavailable.
+  // Elements fade and lift as they come into range.
+  //
+  // Two safeguards, because a reveal bug that leaves content invisible is much
+  // worse than no animation at all:
+  //   1. The hiding CSS only applies once `reveal-ready` is on <html>, which is
+  //      set from here. If this code never runs, nothing is ever hidden.
+  //   2. Anything still hidden after a few seconds is shown regardless.
   (function scrollReveal(){
-    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if(!('IntersectionObserver' in window)) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduced || !('IntersectionObserver' in window)) return;
+
+    document.documentElement.classList.add('reveal-ready');
+
+    // Which motion suits which kind of block.
+    const PLAN = [
+      ['.section-head',      'up'],
+      ['.book-grid',         'up'],
+      ['.essay-grid',        'up'],
+      ['.cross-grid',        'up'],
+      ['.video-grid-live',   'up'],
+      ['.gallery-grid',      'scale'],
+      ['.book-details',      'fade'],
+      ['.stat-grid',         'up'],
+      ['.identity-item',     'up'],
+      ['.writing-card',      'up'],
+      ['.as-inner',          'left'],
+      ['.install-copy',      'left'],
+      ['.install-mark',      'scale'],
+      ['.endorsement',       'up'],
+      ['.club-book',         'up'],
+      ['.pillar',            'up'],
+      ['.event-card',        'left'],
+      ['.speaking-card',     'up'],
+      ['.info-card',         'up'],
+      ['.bio-grid',          'fade'],
+      ['.cross-card',        'up']
+    ];
+    const STAGGER = ['.book-grid', '.essay-grid', '.cross-grid', '.video-grid-live', '.gallery-grid', '.stat-grid'];
 
     const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      entries.forEach(entry => {
+        if(!entry.isIntersecting) return;
+        entry.target.classList.add('is-in');
+        io.unobserve(entry.target);
       });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.08 });
 
-    const mark = (root) => {
-      root.querySelectorAll('.section-head, .book-grid, .essay-grid, .cross-grid, .video-grid-live, .book-details, .gallery-grid, .stat-grid')
-        .forEach(el => {
-          if(el.dataset.revealBound) return;
-          el.dataset.revealBound = '1';
-          el.classList.add('reveal');
+    function mark(root){
+      PLAN.forEach(([selector, kind]) => {
+        root.querySelectorAll(selector).forEach((el) => {
+          if(el.dataset.reveal) return;
+          el.dataset.reveal = kind;
+          if(STAGGER.some(sel => el.matches(sel))){
+            el.setAttribute('data-reveal-stagger', '');
+            // Each child waits a little longer than the one before it.
+            [...el.children].forEach((child, i) => {
+              child.style.transitionDelay = Math.min(i * 70, 560) + 'ms';
+            });
+          }
           io.observe(el);
         });
-    };
+      });
+    }
+
     mark(document);
 
-    // Content rendered later (books, essays, cross sell) needs marking too.
-    window.addEventListener('load', () => mark(document));
-    document.addEventListener('click', () => setTimeout(() => mark(document), 80));
+    // Content rendered after load, and views shown later, need marking too.
+    const remark = () => mark(document);
+    window.addEventListener('load', remark);
+    window.addEventListener('hashchange', () => setTimeout(remark, 60));
+    document.addEventListener('click', () => setTimeout(remark, 120));
+
+    // Anything inside a view that has just become active is on screen now, so
+    // reveal it rather than waiting for a scroll that may never come.
+    const activate = () => {
+      document.querySelectorAll('.view.active [data-reveal]').forEach(el => {
+        const box = el.getBoundingClientRect();
+        if(box.top < window.innerHeight * 0.95) el.classList.add('is-in');
+      });
+    };
+    window.addEventListener('scroll', activate, { passive: true });
+    setInterval(activate, 900);
+
+    // Last resort: never leave anything invisible.
+    setTimeout(() => {
+      document.querySelectorAll('[data-reveal]:not(.is-in)').forEach(el => {
+        const box = el.getBoundingClientRect();
+        if(box.top < window.innerHeight * 1.5) el.classList.add('is-in');
+      });
+    }, 2500);
+  })();
+
+  // A slow drift on the hero as the page scrolls. Transform only, so it never
+  // forces a layout, and it stops once the hero is off screen.
+  (function heroDrift(){
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const hero = document.querySelector('.hero-content');
+    if(!hero) return;
+    let ticking = false;
+    const update = () => {
+      const y = window.scrollY;
+      if(y < window.innerHeight * 1.2){
+        hero.style.transform = `translate3d(0, ${Math.round(y * 0.16)}px, 0)`;
+        hero.style.opacity = String(Math.max(0, 1 - y / (window.innerHeight * 0.85)));
+      }
+      ticking = false;
+    };
+    window.addEventListener('scroll', () => {
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    }, { passive: true });
   })();
 
   // ================= NAVIGATION CONTROLS =================
@@ -4444,6 +4678,60 @@
       }
     });
   });
+
+  // ================= SHIPPING RATES =================
+  async function loadShippingRates(){
+    const box = document.getElementById('shippingRates');
+    if(!box) return;
+    box.innerHTML = '<p class="an-empty">Loading...</p>';
+    try {
+      const rates = await (await fetch(`${API_URL}/api/shipping`)).json();
+      box.innerHTML = '';
+      if(!Array.isArray(rates) || !rates.length){
+        box.innerHTML = '<p class="an-empty">No rates yet. Run migration 011.</p>';
+        return;
+      }
+      rates.forEach(r => {
+        const row = document.createElement('div');
+        row.className = 'ship-row';
+        const isFallback = String(r.country_code).toUpperCase() === 'ZZ';
+        row.innerHTML = `
+          <span class="sr-name ${isFallback ? 'sr-fallback' : ''}"></span>
+          <input type="number" min="0" step="0.01" data-ship-price title="Postage">
+          <input type="number" min="0" step="1" data-ship-free placeholder="Free over" title="Free postage above this order total">
+          <button class="btn btn-sm btn-outline-dark" data-ship-save>Save</button>`;
+        row.querySelector('.sr-name').textContent = r.country_name;
+        row.querySelector('[data-ship-price]').value = (r.price_cents / 100).toFixed(2);
+        row.querySelector('[data-ship-free]').value =
+          r.free_over_cents === null || r.free_over_cents === undefined ? '' : (r.free_over_cents / 100).toFixed(0);
+
+        row.querySelector('[data-ship-save]').addEventListener('click', async (e) => {
+          const btn = e.currentTarget;
+          const price = parseFloat(row.querySelector('[data-ship-price]').value);
+          const freeRaw = row.querySelector('[data-ship-free]').value.trim();
+          if(!(price >= 0)){ alert('Enter a postage amount.'); return; }
+          btn.disabled = true;
+          try {
+            const res = await fetch(`${API_URL}/api/shipping/${r.country_code}`, {
+              method: 'PUT',
+              headers: authHeaders(),
+              body: JSON.stringify({
+                country_name: r.country_name,
+                price_cents: Math.round(price * 100),
+                free_over_cents: freeRaw === '' ? null : Math.round(parseFloat(freeRaw) * 100)
+              })
+            });
+            if(!res.ok){ const b = await res.json().catch(()=>({})); throw new Error(b.hint || b.error); }
+            showAdminToast(`${r.country_name} postage updated.`);
+          } catch(err){ alert('Could not save: ' + err.message); }
+          finally { btn.disabled = false; }
+        });
+        box.appendChild(row);
+      });
+    } catch(err){
+      box.innerHTML = `<p class="an-empty">Could not load rates: ${err.message}</p>`;
+    }
+  }
 
   // ================= COMMENT MODERATION =================
   async function loadModeration(){
@@ -4928,6 +5216,7 @@
       document.getElementById('newBookLanguage').value = b.language || '';
       document.getElementById('newBookGenre').value = b.genre || '';
       document.getElementById('newBookEdition').value = b.edition || '';
+      document.getElementById('newBookSampleWords').value = b.sample_chars ? Math.round(b.sample_chars / 6) : '';
       document.getElementById('bookFormHeading').textContent = 'Editing: ' + b.title;
       document.getElementById('addBookBtn').textContent = 'Update Book';
       document.getElementById('cancelBookEditBtn').style.display = 'inline-block';
@@ -4988,6 +5277,7 @@
     document.getElementById('newBookLanguage').value = '';
     document.getElementById('newBookGenre').value = '';
     document.getElementById('newBookEdition').value = '';
+    document.getElementById('newBookSampleWords').value = '';
     document.getElementById('newBookVideoFile').value = '';
     document.getElementById('bookFormHeading').textContent = '+ Add New Book';
     document.getElementById('addBookBtn').textContent = 'Publish Book';
@@ -5100,6 +5390,10 @@
         language: document.getElementById('newBookLanguage').value.trim(),
         genre: document.getElementById('newBookGenre').value.trim(),
         edition: document.getElementById('newBookEdition').value.trim(),
+        sample_chars: (() => {
+          const words = parseInt(document.getElementById('newBookSampleWords').value, 10);
+          return Number.isInteger(words) && words > 0 ? Math.min(words * 6, 200000) : 0;
+        })(),
       };
 
       if(editingBookId){
@@ -5140,7 +5434,8 @@
       row.style.cssText = 'display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line);';
       row.innerHTML = `
         <span style="flex:1; font-weight:600; font-size:0.88rem;">${f.format_name}</span>
-        <input type="number" step="0.01" value="${(f.price_cents/100).toFixed(2)}" data-format-price="${f.id}" style="width:90px; padding:6px 8px; border:1px solid var(--line); border-radius:4px;">
+        <input type="number" step="0.01" value="${(f.price_cents/100).toFixed(2)}" data-format-price="${f.id}" title="Price" style="width:88px; padding:6px 8px; border:1px solid var(--line); border-radius:4px;">
+        <input type="number" min="0" step="1" value="${f.stock_count === null || f.stock_count === undefined ? '' : f.stock_count}" data-format-stock="${f.id}" placeholder="Stock" title="Leave blank for unlimited" style="width:82px; padding:6px 8px; border:1px solid var(--line); border-radius:4px;">
         <button class="btn btn-sm btn-outline-dark" data-save-format="${f.id}">Save</button>
         <button class="btn btn-sm" style="color:#b3261e;" data-delete-format="${f.id}">Remove</button>`;
       list.appendChild(row);
@@ -5151,8 +5446,11 @@
         const priceInput = list.querySelector(`[data-format-price="${id}"]`);
         const price = parseFloat(priceInput.value);
         const fmt = book.formats.find(f => f.id === id);
+        // Blank stock means unlimited, which is what print on demand needs.
+        const stockRaw = list.querySelector(`[data-format-stock="${id}"]`).value.trim();
+        const stock_count = stockRaw === '' ? null : Math.max(0, parseInt(stockRaw, 10) || 0);
         try {
-          const res = await fetch(`${API_URL}/api/books/formats/${id}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ format_name: fmt.format_name, price_cents: Math.round(price * 100) }) });
+          const res = await fetch(`${API_URL}/api/books/formats/${id}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ format_name: fmt.format_name, price_cents: Math.round(price * 100), stock_count }) });
           if(!res.ok) throw new Error(await res.text());
           showAdminToast('Format price updated.');
           await loadBooks();
@@ -5551,7 +5849,11 @@
       openAuth();
       return;
     }
-    const bookId = bookKey === 'mrp' ? mrpBookId : monoBookId;
+    // Accepts either a flagship key or a real book id, so a "Read a sample"
+    // button on any book page can open the reader.
+    const bookId = bookKey === 'mrp' ? mrpBookId
+                 : bookKey === 'mono' ? monoBookId
+                 : bookKey;
     try {
       const res = await fetch(`${API_URL}/api/bookclub/read/${bookId}`, { headers: authHeaders() });
       if(!res.ok) throw new Error(res.status === 403 ? 'Book Club membership required.' : 'Reader unavailable.');
@@ -5561,6 +5863,20 @@
       document.getElementById('reader-content').style.display = 'block';
       readerState = { bookId: bookKey, sourceText: book.reader_full_text || '', pages: [], page:0, fontSize:1.06 };
       if(!readerState.sourceText.trim()) throw new Error('This book is not available in the reader yet.');
+
+      // A sample is a real read, just a shorter one. Say so plainly and give a
+      // way to buy, rather than letting it end with no explanation.
+      const banner = document.getElementById('sampleBanner');
+      if(banner){
+        if(book.is_sample){
+          const pct = book.total_chars ? Math.round((book.sample_chars / book.total_chars) * 100) : null;
+          document.getElementById('sampleBannerText').textContent =
+            pct ? `You are reading a free sample, about ${pct}% of the book.` : 'You are reading a free sample.';
+          banner.style.display = '';
+        } else {
+          banner.style.display = 'none';
+        }
+      }
       buildWatermark();
       // Measure against the real leaf, now that it is laid out, so page breaks
       // match the box the text is actually rendered into.
@@ -6062,6 +6378,22 @@
       // so uploading it had almost no visible effect.
       applyAuthorPhoto(data.author_photo_url, data.author_bio);
 
+      // Fill the dashboard fields, so the author edits what is already there
+      // rather than overwriting it from a blank form.
+      const bioField = document.getElementById('settingsBio');
+      if(bioField && !bioField.value) bioField.value = data.author_bio || '';
+      const preview = document.getElementById('settingsPhotoPreview');
+      if(preview && data.author_photo_url){
+        preview.style.backgroundImage = `url('${data.author_photo_url}')`;
+        preview.style.display = 'block';
+      }
+      [['settingsInstagram', 'instagram_url'], ['settingsFacebook', 'facebook_url'],
+       ['settingsTwitter', 'twitter_url'], ['settingsYoutube', 'youtube_url'],
+       ['settingsTiktok', 'tiktok_url']].forEach(([id, key]) => {
+        const el = document.getElementById(id);
+        if(el && !el.value) el.value = data[key] || '';
+      });
+
       if(data.author_photo_url){
         const portrait = document.getElementById('aboutPortrait');
         portrait.style.backgroundImage = `url('${data.author_photo_url}')`;
@@ -6081,29 +6413,86 @@
   }
   loadSiteSettings();
 
+  // Show the chosen photo before it uploads, so the author can see they picked
+  // the right one.
+  document.getElementById('settingsPhoto')?.addEventListener('change', e => {
+    const file = e.target.files[0];
+    const preview = document.getElementById('settingsPhotoPreview');
+    if(!preview) return;
+    if(!file){ preview.style.display = 'none'; return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      preview.style.backgroundImage = `url('${reader.result}')`;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Bio and photo save on their own button, beside the fields they belong to.
+  // They previously shared a button five fields below labelled "Save Social
+  // Links", so there appeared to be no way to save them at all.
+  document.getElementById('saveBioBtn')?.addEventListener('click', async () => {
+    if(!currentSession){ alert('Please sign in as the author account first.'); return; }
+    setMsg('settingsBioOk', null, false);
+    setMsg('settingsBioError', null, false);
+
+    await withBusy(document.getElementById('saveBioBtn'), 'Saving...', async () => {
+      try {
+        const photoFile = document.getElementById('settingsPhoto').files[0];
+        const bio = document.getElementById('settingsBio').value.trim();
+        let author_photo_url;
+        if(photoFile){
+          author_photo_url = await uploadCover(photoFile, 'site');
+          // uploadCover explains its own failure and returns null.
+          if(!author_photo_url) return;
+        }
+        if(!photoFile && !bio){
+          setMsg('settingsBioError', 'Write a bio or choose a photo first.', true);
+          return;
+        }
+
+        const body = { author_bio: bio || null };
+        if(author_photo_url) body.author_photo_url = author_photo_url;
+
+        const res = await fetch(`${API_URL}/api/settings`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
+        if(!res.ok){
+          const text = await res.text();
+          throw new Error(res.status === 403 ? 'This account is not flagged as the author yet.' : text);
+        }
+        setMsg('settingsBioOk', null, true);
+        document.getElementById('settingsPhoto').value = '';
+        loadSiteSettings();
+      } catch(err){
+        setMsg('settingsBioError', 'Could not save: ' + err.message, true);
+      }
+    });
+  });
+
   document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
     if(!currentSession){ alert('Please sign in as the author account first.'); return; }
-    try {
-      let author_photo_url;
-      const photoFile = document.getElementById('settingsPhoto').files[0];
-      if(photoFile) author_photo_url = await uploadCover(photoFile, 'site');
+    setMsg('settingsSocialOk', null, false);
+    setMsg('settingsSocialError', null, false);
 
-      const body = {
-        instagram_url: document.getElementById('settingsInstagram').value.trim() || null,
-        facebook_url: document.getElementById('settingsFacebook').value.trim() || null,
-        twitter_url: document.getElementById('settingsTwitter').value.trim() || null,
-        youtube_url: document.getElementById('settingsYoutube').value.trim() || null,
-        tiktok_url: document.getElementById('settingsTiktok').value.trim() || null,
-        author_bio: document.getElementById('settingsBio').value.trim() || null
-      };
-      if(author_photo_url) body.author_photo_url = author_photo_url;
-
-      const res = await fetch(`${API_URL}/api/settings`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
-      if(!res.ok) throw new Error(res.status === 403 ? 'This account is not flagged as the author yet.' : await res.text());
-      showAdminToast('Settings updated.');
-      document.getElementById('settingsPhoto').value = '';
-      loadSiteSettings();
-    } catch(err){ alert('Could not save settings: ' + err.message); }
+    await withBusy(document.getElementById('saveSettingsBtn'), 'Saving...', async () => {
+      try {
+        const body = {
+          instagram_url: document.getElementById('settingsInstagram').value.trim() || null,
+          facebook_url: document.getElementById('settingsFacebook').value.trim() || null,
+          twitter_url: document.getElementById('settingsTwitter').value.trim() || null,
+          youtube_url: document.getElementById('settingsYoutube').value.trim() || null,
+          tiktok_url: document.getElementById('settingsTiktok').value.trim() || null
+        };
+        const res = await fetch(`${API_URL}/api/settings`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
+        if(!res.ok){
+          const text = await res.text();
+          throw new Error(res.status === 403 ? 'This account is not flagged as the author yet.' : text);
+        }
+        setMsg('settingsSocialOk', null, true);
+        loadSiteSettings();
+      } catch(err){
+        setMsg('settingsSocialError', 'Could not save: ' + err.message, true);
+      }
+    });
   });
 
   // ================= INSTALLABLE APP (PWA) =================

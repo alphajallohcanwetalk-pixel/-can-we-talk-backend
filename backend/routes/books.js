@@ -192,10 +192,16 @@ router.post('/:id/formats', requireAuth, requireAuthor, async (req, res) => {
 
 // PUT /api/books/formats/:formatId: edit a format's name/price/availability
 router.put('/formats/:formatId', requireAuth, requireAuthor, async (req, res) => {
-  const { format_name, price_cents, is_offered } = req.body;
+  const { format_name, price_cents, is_offered, stock_count } = req.body;
+  const updates = { format_name, price_cents, is_offered };
+  // Explicit null means unlimited; undefined means leave it alone.
+  if (stock_count !== undefined) {
+    const n = Number(stock_count);
+    updates.stock_count = stock_count === null ? null : (Number.isInteger(n) && n >= 0 ? n : null);
+  }
   const { data, error } = await supabaseAdmin
     .from('book_formats')
-    .update({ format_name, price_cents, is_offered })
+    .update(updates)
     .eq('id', req.params.formatId)
     .select()
     .single();

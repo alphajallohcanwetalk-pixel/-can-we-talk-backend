@@ -1,7 +1,7 @@
 {
   "name": "can-we-talk-backend",
   "version": "1.0.0",
-  "description": "Backend API for Can We Talk? (The Misfit Voice) — Alpha Amadu Jalloh's author/bookstore site.",
+  "description": "Backend API for Can We Talk? (The Misfit Voice). Alpha Amadu Jalloh's author/bookstore site.",
   "main": "server.js",
   "type": "module",
   "scripts": {
