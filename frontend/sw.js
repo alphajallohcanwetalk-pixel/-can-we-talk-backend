@@ -9,7 +9,7 @@
  *    with the cached shell as the offline fallback.
  */
 
-const VERSION = 'cwt-v1';
+const VERSION = 'cwt-v2';
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 
@@ -17,10 +17,10 @@ const SHELL_ASSETS = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/icon-maskable-512.png',
-  '/icons/apple-touch-icon.png'
+  '/icons/icon-192-v2.png',
+  '/icons/icon-512-v2.png',
+  '/icons/icon-maskable-512-v2.png',
+  '/icons/apple-touch-icon-v2.png'
 ];
 
 // Hosts whose responses must never be cached.

@@ -5,24 +5,41 @@ import { normalizeVideoList, cleanTextFields } from '../lib/validate.js';
 
 const router = express.Router();
 
+// Columns returned to the public site. The bibliographic ones arrive with
+// migration 010; selectBooks falls back if it has not been run yet.
+const BOOK_SELECT = 'id,title,subtitle,description,cover_style,cover_image_url,back_cover_url,gallery_urls,video_urls,is_active,created_at,isbn,publisher,published_date,page_count,language,genre,edition,book_formats(*)';
+const BOOK_SELECT_LEGACY = 'id,title,subtitle,description,cover_style,cover_image_url,back_cover_url,gallery_urls,video_urls,is_active,created_at,book_formats(*)';
+
+
+// Runs a books query with the full column list, and retries without the
+// bibliographic columns if migration 010 has not been applied. Without this the
+// whole catalogue would 500 in the window between deploying and migrating.
+async function selectBooks(build) {
+  let result = await build(BOOK_SELECT);
+  if (result.error && /column .* does not exist|isbn|publisher|published_date|page_count|edition/i.test(result.error.message || '')) {
+    result = await build(BOOK_SELECT_LEGACY);
+  }
+  return result;
+}
+
 // GET /api/books: public, powers the homepage grid
 router.get('/', async (req, res) => {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await selectBooks((cols) => supabaseAdmin
     .from('books')
-    .select('id,title,subtitle,description,cover_style,cover_image_url,back_cover_url,gallery_urls,video_urls,is_active,created_at,book_formats(*)')
+    .select(cols)
     .eq('is_active', true)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }));
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
 
 // GET /api/books/:id: single book detail
 router.get('/:id', async (req, res) => {
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await selectBooks((cols) => supabaseAdmin
     .from('books')
-    .select('id,title,subtitle,description,cover_style,cover_image_url,back_cover_url,gallery_urls,video_urls,is_active,created_at,book_formats(*)')
+    .select(cols)
     .eq('id', req.params.id)
-    .single();
+    .single());
   if (error) return res.status(404).json({ error: 'Book not found' });
   res.json(data);
 });
@@ -35,14 +52,18 @@ router.get('/:id/manage', requireAuth, requireAuthor, async (req, res) => {
 
 // POST /api/books: Author Dashboard: add a new book
 router.post('/', requireAuth, requireAuthor, async (req, res) => {
-  const { title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text, formats, video_urls } = req.body;
+  const { title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text, formats, video_urls,
+    isbn, publisher, published_date, page_count, language, genre, edition } = req.body;
   if (typeof title !== 'string' || !title.trim() || typeof description !== 'string' || !description.trim()) return res.status(400).json({ error: 'Title and description are required' });
   const { data: existing } = await supabaseAdmin.from('books').select('id').ilike('title', title.trim()).limit(1).maybeSingle();
   if (existing) return res.status(409).json({ error: 'A book with this title already exists. Edit the existing book instead.' });
   const { data: book, error } = await supabaseAdmin
     .from('books')
-    .insert(cleanTextFields({ title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text,
-      video_urls: normalizeVideoList(video_urls) ?? [] }, ['title', 'subtitle', 'description', 'reader_full_text']))
+    .insert(normalizeBookMeta(cleanTextFields({
+      title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text,
+      video_urls: normalizeVideoList(video_urls) ?? [],
+      isbn, publisher, published_date, page_count, language, genre, edition
+    }, ['title', 'subtitle', 'description', 'reader_full_text', 'publisher', 'genre', 'edition'])))
     .select()
     .single();
   if (error) return res.status(500).json({ error: error.message });
@@ -56,7 +77,29 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
 
 // PUT /api/books/:id: edit
 const BOOK_FIELDS = ['title', 'subtitle', 'description', 'cover_style', 'cover_image_url',
-  'back_cover_url', 'gallery_urls', 'reader_full_text', 'is_active', 'video_urls'];
+  'back_cover_url', 'gallery_urls', 'reader_full_text', 'is_active', 'video_urls',
+  'isbn', 'publisher', 'published_date', 'page_count', 'language', 'genre', 'edition'];
+
+// Bibliographic fields arrive from a form, so blanks come through as empty
+// strings. Those must become null rather than being stored, or the ISBN unique
+// index would treat every book without one as a duplicate.
+function normalizeBookMeta(fields) {
+  for (const key of ['isbn', 'publisher', 'language', 'genre', 'edition']) {
+    if (typeof fields[key] === 'string') {
+      const trimmed = fields[key].trim();
+      fields[key] = trimmed === '' ? null : trimmed;
+    }
+  }
+  if (fields.published_date !== undefined) {
+    const value = String(fields.published_date || '').trim();
+    fields.published_date = value === '' ? null : value;
+  }
+  if (fields.page_count !== undefined) {
+    const n = Number(fields.page_count);
+    fields.page_count = Number.isInteger(n) && n > 0 ? n : null;
+  }
+  return fields;
+}
 
 router.put('/:id', requireAuth, requireAuthor, async (req, res) => {
   const { price } = req.body;
@@ -71,7 +114,9 @@ router.put('/:id', requireAuth, requireAuthor, async (req, res) => {
     bookFields.video_urls = normalizeVideoList(bookFields.video_urls);
   }
   // House style: no dashes in published copy.
-  cleanTextFields(bookFields, ['title', 'subtitle', 'description', 'reader_full_text']);
+  cleanTextFields(bookFields, ['title', 'subtitle', 'description', 'reader_full_text',
+    'publisher', 'genre', 'edition']);
+  normalizeBookMeta(bookFields);
   if (!Object.keys(bookFields).length && price === undefined) {
     return res.status(400).json({ error: 'No book fields to update' });
   }

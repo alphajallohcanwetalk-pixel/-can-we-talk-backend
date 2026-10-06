@@ -11,7 +11,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='33.3' fill='%231eb53a'/%3E%3Crect y='33.3' width='100' height='33.3' fill='%23ffffff'/%3E%3Crect y='66.6' width='100' height='33.4' fill='%230072c6'/%3E%3C/svg%3E">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0c3d22">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-v2.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -635,6 +635,78 @@
     vertical-align:middle; border-radius:1px;}
   [data-font-dec] .glyph-minus{width:0.5em; margin-left:1px;}
 
+  /* ---------- Book metadata ---------- */
+  .book-meta-fields{display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px;}
+  .book-details{display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:14px 26px; margin-top:6px;}
+  .book-details .bd-row{border-bottom:1px solid var(--line); padding-bottom:9px;}
+  .book-details .bd-k{display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft);}
+  .book-details .bd-v{display:block; font-size:0.95rem; color:var(--ink); margin-top:4px;}
+
+  /* ---------- Motion layer ----------
+     One place for movement, so timing and easing stay consistent. Everything
+     here is wrapped in a reduced-motion guard at the bottom of the block. */
+  :root{
+    --ease-out: cubic-bezier(.2,.7,.3,1);
+    --ease-soft: cubic-bezier(.4,0,.2,1);
+    --dur-fast: .18s;
+    --dur: .3s;
+    --dur-slow: .55s;
+  }
+
+  /* Views fade and lift slightly as they become active. */
+  .view.active{animation:viewIn var(--dur-slow) var(--ease-out);}
+  @keyframes viewIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+
+  /* Sections reveal as they scroll into range. */
+  .reveal{opacity:0; transform:translateY(18px); transition:opacity .6s var(--ease-out), transform .6s var(--ease-out);}
+  .reveal.in{opacity:1; transform:none;}
+
+  /* Buttons: a consistent lift, and a real press. */
+  .btn{transition:transform var(--dur-fast) var(--ease-out), background var(--dur) var(--ease-soft),
+       box-shadow var(--dur) var(--ease-soft), opacity var(--dur-fast);}
+  .btn:hover{transform:translateY(-2px);}
+  .btn:active{transform:translateY(0) scale(.97);}
+  .btn:disabled{opacity:.55; transform:none; cursor:not-allowed;}
+  .icon-btn{transition:transform var(--dur-fast) var(--ease-out), background var(--dur);}
+  .icon-btn:active{transform:scale(.9);}
+
+  /* Navigation links grow an underline from the centre. */
+  nav.links a{position:relative;}
+  nav.links a::after{content:''; position:absolute; left:50%; right:50%; bottom:-5px; height:2px;
+    background:var(--sl-green-bright); transition:left var(--dur) var(--ease-out), right var(--dur) var(--ease-out);}
+  nav.links a:hover::after, nav.links a.active::after{left:0; right:0;}
+
+  /* Cards lift on hover. */
+  .book-card, .essay-card, .writing-card, .identity-item{
+    transition:transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-soft);}
+  .book-card:hover, .essay-card:hover, .writing-card:hover{
+    transform:translateY(-5px); box-shadow:0 18px 40px rgba(12,61,34,.14);}
+
+  /* Modal and overlays. */
+  .modal-overlay{transition:opacity var(--dur) var(--ease-soft);}
+  .modal-overlay.open .modal-box{animation:modalIn .34s var(--ease-out);}
+  @keyframes modalIn{from{opacity:0; transform:translateY(16px) scale(.98);} to{opacity:1; transform:none;}}
+
+  /* Form focus. */
+  .field input:focus, .field textarea:focus, .field select:focus{
+    outline:none; border-color:var(--sl-green); box-shadow:0 0 0 3px rgba(30,181,58,.16);
+    transition:border-color var(--dur-fast), box-shadow var(--dur-fast);}
+
+  /* The toast slides up rather than appearing. */
+  .admin-toast{transition:transform var(--dur) var(--ease-out), opacity var(--dur);}
+
+  /* Gallery and cover art. */
+  .gallery-item{transition:transform var(--dur) var(--ease-out), box-shadow var(--dur);}
+  .gallery-item:hover{transform:scale(1.03); box-shadow:0 14px 30px rgba(12,61,34,.18);}
+
+  /* Anyone who has asked their system to reduce motion gets none of it. */
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration:.001ms !important; animation-iteration-count:1 !important;
+      transition-duration:.001ms !important; scroll-behavior:auto !important;}
+    .reveal{opacity:1; transform:none;}
+  }
+
   /* ---------- Hero install button ---------- */
   .btn-install{display:inline-flex; align-items:center; gap:13px; background:var(--sl-green-bright); color:#06230f;
     border:0; padding:17px 30px; font-size:0.98rem; font-weight:800; letter-spacing:0.01em;
@@ -642,7 +714,15 @@
   .btn-install img{border-radius:7px; flex:0 0 auto; box-shadow:0 2px 8px rgba(0,0,0,0.25);}
   .btn-install:hover{background:#25cc44; transform:translateY(-3px); box-shadow:0 18px 42px rgba(30,181,58,0.5);}
   .btn-install:active{transform:translateY(0) scale(0.98);}
+  .btn-install .bi-text{display:block; text-align:left;}
   .btn-install .bi-sub{display:block; font-size:0.7rem; font-weight:600; opacity:0.78; letter-spacing:0.02em;}
+  .btn-install .bi-arrow{flex:0 0 auto; margin-left:4px; animation:dlNudge 2.4s var(--ease-out) infinite;}
+  @keyframes dlNudge{0%,72%,100%{transform:translateY(0);} 82%{transform:translateY(3px);}}
+  .hero-install-row{display:flex; margin-bottom:18px;}
+  @media(max-width:700px){
+    .hero-install-row{justify-content:stretch;}
+    .btn-install{width:100%; justify-content:center;}
+  }
   /* A slow pulse the first time it is seen, so the eye lands on it. */
   @media (prefers-reduced-motion: no-preference){
     .btn-install{animation:installPulse 2.8s ease-in-out 1.2s 3;}
@@ -828,11 +908,19 @@
       <h1>Can We Talk?</h1>
       <div class="subtitle">(The Misfit Voice)</div>
       <p class="tagline">Some questions are too important to remain unasked. Books, essays, conversations and reflections on leadership, justice, Africa, society and the people who live with the consequences of power.</p>
-      <div class="hero-ctas">
+      <div class="hero-install-row">
         <button class="btn btn-install" data-install-app>
-          <img src="icons/icon-192.png" alt="" width="34" height="34" decoding="async">
-          <span>Download the App<span class="bi-sub">Free, installs in seconds</span></span>
+          <img src="icons/icon-192-v2.png" alt="" width="36" height="36" decoding="async">
+          <span class="bi-text">Download the App<span class="bi-sub">Free, installs in seconds</span></span>
+          <svg class="bi-arrow" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+            <path d="M12 3v12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M6.5 11.5 12 17l5.5-5.5" fill="none" stroke="currentColor" stroke-width="2.4"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4.5 20.5h15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+          </svg>
         </button>
+      </div>
+      <div class="hero-ctas">
         <a class="btn btn-primary nav-link" data-view="book-mrp">Explore My Books</a>
         <a class="btn btn-ghost nav-link" data-view="essays">Read My Essays</a>
         <a class="btn btn-ghost nav-link" data-view="misfit">Enter The Misfit Voice</a>
@@ -867,7 +955,7 @@
         </div>
       </div>
       <div class="install-mark">
-        <img src="icons/icon-192.png" alt="Can We Talk? app icon" width="92" height="92">
+        <img src="icons/icon-192-v2.png" alt="Can We Talk? app icon" width="92" height="92">
         <div class="im-meta">
           <strong>Can We Talk?</strong>
           The Misfit Voice<br>Works on Android, iPhone and desktop
@@ -1048,6 +1136,13 @@
       </div>
     </div>
   </section>
+  <section class="detail" id="mrp-details-section" style="display:none;">
+    <div class="wrap">
+      <div class="section-head"><span class="eyebrow">Details</span><h2>Book details</h2></div>
+      <div class="book-details" id="mrp-details"></div>
+    </div>
+  </section>
+
   <section class="detail" id="mrp-video-section" style="display:none;">
     <div class="wrap">
       <div class="section-head"><span class="eyebrow">Watch</span><h2>Readings, interviews and launch footage</h2></div>
@@ -1162,6 +1257,13 @@
       </div>
     </div>
   </section>
+  <section class="detail" id="mono-details-section" style="display:none;">
+    <div class="wrap">
+      <div class="section-head"><span class="eyebrow">Details</span><h2>Book details</h2></div>
+      <div class="book-details" id="mono-details"></div>
+    </div>
+  </section>
+
   <section class="detail" id="mono-video-section" style="display:none;">
     <div class="wrap">
       <div class="section-head"><span class="eyebrow">Watch</span><h2>Readings, interviews and launch footage</h2></div>
@@ -1226,6 +1328,13 @@
         <button type="submit" class="btn btn-dark" style="align-self:flex-start;">Post Comment</button>
       </form>
       <div id="gb-comment-list"></div>
+    </div>
+  </section>
+
+  <section class="detail" id="gb-details-section" style="display:none;">
+    <div class="wrap">
+      <div class="section-head"><span class="eyebrow">Details</span><h2>Book details</h2></div>
+      <div class="book-details" id="gb-details"></div>
     </div>
   </section>
 
@@ -1865,6 +1974,15 @@
               <div class="field"><label>Front cover image</label><input type="file" id="newBookCover" accept="image/*"></div>
               <div class="field"><label>Back cover image</label><input type="file" id="newBookBackCover" accept="image/*"></div>
               <div class="field"><label>Launch / gallery photos (up to 6)</label><input type="file" id="newBookGallery" accept="image/*" multiple></div>
+              <div class="book-meta-fields">
+                <div class="field"><label>ISBN</label><input type="text" id="newBookIsbn" placeholder="978-0-000000-0-0"></div>
+                <div class="field"><label>Publisher</label><input type="text" id="newBookPublisher" placeholder="Publisher name"></div>
+                <div class="field"><label>Publication date</label><input type="date" id="newBookPubDate"></div>
+                <div class="field"><label>Pages</label><input type="number" id="newBookPages" min="1" placeholder="248"></div>
+                <div class="field"><label>Language</label><input type="text" id="newBookLanguage" placeholder="English"></div>
+                <div class="field"><label>Genre</label><input type="text" id="newBookGenre" placeholder="Nonfiction, Politics"></div>
+                <div class="field"><label>Edition</label><input type="text" id="newBookEdition" placeholder="First edition"></div>
+              </div>
               <div class="field"><label>Video links (one per line)</label>
                 <textarea id="newBookVideos" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="https://www.youtube.com/watch?v=...&#10;https://vimeo.com/...&#10;https://.../launch.mp4"></textarea>
                 <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Paste YouTube or Vimeo links straight from the address bar, or a direct video file link. They play on the book page.</div>
@@ -2257,7 +2375,7 @@
 </footer>
 
 <div id="installBanner" role="dialog" aria-label="Install the Can We Talk? app">
-  <img src="icons/icon-192.png" alt="" width="46" height="46">
+  <img src="icons/icon-192-v2.png" alt="" width="46" height="46">
   <div class="ib-text">
     <strong>Install Can We Talk?</strong>
     <span>Add it to your home screen for full screen reading and offline access.</span>
@@ -3253,6 +3371,43 @@
     }
 
     renderBookVideos(key, book);
+    renderBookDetails(key, book);
+  }
+
+
+  // Bibliographic details. Each row only appears if the author has filled it
+  // in, and the whole section stays hidden until at least one is present.
+  function renderBookDetails(key, book){
+    const grid = document.getElementById(key + '-details');
+    const section = document.getElementById(key + '-details-section');
+    if(!grid || !section) return;
+
+    const fmtDate = (v) => {
+      if(!v) return '';
+      const d = new Date(v);
+      return isNaN(d) ? String(v) : d.toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' });
+    };
+    const rows = [
+      ['Publisher', book?.publisher],
+      ['Published', fmtDate(book?.published_date)],
+      ['Edition', book?.edition],
+      ['Pages', book?.page_count ? String(book.page_count) : ''],
+      ['Language', book?.language],
+      ['Genre', book?.genre],
+      ['ISBN', book?.isbn]
+    ].filter(([, v]) => v !== null && v !== undefined && String(v).trim() !== '');
+
+    grid.innerHTML = '';
+    if(!rows.length){ section.style.display = 'none'; return; }
+    section.style.display = '';
+    rows.forEach(([k, v]) => {
+      const row = document.createElement('div');
+      row.className = 'bd-row';
+      row.innerHTML = '<span class="bd-k"></span><span class="bd-v"></span>';
+      row.querySelector('.bd-k').textContent = k;
+      row.querySelector('.bd-v').textContent = v;
+      grid.appendChild(row);
+    });
   }
 
   // Author supplied videos: a YouTube or Vimeo embed, an uploaded file played
@@ -3366,7 +3521,8 @@
           id: b.id, title: b.title, subtitle: b.subtitle || '', price: paperback ? paperback.price_cents / 100 : 0,
           meta: '', description: b.description || '', cover: b.cover_style || 'cover-1', cover_image_url: b.cover_image_url,
           back_cover_url: b.back_cover_url, gallery_urls: normalizeGalleryUrls(b.gallery_urls), reader_full_text: b.reader_full_text || '', formats: b.book_formats || [],
-          video_urls: Array.isArray(b.video_urls) ? b.video_urls : []
+          video_urls: Array.isArray(b.video_urls) ? b.video_urls : [],
+          isbn: b.isbn, publisher: b.publisher, published_date: b.published_date, page_count: b.page_count, language: b.language, genre: b.genre, edition: b.edition
         };
       });
       const firstCover = books.find(b => b.cover_image_url);
@@ -3536,6 +3692,7 @@
     gbBuyBox.dataset.cover = b.cover === 'cover-2' ? 'c2' : 'c1';
     gbBuyBox.dataset.price = b.price;
     renderBookVideos('gb', b);
+    renderBookDetails('gb', b);
     showView('book-generic');
     loadAndRenderComments('gb-comment-list', b.id);
     loadRatingSummary('gb', b.id);
@@ -3614,6 +3771,36 @@
     const heading = document.querySelector('#admin-dashboard .section-head h2');
     if(heading && !isAuthorUser) heading.textContent = 'Developer access';
   }
+
+  // ================= SCROLL REVEAL =================
+  // Marks sections so they fade in as they come into range. Skipped entirely
+  // when the system asks for reduced motion, and everything stays visible if
+  // IntersectionObserver is unavailable.
+  (function scrollReveal(){
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if(!('IntersectionObserver' in window)) return;
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+
+    const mark = (root) => {
+      root.querySelectorAll('.section-head, .book-grid, .essay-grid, .cross-grid, .video-grid-live, .book-details, .gallery-grid, .stat-grid')
+        .forEach(el => {
+          if(el.dataset.revealBound) return;
+          el.dataset.revealBound = '1';
+          el.classList.add('reveal');
+          io.observe(el);
+        });
+    };
+    mark(document);
+
+    // Content rendered later (books, essays, cross sell) needs marking too.
+    window.addEventListener('load', () => mark(document));
+    document.addEventListener('click', () => setTimeout(() => mark(document), 80));
+  })();
 
   // ================= NAVIGATION CONTROLS =================
   document.getElementById('navBack')?.addEventListener('click', () => {
@@ -4229,6 +4416,13 @@
       // Show the links the author originally pasted, not the embed form.
       document.getElementById('newBookVideos').value =
         (b.video_urls || []).map(v => v.source || v.url).join('\n');
+      document.getElementById('newBookIsbn').value = b.isbn || '';
+      document.getElementById('newBookPublisher').value = b.publisher || '';
+      document.getElementById('newBookPubDate').value = b.published_date || '';
+      document.getElementById('newBookPages').value = b.page_count || '';
+      document.getElementById('newBookLanguage').value = b.language || '';
+      document.getElementById('newBookGenre').value = b.genre || '';
+      document.getElementById('newBookEdition').value = b.edition || '';
       document.getElementById('bookFormHeading').textContent = 'Editing: ' + b.title;
       document.getElementById('addBookBtn').textContent = 'Update Book';
       document.getElementById('cancelBookEditBtn').style.display = 'inline-block';
@@ -4264,6 +4458,13 @@
     document.getElementById('newBookGallery').value = '';
     document.getElementById('newBookReaderFile').value = '';
     document.getElementById('newBookVideos').value = '';
+    document.getElementById('newBookIsbn').value = '';
+    document.getElementById('newBookPublisher').value = '';
+    document.getElementById('newBookPubDate').value = '';
+    document.getElementById('newBookPages').value = '';
+    document.getElementById('newBookLanguage').value = '';
+    document.getElementById('newBookGenre').value = '';
+    document.getElementById('newBookEdition').value = '';
     document.getElementById('newBookVideoFile').value = '';
     document.getElementById('bookFormHeading').textContent = '+ Add New Book';
     document.getElementById('addBookBtn').textContent = 'Publish Book';
@@ -4366,8 +4567,20 @@
       }
       const video_urls = videoLines;
 
+      // Bibliographic fields. Blanks go up as empty strings and the API turns
+      // them into nulls, so clearing a field actually clears it.
+      const meta = {
+        isbn: document.getElementById('newBookIsbn').value.trim(),
+        publisher: document.getElementById('newBookPublisher').value.trim(),
+        published_date: document.getElementById('newBookPubDate').value.trim(),
+        page_count: document.getElementById('newBookPages').value.trim(),
+        language: document.getElementById('newBookLanguage').value.trim(),
+        genre: document.getElementById('newBookGenre').value.trim(),
+        edition: document.getElementById('newBookEdition').value.trim(),
+      };
+
       if(editingBookId){
-        const body = { title, subtitle, description, reader_full_text, price, video_urls };
+        const body = { title, subtitle, description, reader_full_text, price, video_urls, ...meta };
         if(cover_image_url) body.cover_image_url = cover_image_url;
         if(back_cover_url) body.back_cover_url = back_cover_url;
         if(gallery_urls) body.gallery_urls = gallery_urls;
@@ -4381,7 +4594,7 @@
           body: JSON.stringify({
             title, subtitle, description, reader_full_text,
             cover_style: books.length % 2 === 0 ? 'cover-1' : 'cover-2',
-            cover_image_url, back_cover_url, gallery_urls, video_urls,
+            cover_image_url, back_cover_url, gallery_urls, video_urls, ...meta,
             formats: [{ format_name: 'Paperback', price_cents: Math.round(price * 100), sort_order: 0 }]
           })
         });
