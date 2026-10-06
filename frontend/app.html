@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@600&display=swap" rel="stylesheet">
 <style>
   :root{
     --sl-green-deep:#0c3d22; --sl-green:#12622f; --sl-green-bright:#1eb53a;
@@ -641,6 +641,68 @@
   .format-setup .fs-row input[type="number"]{width:110px; margin-left:auto; padding:7px 9px;
     border:1px solid var(--line); border-radius:5px;}
   .format-setup .fs-row input[type="checkbox"]{width:16px; height:16px; accent-color:var(--sl-green);}
+
+  /* ---------- Developer contact card ---------- */
+  .built-by .bna-link{background:none; border:0; padding:0; cursor:pointer; font:inherit; color:inherit;}
+  .bna-box{text-align:center; max-width:420px;}
+  .bna-logo{width:100%; max-width:260px; height:auto; margin:4px auto 2px; display:block;}
+  .bna-tag{color:var(--ink-soft); font-size:0.85rem; margin-bottom:20px;}
+  .bna-rows{display:flex; flex-direction:column; gap:9px; text-align:left;}
+  .bna-row{display:flex; justify-content:space-between; align-items:center; gap:12px;
+    border:1px solid var(--line); border-radius:7px; padding:11px 14px; background:var(--paper);
+    font:inherit; cursor:pointer; width:100%; transition:background .2s, transform .18s var(--ease-out);}
+  .bna-row:hover{background:var(--paper-dim); transform:translateY(-1px);}
+  .bna-k{font-size:0.74rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft);}
+  .bna-v{font-size:0.86rem; color:var(--ink); font-weight:600; word-break:break-all; text-align:right;}
+  .bna-foot{margin-top:18px; font-size:0.76rem; color:var(--ink-soft);}
+
+  /* ---------- Handwritten welcome ---------- */
+  #welcomeOverlay{position:fixed; inset:0; z-index:6000; display:none; align-items:center; justify-content:center;
+    background:rgba(8,20,10,0.72); backdrop-filter:blur(3px);}
+  #welcomeOverlay.show{display:flex; animation:woFade .35s var(--ease-out);}
+  @keyframes woFade{from{opacity:0;} to{opacity:1;}}
+  .wo-card{background:var(--paper); border-radius:14px; padding:40px 44px; text-align:center;
+    box-shadow:0 30px 70px rgba(0,0,0,0.4); max-width:min(92vw, 520px);
+    animation:woRise .45s var(--ease-out);}
+  @keyframes woRise{from{opacity:0; transform:translateY(18px) scale(.97);} to{opacity:1; transform:none;}}
+  .wo-script-wrap{position:relative; display:inline-block;}
+  .wo-script{font-family:'Caveat',cursive; font-size:clamp(1.9rem,6vw,2.9rem); color:var(--sl-green-deep);
+    white-space:nowrap; display:inline-block;
+    /* The mask sweeps left to right, so the words appear as if being written. */
+    -webkit-mask-image:linear-gradient(90deg,#000 0 0); mask-image:linear-gradient(90deg,#000 0 0);
+    -webkit-mask-size:0% 100%; mask-size:0% 100%;
+    -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;}
+  #welcomeOverlay.show .wo-script{animation:woWrite 1.5s var(--ease-soft) .15s forwards;}
+  @keyframes woWrite{to{-webkit-mask-size:100% 100%; mask-size:100% 100%;}}
+  .wo-nib{position:absolute; left:0; bottom:2px; opacity:0; transform:translateX(0);}
+  #welcomeOverlay.show .wo-nib{animation:woNib 1.5s var(--ease-soft) .15s forwards;}
+  @keyframes woNib{
+    0%{opacity:1; left:0;} 92%{opacity:1; left:100%;} 100%{opacity:0; left:100%;}}
+  .wo-check{display:block; margin:18px auto 0; opacity:0;}
+  .wo-check circle, .wo-check path{stroke-dasharray:160; stroke-dashoffset:160;}
+  #welcomeOverlay.show .wo-check{animation:woShow .01s linear 1.55s forwards;}
+  #welcomeOverlay.show .wo-check circle{animation:woDraw .5s var(--ease-out) 1.6s forwards;}
+  #welcomeOverlay.show .wo-check path{animation:woDraw .4s var(--ease-out) 1.95s forwards;}
+  @keyframes woShow{to{opacity:1;}}
+  @keyframes woDraw{to{stroke-dashoffset:0;}}
+  .wo-name{margin-top:14px; font-size:0.92rem; color:var(--ink-soft); opacity:0;}
+  #welcomeOverlay.show .wo-name{animation:woShowSoft .5s var(--ease-out) 2.1s forwards;}
+  @keyframes woShowSoft{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+  /* ---------- Consent banner ---------- */
+  #consentBanner{position:fixed; left:0; right:0; bottom:0; z-index:5500; display:none;
+    background:var(--sl-green-deep); color:#fff; box-shadow:0 -10px 40px rgba(0,0,0,0.3);}
+  #consentBanner.show{display:block; animation:cbUp .45s var(--ease-out);}
+  @keyframes cbUp{from{transform:translateY(100%);} to{transform:none;}}
+  .cb-inner{max-width:1100px; margin:0 auto; padding:18px 22px; display:flex; gap:20px;
+    align-items:center; justify-content:space-between; flex-wrap:wrap;}
+  .cb-text{flex:1 1 420px; min-width:0;}
+  .cb-text strong{display:block; font-size:0.95rem; margin-bottom:4px;}
+  .cb-text span{font-size:0.83rem; color:rgba(255,255,255,0.78); line-height:1.6;}
+  .cb-text a{color:var(--sl-green-bright); text-decoration:underline;}
+  .cb-actions{display:flex; gap:10px; flex-wrap:wrap; flex:0 0 auto;}
+  #consentBanner .btn-outline-dark{border-color:rgba(255,255,255,0.4); color:#fff;}
+  #consentBanner .btn-outline-dark:hover{background:rgba(255,255,255,0.1);}
 
   /* ---------- Listen control ---------- */
   #readerListen.speaking{background:var(--sl-green-bright); color:#06230f; border-color:transparent;}
@@ -2393,14 +2455,75 @@
       <span class="built-by">
         <img src="icons/bna-developers-icon.png" alt="" width="22" height="22" loading="lazy" decoding="async">
         Website built by
-        <a class="bna-link" href="mailto:b.and.a.developers@gmail.com?subject=Website%20enquiry"
-           aria-label="Email B and A Developers"><strong>B&amp;A&nbsp;Developers</strong></a>
+        <button type="button" class="bna-link" id="bnaOpen"
+                aria-label="Contact B and A Developers"><strong>B&amp;A&nbsp;Developers</strong></button>
         <a href="tel:+254794698660" aria-label="Call on 0794 698 660">0794&nbsp;698&nbsp;660</a>
       </span>
       <span>Sierra Leone 🇸🇱 · Question Power. Question Society. Question Yourself. · <a class="nav-link" data-view="admin" style="text-decoration:underline; color:#8b9285;">Author Login</a></span>
     </div>
   </div>
 </footer>
+
+<!-- Handwritten welcome, shown once after signing in -->
+<div id="welcomeOverlay" aria-hidden="true">
+  <div class="wo-card">
+    <div class="wo-script-wrap">
+      <span class="wo-script" id="welcomeScript">Welcome to The Misfit Voice</span>
+      <span class="wo-nib" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22">
+          <path d="M3 21l3.5-1 11-11-2.5-2.5-11 11L3 21z" fill="#c99a2e"/>
+          <path d="M15.5 4.5 17 3l4 4-1.5 1.5-4-4z" fill="#0c3d22"/>
+        </svg>
+      </span>
+    </div>
+    <svg class="wo-check" viewBox="0 0 52 52" width="46" height="46" aria-hidden="true">
+      <circle cx="26" cy="26" r="23" fill="none" stroke="#1eb53a" stroke-width="3"/>
+      <path d="M15 27l8 8 15-16" fill="none" stroke="#1eb53a" stroke-width="4"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <p class="wo-name" id="welcomeName"></p>
+  </div>
+</div>
+
+<!-- Privacy and terms acknowledgement, shown on first visit -->
+<div class="modal-overlay" id="bnaModal" role="dialog" aria-label="B and A Developers">
+  <div class="modal-box bna-box">
+    <button class="modal-close" id="bnaClose" aria-label="Close">&times;</button>
+    <img src="icons/bna-developers-logo.png" alt="B&amp;A Developers" class="bna-logo">
+    <p class="bna-tag">Smart apps for real businesses</p>
+    <div class="bna-rows">
+      <a class="bna-row" href="mailto:b.and.a.developers@gmail.com?subject=Website%20enquiry">
+        <span class="bna-k">Email</span>
+        <span class="bna-v">b.and.a.developers@gmail.com</span>
+      </a>
+      <button type="button" class="bna-row" id="bnaCopy">
+        <span class="bna-k">Copy address</span>
+        <span class="bna-v" id="bnaCopyState">Tap to copy</span>
+      </button>
+      <a class="bna-row" href="tel:+254794698660">
+        <span class="bna-k">Phone</span>
+        <span class="bna-v">0794 698 660</span>
+      </a>
+    </div>
+    <p class="bna-foot">This website was designed and built by B&amp;A Developers.</p>
+  </div>
+</div>
+
+<div id="consentBanner" role="dialog" aria-label="Privacy and terms">
+  <div class="cb-inner">
+    <div class="cb-text">
+      <strong>Before you start reading</strong>
+      <span>We keep your account details to run your orders and your reading, and nothing else.
+      We show no adverts and run no tracking. See the
+      <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and
+      <a class="nav-link" data-view="terms" data-consent-close>Terms</a>.</span>
+    </div>
+    <div class="cb-actions">
+      <button class="btn btn-sm btn-dark" id="consentAccept">I agree</button>
+      <button class="btn btn-sm btn-outline-dark" id="consentReadMore">Read first</button>
+    </div>
+  </div>
+</div>
 
 <div id="installBanner" role="dialog" aria-label="Install the Can We Talk? app">
   <img src="icons/icon-192-v2.png" alt="" width="46" height="46">
@@ -2768,6 +2891,7 @@
   }
 
   function setSignedIn(user){
+    const isNewSession = !currentUser;
     currentUser = user;
     const authArea = document.getElementById('authArea');
     authArea.innerHTML = `<div class="nav-user" id="userMenuBtn"><div class="avatar">${initials(user.name)}</div>${user.name.split(' ')[0]}</div>`;
@@ -2781,9 +2905,15 @@
     closeAuth();
     updateCommentGates();
     checkBookClubStatus();
+    // Only on a fresh sign in, not when the session is restored on every reload.
+    if(isNewSession && !restoringSession) playWelcome(user.name || user.email);
   }
 
   function isValidEmail(v){ return /\S+@\S+\.\S+/.test(v); }
+
+  // True while the saved session is being restored on load, so the welcome
+  // animation does not replay on every refresh.
+  let restoringSession = true;
 
   // Restore session on page load (so refreshing doesn't sign you out)
   sb.auth.getSession().then(({ data }) => {
@@ -2793,6 +2923,9 @@
       setSignedIn({ name, email: data.session.user.email });
       verifyOrderConfirmation();
     }
+  }).finally(() => {
+    // From here on, a call to setSignedIn is a real sign in, not a restore.
+    restoringSession = false;
   });
 
   // Keep currentSession in sync whenever Supabase silently refreshes the token in the
@@ -3799,6 +3932,96 @@
     const heading = document.querySelector('#admin-dashboard .section-head h2');
     if(heading && !isAuthorUser) heading.textContent = 'Developer access';
   }
+
+  // ================= DEVELOPER CONTACT CARD =================
+  (function bnaCard(){
+    const modal = document.getElementById('bnaModal');
+    const open = document.getElementById('bnaOpen');
+    if(!modal || !open) return;
+
+    const show = () => modal.classList.add('open');
+    const hide = () => modal.classList.remove('open');
+
+    open.addEventListener('click', show);
+    document.getElementById('bnaClose')?.addEventListener('click', hide);
+    modal.addEventListener('click', e => { if(e.target === modal) hide(); });
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') hide(); });
+
+    document.getElementById('bnaCopy')?.addEventListener('click', async () => {
+      const state = document.getElementById('bnaCopyState');
+      const address = 'b.and.a.developers@gmail.com';
+      try {
+        await navigator.clipboard.writeText(address);
+        state.textContent = 'Copied';
+      } catch(e){
+        // Clipboard access is refused in some browsers; show it to select by hand.
+        state.textContent = address;
+      }
+      setTimeout(() => { state.textContent = 'Tap to copy'; }, 2200);
+    });
+  })();
+
+  // ================= WELCOME MOMENT =================
+  // A short handwritten greeting after signing in. Shown once per account per
+  // browser, so it stays a welcome rather than becoming an obstacle people have
+  // to dismiss every visit.
+  function playWelcome(name){
+    const overlay = document.getElementById('welcomeOverlay');
+    if(!overlay) return;
+
+    const key = 'cwt_welcomed_' + (name || '').toLowerCase();
+    try { if(localStorage.getItem(key)) return; } catch(e){}
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const first = String(name || '').trim().split(/\s+/)[0] || '';
+    const label = document.getElementById('welcomeName');
+    if(label) label.textContent = first ? `Good to have you here, ${first}.` : 'Good to have you here.';
+
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden', 'false');
+    try { localStorage.setItem(key, '1'); } catch(e){}
+
+    const close = () => {
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden', 'true');
+    };
+    // Reduced motion gets the message without the performance.
+    setTimeout(close, reduced ? 1200 : 3400);
+    overlay.addEventListener('click', close, { once: true });
+  }
+
+  // ================= PRIVACY AND TERMS CONSENT =================
+  // The site sets no advertising or tracking cookies, so this is an
+  // acknowledgement of the terms rather than a cookie opt in. It is written
+  // that way deliberately: a consent box that asks permission for tracking that
+  // does not happen trains people to click through without reading.
+  (function consent(){
+    const banner = document.getElementById('consentBanner');
+    if(!banner) return;
+    const KEY = 'cwt_terms_accepted_v1';
+
+    let accepted = false;
+    try { accepted = localStorage.getItem(KEY) === '1'; } catch(e){}
+    if(accepted) return;
+
+    // Let the page settle before it appears.
+    setTimeout(() => banner.classList.add('show'), 1400);
+
+    const accept = () => {
+      try { localStorage.setItem(KEY, '1'); } catch(e){}
+      banner.classList.remove('show');
+    };
+    document.getElementById('consentAccept')?.addEventListener('click', accept);
+    document.getElementById('consentReadMore')?.addEventListener('click', () => {
+      showView('privacy');
+    });
+    // Following the Terms link inside the banner should not leave it covering
+    // the page the reader just asked to see.
+    banner.querySelector('[data-consent-close]')?.addEventListener('click', () => {
+      banner.classList.remove('show');
+      setTimeout(() => { if(!localStorage.getItem(KEY)) banner.classList.add('show'); }, 6000);
+    });
+  })();
 
   // ================= NARRATION =================
   // Reads a page aloud using the device's own speech engine. This works today,
