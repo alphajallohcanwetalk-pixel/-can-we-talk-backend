@@ -642,6 +642,45 @@
     border:1px solid var(--line); border-radius:5px;}
   .format-setup .fs-row input[type="checkbox"]{width:16px; height:16px; accent-color:var(--sl-green);}
 
+  /* ---------- Newsletter ---------- */
+  .news-form{margin:20px 0 6px; max-width:380px;}
+  .news-form label{display:block; font-size:0.8rem; color:rgba(255,255,255,0.72); margin-bottom:8px;}
+  .nf-row{display:flex; gap:8px;}
+  .nf-row input{flex:1; min-width:0; padding:10px 12px; border-radius:5px; border:1px solid rgba(255,255,255,0.22);
+    background:rgba(255,255,255,0.07); color:#fff; font-size:0.86rem;}
+  .nf-row input::placeholder{color:rgba(255,255,255,0.45);}
+  .nf-row input:focus{outline:none; border-color:var(--sl-green-bright);
+    box-shadow:0 0 0 3px rgba(30,181,58,0.18);}
+  .nf-note{font-size:0.74rem; color:rgba(255,255,255,0.5); margin-top:8px;}
+  .nf-note.ok{color:var(--sl-green-bright);}
+  .nf-note.bad{color:#ff8a80;}
+
+  /* ---------- Staff only hints ----------
+     Guidance meant for the author. Hidden from readers, who should never be
+     told to open a dashboard they cannot reach. */
+  .author-hint{display:none;}
+  body.is-staff .author-hint{display:flex; align-items:center; justify-content:center;
+    text-align:center; color:var(--ink-soft); font-size:0.84rem; padding:18px; line-height:1.6;}
+  body.is-staff .author-hint.inline{display:block;}
+
+  /* ---------- Author strip ---------- */
+  .author-strip{background:var(--paper-dim); padding:64px 0;}
+  .as-inner{display:flex; align-items:center; gap:34px; flex-wrap:wrap;}
+  .as-portrait{width:150px; height:150px; border-radius:50%; flex:0 0 auto; background-size:cover;
+    background-position:center top; background-color:var(--sl-green-deep);
+    box-shadow:0 14px 34px rgba(12,61,34,0.22); border:4px solid var(--paper);}
+  .as-body{flex:1 1 320px; min-width:0;}
+  .as-body h3{font-family:'Fraunces',serif; font-size:1.5rem; margin:8px 0 10px;}
+  .as-body p{color:var(--ink-soft); font-size:0.95rem; line-height:1.7; max-width:62ch; margin-bottom:16px;}
+  .footer-author{display:flex; align-items:center; gap:13px;}
+  .fa-portrait{width:46px; height:46px; border-radius:50%; flex:0 0 auto; display:none;
+    background-size:cover; background-position:center top; border:2px solid rgba(255,255,255,0.25);}
+  .fa-portrait.has-photo{display:block;}
+  @media(max-width:700px){
+    .as-portrait{width:112px; height:112px;}
+    .author-strip{padding:44px 0;}
+  }
+
   /* ---------- Developer contact card ---------- */
   .built-by .bna-link{background:none; border:0; padding:0; cursor:pointer; font:inherit; color:inherit;}
   .bna-box{text-align:center; max-width:420px;}
@@ -1020,6 +1059,18 @@
     </div>
   </section>
 
+  <section class="author-strip" id="home-author-strip" style="display:none;">
+    <div class="wrap as-inner">
+      <div class="as-portrait" id="home-author-portrait"></div>
+      <div class="as-body">
+        <span class="eyebrow">About the Author</span>
+        <h3>Alpha Amadu Jalloh</h3>
+        <p id="home-author-bio">Author, columnist, human rights advocate and peacebuilder from Sierra Leone.</p>
+        <a class="btn btn-sm btn-outline-dark nav-link" data-view="about">Read his story</a>
+      </div>
+    </div>
+  </section>
+
   <section class="install-band" id="getTheApp">
     <div class="wrap">
       <div class="install-copy">
@@ -1208,8 +1259,8 @@
     <div class="wrap">
       <div class="section-head"><span class="eyebrow">Nairobi Launch · 7 August 2026</span><h2>Launch gallery</h2><p>Photos from the book launch, officiated by Professor P. L. O. Lumumba.</p></div>
       <div class="gallery-grid" id="mrp-gallery-grid">
-        <div class="gallery-item">Launch photo 1</div><div class="gallery-item">Launch photo 2</div><div class="gallery-item">With Prof. Lumumba</div><div class="gallery-item">Launch photo 4</div>
-        <div class="gallery-item">Audience</div><div class="gallery-item">Book signing</div><div class="gallery-item">Press moment</div><div class="gallery-item">View full gallery →</div>
+        
+        
       </div>
     </div>
   </section>
@@ -1231,6 +1282,18 @@
   <section class="detail" id="mrp-press">
     <div class="wrap"><div class="section-head"><span class="eyebrow">Media Coverage</span><h2>In the press</h2></div>
       <div id="mrp-press-list"><p style="color:var(--ink-soft); font-size:0.9rem;">No media coverage added yet.</p></div>
+    </div>
+  </section>
+
+  <section class="author-strip" id="mrp-author-strip" style="display:none;">
+    <div class="wrap as-inner">
+      <div class="as-portrait" id="mrp-author-portrait"></div>
+      <div class="as-body">
+        <span class="eyebrow">About the Author</span>
+        <h3>Alpha Amadu Jalloh</h3>
+        <p id="mrp-author-bio">Author, columnist, human rights advocate and peacebuilder from Sierra Leone.</p>
+        <a class="btn btn-sm btn-outline-dark nav-link" data-view="about">Read his story</a>
+      </div>
     </div>
   </section>
 
@@ -1330,7 +1393,7 @@
     <div class="wrap">
       <div class="section-head"><span class="eyebrow">Photos</span><h2>Gallery</h2></div>
       <div class="gallery-grid" id="mono-gallery-grid">
-        <div class="gallery-item">Add photos via the Author Dashboard</div>
+        <div class="gallery-item author-hint">Add photos via the Author Dashboard</div>
       </div>
     </div>
   </section>
@@ -1352,6 +1415,18 @@
   <section class="detail" id="mono-press">
     <div class="wrap"><div class="section-head"><span class="eyebrow">Media Coverage</span><h2>In the press</h2></div>
       <div id="mono-press-list"><p style="color:var(--ink-soft); font-size:0.9rem;">No media coverage added yet.</p></div>
+    </div>
+  </section>
+
+  <section class="author-strip" id="mono-author-strip" style="display:none;">
+    <div class="wrap as-inner">
+      <div class="as-portrait" id="mono-author-portrait"></div>
+      <div class="as-body">
+        <span class="eyebrow">About the Author</span>
+        <h3>Alpha Amadu Jalloh</h3>
+        <p id="mono-author-bio">Author, columnist, human rights advocate and peacebuilder from Sierra Leone.</p>
+        <a class="btn btn-sm btn-outline-dark nav-link" data-view="about">Read his story</a>
+      </div>
     </div>
   </section>
 
@@ -1485,7 +1560,7 @@
 <div class="view" id="view-about">
   <section class="about-hero-view">
     <div class="wrap about-layout">
-      <div class="portrait" id="aboutPortrait"><span>Author portrait. Add photo in Author Dashboard → Settings</span></div>
+      <div class="portrait" id="aboutPortrait"><span class="author-hint inline">Author portrait. Add photo in Author Dashboard, then Settings</span></div>
       <div>
         <span class="eyebrow">About the Author</span>
         <h1>Alpha Amadu Jalloh</h1>
@@ -1789,8 +1864,8 @@
   <section class="page-hero"><div class="wrap"><span class="eyebrow">Gallery</span><h1>Photos</h1></div></section>
   <section style="padding:0 0 90px;">
     <div class="wrap full-gallery-grid">
-      <div class="gallery-item">Nairobi Launch 1</div><div class="gallery-item">Nairobi Launch 2</div><div class="gallery-item">With Prof. Lumumba</div><div class="gallery-item">Author Portrait</div>
-      <div class="gallery-item">Book Signing</div><div class="gallery-item">Audience</div><div class="gallery-item">Press Moment</div><div class="gallery-item">Community Event</div>
+      
+      
     </div>
   </section>
 </div>
@@ -2423,8 +2498,20 @@
   <div class="wrap">
     <div class="footer-grid">
       <div class="footer-brand">
-        <h3>Can We Talk?</h3>
+        <div class="footer-author">
+          <span class="fa-portrait" id="footerPortrait" aria-hidden="true"></span>
+          <h3>Can We Talk?</h3>
+        </div>
         <p>The Misfit Voice. Author, columnist, human rights advocate and peacebuilder from Sierra Leone, questioning power, society and himself, one conversation at a time.</p>
+        <form class="news-form" id="newsletterForm" novalidate>
+          <label for="newsletterEmail">New essays, as they are published</label>
+          <div class="nf-row">
+            <input type="email" id="newsletterEmail" inputmode="email" autocomplete="email"
+                   placeholder="you@example.com" aria-label="Your email address">
+            <button type="submit" class="btn btn-sm btn-primary" id="newsletterSubmit">Sign up</button>
+          </div>
+          <p class="nf-note" id="newsletterNote">No spam. Leave any time with one click.</p>
+        </form>
         <div id="footerSocialLinks" style="display:flex; gap:14px; margin-top:18px; font-family:'IBM Plex Mono',monospace; font-size:0.75rem; letter-spacing:0.05em; text-transform:uppercase;"></div>
       </div>
       <div class="footer-col">
@@ -2890,6 +2977,15 @@
     return name.trim().split(/\s+/).slice(0,2).map(w => w[0].toUpperCase()).join('');
   }
 
+  // Author and developer accounts see guidance that readers should not.
+  async function refreshStaffFlag(){
+    if(!currentSession){ document.body.classList.remove('is-staff'); return; }
+    try {
+      const me = await fetch(`${API_URL}/api/auth/me`, { headers: authHeaders() }).then(r => r.json());
+      document.body.classList.toggle('is-staff', Boolean(me.is_author || me.is_developer));
+    } catch(e){ document.body.classList.remove('is-staff'); }
+  }
+
   function setSignedIn(user){
     const isNewSession = !currentUser;
     currentUser = user;
@@ -2905,6 +3001,7 @@
     closeAuth();
     updateCommentGates();
     checkBookClubStatus();
+    refreshStaffFlag();
     // Only on a fresh sign in, not when the session is restored on every reload.
     if(isNewSession && !restoringSession) playWelcome(user.name || user.email);
   }
@@ -3518,6 +3615,11 @@
       }
     }
     const galleryGrid = document.getElementById(key + '-gallery-grid');
+    const gallerySection = document.getElementById(key + '-gallery');
+    // No photos means no section. An empty grid, or a note about a dashboard,
+    // is not something a reader should be shown.
+    if(gallerySection) gallerySection.style.display =
+      (book?.gallery_urls && book.gallery_urls.length) || document.body.classList.contains('is-staff') ? '' : 'none';
     if(galleryGrid && book?.gallery_urls && book.gallery_urls.length){
       galleryGrid.innerHTML = '';
       book.gallery_urls.forEach(url => {
@@ -3933,6 +4035,58 @@
     if(heading && !isAuthorUser) heading.textContent = 'Developer access';
   }
 
+  // ================= NEWSLETTER =================
+  (function newsletter(){
+    const form = document.getElementById('newsletterForm');
+    if(!form) return;
+    const note = document.getElementById('newsletterNote');
+    const input = document.getElementById('newsletterEmail');
+    const button = document.getElementById('newsletterSubmit');
+
+    const say = (text, kind) => {
+      note.textContent = text;
+      note.classList.toggle('ok', kind === 'ok');
+      note.classList.toggle('bad', kind === 'bad');
+    };
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = input.value.trim();
+      if(!isValidEmail(email)){ say('Please enter a valid email address.', 'bad'); return; }
+
+      const original = button.textContent;
+      button.disabled = true; button.textContent = 'Sending';
+      try {
+        const res = await fetch(`${API_URL}/api/newsletter/subscribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, full_name: currentUser?.name || null })
+        });
+        const body = await res.json().catch(() => ({}));
+        if(!res.ok) throw new Error(body.hint || body.error || 'Could not sign you up.');
+        input.value = '';
+        say('Check your inbox and confirm, and you are on the list.', 'ok');
+      } catch(err){
+        say(err.message, 'bad');
+      } finally {
+        button.disabled = false; button.textContent = original;
+      }
+    });
+  })();
+
+  // Messages shown after following a link in a newsletter email.
+  (function newsletterReturn(){
+    const state = new URLSearchParams(location.search).get('newsletter');
+    if(!state) return;
+    const messages = {
+      confirmed: 'You are on the list. New essays will arrive as they are published.',
+      unsubscribed: 'You have been removed from the list. Nothing further will be sent.',
+      invalid: 'That link is no longer valid. Try signing up again from the footer.'
+    };
+    if(messages[state]) setTimeout(() => alert(messages[state]), 400);
+    history.replaceState(null, '', location.pathname);
+  })();
+
   // ================= DEVELOPER CONTACT CARD =================
   (function bnaCard(){
     const modal = document.getElementById('bnaModal');
@@ -4173,6 +4327,7 @@
     await sb.auth.signOut();
     currentUser = null;
     currentSession = null;
+    document.body.classList.remove('is-staff');
     const authArea = document.getElementById('authArea');
     authArea.innerHTML = '<a class="nav-cta" id="signInBtn">Sign In</a>';
     document.getElementById('signInBtn').addEventListener('click', openAuth);
@@ -4213,6 +4368,7 @@
       const me = await fetch(`${API_URL}/api/auth/me`, { headers: authHeaders() }).then(r => r.json());
       const link = document.getElementById('acctMfaLink');
       if(link) link.style.display = (me.is_author || me.is_developer) ? '' : 'none';
+      document.body.classList.toggle('is-staff', Boolean(me.is_author || me.is_developer));
     } catch(e){}
 
     // Orders
@@ -5410,11 +5566,69 @@
       // match the box the text is actually rendered into.
       readerState.pages = paginateText(readerState.sourceText, '#bookPageRight', readerState.fontSize);
       renderReaderPage();
+      progressBookId = bookId;
+      restoreReadingProgress();
     } catch(err) {
       document.getElementById('reader-locked-msg').style.display = 'block';
       document.getElementById('reader-content').style.display = 'none';
       document.getElementById('reader-locked-msg').textContent = err.message;
     }
+  }
+
+  // Reading position. The page number alone is useless because pagination
+  // depends on screen and font size, so the character offset is saved too and
+  // used to find the right page again on a different device.
+  let progressTimer = null;
+  let progressBookId = null;
+
+  function charOffsetForPage(index){
+    let count = 0;
+    for(let i = 0; i < index && i < readerState.pages.length; i++){
+      count += (readerState.pages[i] || []).join(' ').length + 1;
+    }
+    return count;
+  }
+
+  function pageForCharOffset(offset){
+    if(!offset) return 0;
+    let count = 0;
+    for(let i = 0; i < readerState.pages.length; i++){
+      count += (readerState.pages[i] || []).join(' ').length + 1;
+      if(count > offset) return i;
+    }
+    return Math.max(0, readerState.pages.length - 1);
+  }
+
+  function saveReadingProgress(){
+    if(!currentSession || !progressBookId || !readerState.pages.length) return;
+    clearTimeout(progressTimer);
+    // Debounced: turning several pages quickly should be one write, not six.
+    progressTimer = setTimeout(() => {
+      fetch(`${API_URL}/api/reading/${progressBookId}`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          page: readerState.page,
+          char_offset: charOffsetForPage(readerState.page),
+          pages_total: readerState.pages.length
+        })
+      }).catch(() => {});
+    }, 1200);
+  }
+
+  async function restoreReadingProgress(){
+    if(!currentSession || !progressBookId) return;
+    try {
+      const res = await fetch(`${API_URL}/api/reading/${progressBookId}`, { headers: authHeaders() });
+      if(!res.ok) return;
+      const saved = await res.json();
+      if(!saved || (!saved.char_offset && !saved.page)) return;
+      const target = saved.char_offset ? pageForCharOffset(saved.char_offset) : Number(saved.page) || 0;
+      if(target > 0 && target < readerState.pages.length){
+        readerState.page = pagesPerSpread() === 2 ? target - (target % 2) : target;
+        renderReaderPage();
+      }
+    } catch(e){}
   }
 
   function buildWatermark(){
@@ -5497,6 +5711,7 @@
     if(reduceMotion){
       readerState.page = Math.max(0, target);
       renderReaderPage();
+      saveReadingProgress();
       return;
     }
 
@@ -5517,6 +5732,7 @@
       back.replaceChildren();
       readerState.page = Math.max(0, target);
       renderReaderPage();
+      saveReadingProgress();
       flipping = false;
     };
     flipper.addEventListener('transitionend', finish);
@@ -5797,6 +6013,32 @@
     instagram_url: 'Instagram', facebook_url: 'Facebook', twitter_url: 'X', youtube_url: 'YouTube', tiktok_url: 'TikTok'
   };
 
+  // Puts the author portrait everywhere it belongs: the footer, and the author
+  // strip on the home page and both book pages. Each strip stays hidden until
+  // there is a photo to show, so an empty circle never appears.
+  function applyAuthorPhoto(url, bio){
+    const footer = document.getElementById('footerPortrait');
+    if(footer){
+      if(url){
+        footer.style.backgroundImage = `url('${url}')`;
+        footer.classList.add('has-photo');
+      } else {
+        footer.classList.remove('has-photo');
+      }
+    }
+
+    ['home', 'mrp', 'mono'].forEach(key => {
+      const strip = document.getElementById(key + '-author-strip');
+      const portrait = document.getElementById(key + '-author-portrait');
+      const bioEl = document.getElementById(key + '-author-bio');
+      if(!strip || !portrait) return;
+      if(!url){ strip.style.display = 'none'; return; }
+      strip.style.display = '';
+      lazyLoadCover(portrait, url);
+      if(bioEl && bio) bioEl.textContent = bio;
+    });
+  }
+
   async function loadSiteSettings(){
     try {
       const res = await fetch(`${API_URL}/api/settings`);
@@ -5816,6 +6058,10 @@
       });
       // populate the About page
       if(data.author_bio) document.getElementById('aboutBioText').textContent = data.author_bio;
+      // One photo, every placement. Previously it only reached the About page,
+      // so uploading it had almost no visible effect.
+      applyAuthorPhoto(data.author_photo_url, data.author_bio);
+
       if(data.author_photo_url){
         const portrait = document.getElementById('aboutPortrait');
         portrait.style.backgroundImage = `url('${data.author_photo_url}')`;

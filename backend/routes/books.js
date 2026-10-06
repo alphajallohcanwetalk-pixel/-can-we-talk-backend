@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Columns returned to the public site. The bibliographic ones arrive with
 // migration 010; selectBooks falls back if it has not been run yet.
-const BOOK_SELECT = 'id,title,subtitle,description,cover_style,cover_image_url,back_cover_url,gallery_urls,video_urls,is_active,created_at,isbn,publisher,published_date,page_count,language,genre,edition,book_formats(*)';
+const BOOK_SELECT = 'id,title,subtitle,description,cover_style,cover_image_url,back_cover_url,gallery_urls,video_urls,is_active,created_at,isbn,publisher,published_date,page_count,language,genre,edition,sample_chars,book_formats(*)';
 const BOOK_SELECT_LEGACY = 'id,title,subtitle,description,cover_style,cover_image_url,back_cover_url,gallery_urls,video_urls,is_active,created_at,book_formats(*)';
 
 
@@ -16,7 +16,7 @@ const BOOK_SELECT_LEGACY = 'id,title,subtitle,description,cover_style,cover_imag
 // whole catalogue would 500 in the window between deploying and migrating.
 async function selectBooks(build) {
   let result = await build(BOOK_SELECT);
-  if (result.error && /column .* does not exist|isbn|publisher|published_date|page_count|edition/i.test(result.error.message || '')) {
+  if (result.error && /column .* does not exist|isbn|publisher|published_date|page_count|edition|sample_chars/i.test(result.error.message || '')) {
     result = await build(BOOK_SELECT_LEGACY);
   }
   return result;
@@ -97,7 +97,7 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
 // PUT /api/books/:id: edit
 const BOOK_FIELDS = ['title', 'subtitle', 'description', 'cover_style', 'cover_image_url',
   'back_cover_url', 'gallery_urls', 'reader_full_text', 'is_active', 'video_urls',
-  'isbn', 'publisher', 'published_date', 'page_count', 'language', 'genre', 'edition'];
+  'isbn', 'publisher', 'published_date', 'page_count', 'language', 'genre', 'edition', 'sample_chars'];
 
 // Bibliographic fields arrive from a form, so blanks come through as empty
 // strings. Those must become null rather than being stored, or the ISBN unique

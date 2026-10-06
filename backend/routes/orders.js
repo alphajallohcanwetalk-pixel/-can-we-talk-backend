@@ -2,6 +2,7 @@ import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { stripe } from '../lib/stripe.js';
 import { requireAuth } from '../middleware/auth.js';
+import { quoteShipping } from './shipping.js';
 
 const router = express.Router();
 
@@ -34,7 +35,17 @@ router.post('/checkout', requireAuth, async (req, res) => {
     normalizedItems.push({ ...format, title: book.title, qty: quantity, signed: item.signed === true });
   }
 
-  const total_cents = normalizedItems.reduce((sum, i) => sum + i.price_cents * i.qty, 0);
+  const subtotal_cents = normalizedItems.reduce((sum, i) => sum + i.price_cents * i.qty, 0);
+
+  // Postage depends on where it is going. Without this every destination paid
+  // the same, which does not survive posting a hardback overseas.
+  let shipping = { price_cents: 0, country_name: null };
+  try {
+    shipping = await quoteShipping(req.body?.country_code, subtotal_cents);
+  } catch (shippingError) {
+    console.error('Shipping quote failed:', shippingError.message);
+  }
+  const total_cents = subtotal_cents + (shipping.price_cents || 0);
 
   // Create a pending order first, so we have an ID to attach to the Stripe session
   const { data: order, error } = await supabaseAdmin
@@ -62,14 +73,26 @@ router.post('/checkout', requireAuth, async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       // Omitting payment_method_types lets Stripe use the methods enabled in Dashboard.
-      line_items: normalizedItems.map((i) => ({
-        price_data: {
-          currency: 'usd',
-          product_data: { name: `${i.title} (${i.format_name}${i.signed ? ', signed' : ''})` },
-          unit_amount: i.price_cents
-        },
-        quantity: i.qty
-      })),
+      line_items: [
+        ...normalizedItems.map((i) => ({
+          price_data: {
+            currency: 'usd',
+            product_data: { name: `${i.title} (${i.format_name}${i.signed ? ', signed' : ''})` },
+            unit_amount: i.price_cents
+          },
+          quantity: i.qty
+        })),
+        // Postage as its own line, so the customer sees what they are paying
+        // for rather than finding it folded into the book price.
+        ...(shipping.price_cents > 0 ? [{
+          price_data: {
+            currency: 'usd',
+            product_data: { name: `Postage to ${shipping.country_name || 'your address'}` },
+            unit_amount: shipping.price_cents
+          },
+          quantity: 1
+        }] : [])
+      ],
       customer_email: req.user.email,
       metadata: { order_id: order.id },
       success_url: `${process.env.FRONTEND_APP_URL}#order-confirm?order=${order.id}`,

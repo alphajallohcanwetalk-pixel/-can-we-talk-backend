@@ -108,3 +108,20 @@ export async function sendBookClubWelcomeEmail(toEmail, name, plan) {
     html
   });
 }
+
+export async function sendNewsletterConfirmation(toEmail, name, token) {
+  const base = process.env.PUBLIC_API_URL || 'https://can-we-talk-backend.onrender.com';
+  const confirmUrl = `${base}/api/newsletter/confirm/${encodeURIComponent(token)}`;
+  const html = wrapper(`
+    <h2 style="margin:0 0 14px;">Confirm your email</h2>
+    <p style="color:#444; line-height:1.6;">
+      ${name ? esc(name.split(' ')[0]) + ', s' : 'S'}omeone asked to receive new essays from
+      Alpha Amadu Jalloh at this address. Confirm below and you will get each new piece as it is published.
+    </p>
+    <a href="${confirmUrl}" style="display:inline-block; margin-top:18px; background:#0c3d22; color:#fff; padding:13px 24px; border-radius:4px; text-decoration:none; font-size:14px;">Yes, sign me up</a>
+    <p style="color:#777; font-size:12px; margin-top:22px; line-height:1.6;">
+      If this was not you, ignore this message. Nothing will be sent to you unless you confirm.
+    </p>
+  `);
+  return resend.emails.send({ from: FROM, to: toEmail, subject: 'Confirm your email', html });
+}

@@ -17,6 +17,9 @@ import mediaRoutes from './routes/media.js';
 import settingsRoutes from './routes/settings.js';
 import analyticsRoutes from './routes/analytics.js';
 import devRoutes from './routes/dev.js';
+import readingRoutes from './routes/reading.js';
+import newsletterRoutes from './routes/newsletter.js';
+import shippingRoutes from './routes/shipping.js';
 import webhookRoutes from './routes/webhooks.js';
 import { logAppError } from './lib/errorLog.js';
 
@@ -80,6 +83,9 @@ app.use('/api/media', mediaRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/dev', devRoutes);
+app.use('/api/reading', readingRoutes);
+app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/shipping', shippingRoutes);
 
 app.get('/', (req, res) => res.json({
 	name: 'Can We Talk? API',

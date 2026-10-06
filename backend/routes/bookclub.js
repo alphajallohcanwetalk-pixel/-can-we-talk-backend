@@ -81,15 +81,55 @@ router.get('/read/:bookId', requireAuth, async (req, res) => {
       hasEbookPurchase = Boolean(ebook);
     }
   }
-  if (!profile?.book_club_active && !hasEbookPurchase) return res.status(403).json({ error: 'Purchase this eBook or join the Book Club to read it' });
+  const entitled = Boolean(profile?.book_club_active) || hasEbookPurchase;
 
-  const { data: book, error } = await supabaseAdmin
-    .from('books')
-    .select('title, reader_full_text')
-    .eq('id', req.params.bookId)
-    .single();
-  if (error) return res.status(404).json({ error: 'Book not found' });
-  res.json(book);
+  // sample_chars arrives with migration 011. Select it separately so a book
+  // still opens for entitled readers if the column is not there yet.
+  let book = null;
+  let sampleChars = 0;
+  {
+    const full = await supabaseAdmin
+      .from('books')
+      .select('title, reader_full_text, sample_chars')
+      .eq('id', req.params.bookId)
+      .single();
+    if (full.error) {
+      const legacy = await supabaseAdmin
+        .from('books')
+        .select('title, reader_full_text')
+        .eq('id', req.params.bookId)
+        .single();
+      if (legacy.error) return res.status(404).json({ error: 'Book not found' });
+      book = legacy.data;
+    } else {
+      book = full.data;
+      sampleChars = Number(full.data.sample_chars) || 0;
+    }
+  }
+
+  if (entitled) {
+    return res.json({ title: book.title, reader_full_text: book.reader_full_text, is_sample: false });
+  }
+
+  // Not entitled. If the author has opened a sample, send that much and say so,
+  // rather than refusing outright. Trying a book is how people decide to buy it.
+  if (sampleChars > 0 && book.reader_full_text) {
+    const full = String(book.reader_full_text);
+    let cut = full.slice(0, sampleChars);
+    // End on a paragraph break where possible, so a sample does not stop mid
+    // sentence.
+    const lastBreak = cut.lastIndexOf('\n\n');
+    if (lastBreak > sampleChars * 0.5) cut = cut.slice(0, lastBreak);
+    return res.json({
+      title: book.title,
+      reader_full_text: cut,
+      is_sample: true,
+      sample_chars: sampleChars,
+      total_chars: full.length
+    });
+  }
+
+  return res.status(403).json({ error: 'Purchase this eBook or join the Book Club to read it' });
 });
 
 export default router;
