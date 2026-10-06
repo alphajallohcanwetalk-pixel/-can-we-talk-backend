@@ -1,7 +1,7 @@
 import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
-import { normalizeVideoList, cleanTextFields } from '../lib/validate.js';
+import { normalizeVideoList, cleanTextFields, stripDashes } from '../lib/validate.js';
 
 const router = express.Router();
 
@@ -68,9 +68,28 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
     .single();
   if (error) return res.status(500).json({ error: error.message });
 
-  if (Array.isArray(formats) && formats.length) {
-    const rows = formats.map((f) => ({ ...f, book_id: book.id }));
-    await supabaseAdmin.from('book_formats').insert(rows);
+  // Formats come from a form, so only the known columns are taken. Spreading
+  // the submitted object would let an unexpected key through to the insert.
+  // Anything without a usable name and price is skipped rather than failing
+  // the whole book.
+  const formatRows = (Array.isArray(formats) ? formats : [])
+    .map((f, index) => ({
+      book_id: book.id,
+      format_name: typeof f?.format_name === 'string' ? stripDashes(f.format_name.trim()) : '',
+      price_cents: Number(f?.price_cents),
+      stock_count: Number.isInteger(Number(f?.stock_count)) ? Number(f.stock_count) : null,
+      sort_order: Number.isInteger(Number(f?.sort_order)) ? Number(f.sort_order) : index,
+      is_offered: f?.is_offered !== false
+    }))
+    .filter((f) => f.format_name && Number.isInteger(f.price_cents) && f.price_cents >= 0);
+
+  if (formatRows.length) {
+    const { error: formatError } = await supabaseAdmin.from('book_formats').insert(formatRows);
+    // The book exists either way; report the problem rather than leaving the
+    // author thinking the prices saved.
+    if (formatError) {
+      return res.status(201).json({ ...book, formats_warning: formatError.message });
+    }
   }
   res.status(201).json(book);
 });

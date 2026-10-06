@@ -635,6 +635,21 @@
     vertical-align:middle; border-radius:1px;}
   [data-font-dec] .glyph-minus{width:0.5em; margin-left:1px;}
 
+  /* ---------- Format setup on the add book form ---------- */
+  .format-setup{display:flex; flex-direction:column; gap:9px;}
+  .format-setup .fs-row{display:flex; align-items:center; gap:10px; font-size:0.88rem; color:var(--ink);}
+  .format-setup .fs-row input[type="number"]{width:110px; margin-left:auto; padding:7px 9px;
+    border:1px solid var(--line); border-radius:5px;}
+  .format-setup .fs-row input[type="checkbox"]{width:16px; height:16px; accent-color:var(--sl-green);}
+
+  /* ---------- Listen control ---------- */
+  #readerListen.speaking{background:var(--sl-green-bright); color:#06230f; border-color:transparent;}
+  .listen-bar{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:18px 0 6px;}
+  .listen-bar button{background:var(--paper); border:1px solid var(--line); color:var(--ink);
+    padding:9px 16px; border-radius:5px; cursor:pointer; font-size:0.84rem; font-weight:600;}
+  .listen-bar button.speaking{background:var(--sl-green-bright); border-color:transparent; color:#06230f;}
+  .listen-bar .lb-note{font-size:0.75rem; color:var(--ink-soft);}
+
   /* ---------- Book metadata ---------- */
   .book-meta-fields{display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px;}
   .book-details{display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:14px 26px; margin-top:6px;}
@@ -1553,6 +1568,7 @@
     <div class="reader-bar">
       <div class="rb-title" id="readerBookTitle">Book Title</div>
       <div class="rb-controls">
+        <button id="readerListen" aria-label="Listen to this page">Listen</button>
         <button data-font-dec aria-label="Smaller text">A<i class="glyph-minus"></i></button>
         <button data-font-inc>A+</button>
         <button class="nav-link" data-view="bookclub">Exit Reader</button>
@@ -1967,7 +1983,19 @@
             <div style="display:flex; flex-direction:column; gap:12px;">
               <div class="field"><label>Title</label><input type="text" id="newBookTitle" placeholder="Book title"></div>
               <div class="field"><label>Subtitle</label><input type="text" id="newBookSubtitle" placeholder="Subtitle"></div>
-              <div class="field"><label>Price (USD)</label><input type="number" id="newBookPrice" placeholder="19.99" step="0.01"></div>
+              <div class="field"><label>Price (USD), paperback</label><input type="number" id="newBookPrice" placeholder="19.99" step="0.01"></div>
+              <div class="field">
+                <label>Also sell as</label>
+                <div class="format-setup">
+                  <label class="fs-row"><input type="checkbox" id="newBookHardcover"> Hardcover
+                    <input type="number" id="newBookHardcoverPrice" step="0.01" placeholder="34.99"></label>
+                  <label class="fs-row"><input type="checkbox" id="newBookEbook"> eBook
+                    <input type="number" id="newBookEbookPrice" step="0.01" placeholder="12.99"></label>
+                </div>
+                <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">
+                  Tick a format and give it a price. It goes on sale straight away. Nothing needs setting up in Stripe.
+                </div>
+              </div>
               <div class="field"><label>Description</label><textarea id="newBookDescription" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="What is this book about?"></textarea></div>
               <div class="field"><label>eBook text</label><textarea id="newBookReaderText" style="min-height:180px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Paste the full eBook text. Separate pages or sections with a blank line."></textarea></div>
               <div class="field"><label>Upload eBook file</label><input type="file" id="newBookReaderFile" accept=".txt,.epub,.pdf,text/plain,application/epub+zip,application/pdf"></div>
@@ -3772,6 +3800,104 @@
     if(heading && !isAuthorUser) heading.textContent = 'Developer access';
   }
 
+  // ================= NARRATION =================
+  // Reads a page aloud using the device's own speech engine. This works today,
+  // offline, on every modern browser, at no cost.
+  //
+  // It is deliberately written against a small interface (speak / stop / state)
+  // so that when a cloned recording of the author's voice exists, the audio can
+  // be swapped in behind the same buttons without touching the callers.
+  // See docs/voice-narration.md.
+  const narration = (function(){
+    const supported = 'speechSynthesis' in window;
+    let current = null;
+    const listeners = new Set();
+
+    const notify = (state) => listeners.forEach(fn => { try { fn(state); } catch(e){} });
+
+    function pickVoice(){
+      const voices = window.speechSynthesis.getVoices() || [];
+      // Prefer a natural English voice; fall back to whatever exists.
+      return voices.find(v => /en-GB/i.test(v.lang) && /natural|premium|enhanced/i.test(v.name))
+          || voices.find(v => /en-GB/i.test(v.lang))
+          || voices.find(v => /^en/i.test(v.lang))
+          || voices[0] || null;
+    }
+
+    function stop(){
+      if(!supported) return;
+      window.speechSynthesis.cancel();
+      current = null;
+      notify('stopped');
+    }
+
+    function speak(text){
+      if(!supported || !String(text || '').trim()) return false;
+      stop();
+      // Long text is split so a browser that caps utterance length does not
+      // silently truncate the chapter.
+      const chunks = String(text).match(/[^.!?]+[.!?]*\s*/g) || [String(text)];
+      const queue = [];
+      let buffer = '';
+      chunks.forEach(c => {
+        if((buffer + c).length > 220){ queue.push(buffer); buffer = c; }
+        else buffer += c;
+      });
+      if(buffer.trim()) queue.push(buffer);
+
+      const voice = pickVoice();
+      queue.forEach((part, i) => {
+        const u = new SpeechSynthesisUtterance(part);
+        if(voice) u.voice = voice;
+        u.rate = 0.96;
+        u.pitch = 1;
+        if(i === queue.length - 1) u.onend = () => { current = null; notify('stopped'); };
+        window.speechSynthesis.speak(u);
+      });
+      current = true;
+      notify('speaking');
+      return true;
+    }
+
+    const isSpeaking = () => supported && window.speechSynthesis.speaking;
+    const onChange = (fn) => listeners.add(fn);
+
+    // Some browsers populate the voice list asynchronously.
+    if(supported && window.speechSynthesis.onvoiceschanged !== undefined){
+      window.speechSynthesis.onvoiceschanged = () => {};
+    }
+    // Never let narration continue after the reader is closed.
+    window.addEventListener('pagehide', stop);
+
+    return { supported, speak, stop, isSpeaking, onChange };
+  })();
+
+  function wireListenButton(button, getText){
+    if(!button) return;
+    if(!narration.supported){ button.style.display = 'none'; return; }
+    button.addEventListener('click', () => {
+      if(narration.isSpeaking()){ narration.stop(); return; }
+      const text = getText();
+      if(!text){ alert('There is nothing to read on this page yet.'); return; }
+      narration.speak(text);
+    });
+    narration.onChange(state => {
+      const on = state === 'speaking';
+      button.classList.toggle('speaking', on);
+      button.textContent = on ? 'Stop' : 'Listen';
+    });
+  }
+
+  // Reader: read the pages currently open.
+  wireListenButton(document.getElementById('readerListen'), () => {
+    const per = pagesPerSpread();
+    const i = readerState.page;
+    const pages = per === 2
+      ? [readerState.pages[i], readerState.pages[i + 1]]
+      : [readerState.pages[i]];
+    return pages.filter(Boolean).flat().join(' ');
+  });
+
   // ================= SCROLL REVEAL =================
   // Marks sections so they fade in as they come into range. Skipped entirely
   // when the system asks for reduced motion, and everything stays visible if
@@ -4450,6 +4576,22 @@
     }));
   }
 
+  // Every format the author ticked, priced and ready to sell. Paperback is
+  // always first; the others are included only when given a price.
+  function buildFormatRows(paperbackPrice){
+    const rows = [{ format_name: 'Paperback', price_cents: Math.round(paperbackPrice * 100), sort_order: 0 }];
+    const extras = [
+      ['newBookHardcover', 'newBookHardcoverPrice', 'Hardcover'],
+      ['newBookEbook', 'newBookEbookPrice', 'eBook']
+    ];
+    extras.forEach(([checkId, priceId, name], i) => {
+      const on = document.getElementById(checkId)?.checked;
+      const value = parseFloat(document.getElementById(priceId)?.value);
+      if(on && value >= 0) rows.push({ format_name: name, price_cents: Math.round(value * 100), sort_order: i + 1 });
+    });
+    return rows;
+  }
+
   function resetBookForm(){
     editingBookId = null;
     ['newBookTitle','newBookSubtitle','newBookPrice','newBookDescription','newBookReaderText'].forEach(i => document.getElementById(i).value = '');
@@ -4458,6 +4600,8 @@
     document.getElementById('newBookGallery').value = '';
     document.getElementById('newBookReaderFile').value = '';
     document.getElementById('newBookVideos').value = '';
+    ['newBookHardcover','newBookEbook'].forEach(i => { const el = document.getElementById(i); if(el) el.checked = false; });
+    ['newBookHardcoverPrice','newBookEbookPrice'].forEach(i => { const el = document.getElementById(i); if(el) el.value = ''; });
     document.getElementById('newBookIsbn').value = '';
     document.getElementById('newBookPublisher').value = '';
     document.getElementById('newBookPubDate').value = '';
@@ -4595,7 +4739,7 @@
             title, subtitle, description, reader_full_text,
             cover_style: books.length % 2 === 0 ? 'cover-1' : 'cover-2',
             cover_image_url, back_cover_url, gallery_urls, video_urls, ...meta,
-            formats: [{ format_name: 'Paperback', price_cents: Math.round(price * 100), sort_order: 0 }]
+            formats: buildFormatRows(price)
           })
         });
         if(!res.ok) throw new Error(res.status === 403 ? 'This account is not flagged as the author yet.' : await res.text());
