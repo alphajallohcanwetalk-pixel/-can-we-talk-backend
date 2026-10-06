@@ -3,7 +3,7 @@
 Running state of the project. **Update this at the end of every working
 session** so the next one can pick up without re-deriving anything.
 
-Last updated: 6 October 2026 (second session)
+Last updated: 6 October 2026 (third session)
 
 ---
 
@@ -48,6 +48,11 @@ Render. Database migrations are **run by hand** in the Supabase SQL editor.
       destination, which will not survive real international orders.
 - [ ] Stock is tracked but never set. `stock_count` is null on every format,
       so nothing decrements and nothing can sell out.
+- [ ] Narration in Alpha's own voice. The Listen button works today using the
+      device speech engine; the cloned voice needs an ElevenLabs account and
+      key. Plan and recording script in `docs/voice-narration.md`.
+- [ ] Blocking screenshots needs `FLAG_SECURE` in an Android build. A website
+      cannot do it. See `docs/content-protection.md`, including the tradeoff.
 
 ---
 
