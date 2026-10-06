@@ -1,7 +1,7 @@
 import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
-import { normalizeOptionalUrl } from '../lib/validate.js';
+import { normalizeOptionalUrl, stripDashes } from '../lib/validate.js';
 
 const router = express.Router();
 
@@ -28,7 +28,7 @@ router.put('/', requireAuth, requireAuthor, async (req, res) => {
     if (author_bio !== null && (typeof author_bio !== 'string' || author_bio.length > 5000)) {
       return res.status(400).json({ error: 'author_bio must be text of 5000 characters or less' });
     }
-    updates.author_bio = author_bio;
+    updates.author_bio = stripDashes(author_bio);
   }
 
   if (!Object.keys(updates).length) return res.status(400).json({ error: 'No settings to update' });

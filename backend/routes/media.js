@@ -1,7 +1,7 @@
 import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
-import { isSafeHttpUrl } from '../lib/validate.js';
+import { isSafeHttpUrl, cleanTextFields } from '../lib/validate.js';
 
 const router = express.Router();
 
@@ -29,7 +29,7 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
   }
   const { data, error } = await supabaseAdmin
     .from('media_coverage')
-    .insert({ book_id, outlet, headline, url, media_type: media_type || 'article' })
+    .insert(cleanTextFields({ book_id, outlet, headline, url, media_type: media_type || 'article' }, ['outlet', 'headline']))
     .select()
     .single();
   if (error) return res.status(500).json({ error: error.message });

@@ -2,6 +2,7 @@ import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
 import { sendNewEssayAlert } from '../lib/email.js';
+import { cleanTextFields } from '../lib/validate.js';
 
 const router = express.Router();
 
@@ -36,7 +37,7 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
   if (existing) return res.status(409).json({ error: 'An essay with this title already exists. Edit the existing essay instead.' });
   const { data: essay, error } = await supabaseAdmin
     .from('essays')
-    .insert({ title, category, year, excerpt, full_text })
+    .insert(cleanTextFields({ title, category, year, excerpt, full_text }, ['title', 'category', 'excerpt', 'full_text']))
     .select()
     .single();
   if (error) return res.status(500).json({ error: error.message });
@@ -58,7 +59,7 @@ router.put('/:id', requireAuth, requireAuthor, async (req, res) => {
   const { title, category, year, excerpt, full_text, cover_image_url } = req.body;
   const { data, error } = await supabaseAdmin
     .from('essays')
-    .update({ title, category, year, excerpt, full_text, cover_image_url })
+    .update(cleanTextFields({ title, category, year, excerpt, full_text, cover_image_url }, ['title', 'category', 'excerpt', 'full_text']))
     .eq('id', req.params.id)
     .select()
     .single();

@@ -7,6 +7,44 @@
 
 const MAX_URL_LENGTH = 2000;
 
+// House style: no em dashes, en dashes or the lookalikes that creep in when
+// text is pasted from Word, Google Docs or an AI assistant. They were stripped
+// from the site once; this keeps them from coming back through the dashboard.
+//
+// A dash joining two clauses becomes a comma, which never produces broken
+// grammar. A dash used as a range ("1999 - 2004") becomes "to".
+// Note: no `g` flag on the detector. RegExp.test() with a global flag keeps a
+// lastIndex between calls, so a shared global regex returns false on every
+// other call and half the strings would slip through unchanged.
+const HAS_DASH = /[\u2012\u2013\u2014\u2015\u2212\u2010\u2011]/;
+
+export function stripDashes(value) {
+  if (typeof value !== 'string' || !HAS_DASH.test(value)) return value;
+  return value
+    // A range between two numbers reads better as "to".
+    .replace(/(\d)\s*[\u2012\u2013\u2014\u2015\u2212\u2010\u2011]\s*(\d)/g, '$1 to $2')
+    // U+2010 and U+2011 are true hyphens: they join one word to another
+    // ("non-breaking"), so a comma would be wrong. Use a space.
+    .replace(/(\w)[\u2010\u2011](\w)/g, '$1 $2')
+    // Everything else is a dash separating clauses, where a comma is right.
+    .replace(/\s*[\u2012\u2013\u2014\u2015\u2212\u2010\u2011]\s*/g, ', ')
+    // Tidy up the punctuation that substitution can leave behind.
+    .replace(/\s+,/g, ',')
+    .replace(/,\s*,+/g, ',')
+    .replace(/,\s*([.!?;:])/g, '$1')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+// Applies stripDashes to the named fields of an object, in place.
+export function cleanTextFields(obj, fields) {
+  if (!obj) return obj;
+  for (const f of fields) {
+    if (typeof obj[f] === 'string') obj[f] = stripDashes(obj[f]);
+  }
+  return obj;
+}
+
 export function isSafeHttpUrl(value) {
   if (typeof value !== 'string' || !value.trim() || value.length > MAX_URL_LENGTH) return false;
   let parsed;

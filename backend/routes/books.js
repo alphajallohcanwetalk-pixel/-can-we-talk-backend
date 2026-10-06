@@ -1,7 +1,7 @@
 import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
-import { normalizeVideoList } from '../lib/validate.js';
+import { normalizeVideoList, cleanTextFields } from '../lib/validate.js';
 
 const router = express.Router();
 
@@ -41,8 +41,8 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
   if (existing) return res.status(409).json({ error: 'A book with this title already exists. Edit the existing book instead.' });
   const { data: book, error } = await supabaseAdmin
     .from('books')
-    .insert({ title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text,
-      video_urls: normalizeVideoList(video_urls) ?? [] })
+    .insert(cleanTextFields({ title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text,
+      video_urls: normalizeVideoList(video_urls) ?? [] }, ['title', 'subtitle', 'description', 'reader_full_text']))
     .select()
     .single();
   if (error) return res.status(500).json({ error: error.message });
@@ -70,6 +70,8 @@ router.put('/:id', requireAuth, requireAuthor, async (req, res) => {
   if (bookFields.video_urls !== undefined) {
     bookFields.video_urls = normalizeVideoList(bookFields.video_urls);
   }
+  // House style: no dashes in published copy.
+  cleanTextFields(bookFields, ['title', 'subtitle', 'description', 'reader_full_text']);
   if (!Object.keys(bookFields).length && price === undefined) {
     return res.status(400).json({ error: 'No book fields to update' });
   }

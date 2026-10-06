@@ -2,6 +2,7 @@ import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { stripe } from '../lib/stripe.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
+import { stripDashes } from '../lib/validate.js';
 
 const router = express.Router();
 
@@ -150,7 +151,7 @@ router.post('/:bookId/chapters', requireAuth, requireAuthor, async (req, res) =>
     .from('audiobook_chapters')
     .insert({
       book_id: req.params.bookId,
-      title: title.trim(),
+      title: stripDashes(title.trim()),
       duration_seconds: Number.isInteger(Number(duration_seconds)) ? Number(duration_seconds) : null,
       price_cents: price,
       audio_url: audio_path ? null : audio_url,

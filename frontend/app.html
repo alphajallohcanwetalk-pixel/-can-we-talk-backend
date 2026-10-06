@@ -630,12 +630,27 @@
   .mod-actions button:hover{background:#fff;}
   .mod-actions .danger{color:#b3261e; border-color:rgba(179,38,30,0.4);}
 
+  /* A minus drawn as a rule, so no dash character appears in the markup. */
+  .glyph-minus{display:inline-block; width:0.62em; height:2px; background:currentColor;
+    vertical-align:middle; border-radius:1px;}
+  [data-font-dec] .glyph-minus{width:0.5em; margin-left:1px;}
+
   /* ---------- Hero install button ---------- */
-  .btn-install{display:inline-flex; align-items:center; gap:11px; background:#fff; color:var(--sl-green-deep);
-    border:1px solid rgba(255,255,255,0.9); box-shadow:0 10px 28px rgba(0,0,0,0.22); font-weight:700;}
-  .btn-install img{border-radius:6px; flex:0 0 auto;}
-  .btn-install:hover{background:#fff; transform:translateY(-2px); box-shadow:0 14px 34px rgba(0,0,0,0.28);}
+  .btn-install{display:inline-flex; align-items:center; gap:13px; background:var(--sl-green-bright); color:#06230f;
+    border:0; padding:17px 30px; font-size:0.98rem; font-weight:800; letter-spacing:0.01em;
+    box-shadow:0 12px 34px rgba(30,181,58,0.42); position:relative;}
+  .btn-install img{border-radius:7px; flex:0 0 auto; box-shadow:0 2px 8px rgba(0,0,0,0.25);}
+  .btn-install:hover{background:#25cc44; transform:translateY(-3px); box-shadow:0 18px 42px rgba(30,181,58,0.5);}
   .btn-install:active{transform:translateY(0) scale(0.98);}
+  .btn-install .bi-sub{display:block; font-size:0.7rem; font-weight:600; opacity:0.78; letter-spacing:0.02em;}
+  /* A slow pulse the first time it is seen, so the eye lands on it. */
+  @media (prefers-reduced-motion: no-preference){
+    .btn-install{animation:installPulse 2.8s ease-in-out 1.2s 3;}
+  }
+  @keyframes installPulse{
+    0%,100%{box-shadow:0 12px 34px rgba(30,181,58,0.42);}
+    50%{box-shadow:0 12px 34px rgba(30,181,58,0.42), 0 0 0 10px rgba(30,181,58,0.16);}
+  }
 
   /* ---------- Back and reload controls ---------- */
   .nav-ctrl{font-size:1.05rem; line-height:1; transition:transform .18s, background .18s;}
@@ -678,7 +693,9 @@
   /* ---------- Built by credit ---------- */
   .built-by{display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap;}
   .built-by img{border-radius:5px; flex:0 0 auto;}
-  .built-by strong{color:#b9c2b0; font-weight:700;}
+  .built-by strong{color:#fff; font-weight:800;}
+  .built-by .bna-link{text-decoration:none; transition:opacity .2s;}
+  .built-by .bna-link:hover{opacity:0.75; text-decoration:underline;}
   .built-by a{color:#8b9285; text-decoration:underline; white-space:nowrap;}
   .built-by a:hover{color:#b9c2b0;}
 
@@ -813,8 +830,8 @@
       <p class="tagline">Some questions are too important to remain unasked. Books, essays, conversations and reflections on leadership, justice, Africa, society and the people who live with the consequences of power.</p>
       <div class="hero-ctas">
         <button class="btn btn-install" data-install-app>
-          <img src="icons/icon-192.png" alt="" width="26" height="26" decoding="async">
-          <span>Download the App</span>
+          <img src="icons/icon-192.png" alt="" width="34" height="34" decoding="async">
+          <span>Download the App<span class="bi-sub">Free, installs in seconds</span></span>
         </button>
         <a class="btn btn-primary nav-link" data-view="book-mrp">Explore My Books</a>
         <a class="btn btn-ghost nav-link" data-view="essays">Read My Essays</a>
@@ -959,7 +976,7 @@
         <p class="lede">A direct conversation between the citizen and those entrusted with political authority, examining leadership, democracy, accountability and the right of ordinary people to question those who govern them.</p>
         <div class="launch-strip"><strong>Launched in Nairobi, Kenya</strong> on 7 August 2026, officiated by renowned African scholar <strong>Professor P. L. O. Lumumba</strong>.</div>
         <div class="info-tabs">
-          <a href="#mrp-description">Description</a><a href="#mrp-audiobook">Audiobook</a><a href="#mrp-reviews">Reviews</a><a href="#mrp-comments">Comments</a><a href="#mrp-gallery">Launch Gallery</a><a href="#mrp-press">Media Coverage</a>
+          <a href="#mrp-description">Description</a><a href="#mrp-audiobook">Audiobook</a><a href="#mrp-comments">Comments</a><a href="#mrp-gallery">Launch Gallery</a><a href="#mrp-press">Media Coverage</a>
         </div>
       </div>
       <div class="buy-box" data-book-id="mrp" data-book-title="Mr. President, Can We Talk?" data-cover="c1">
@@ -975,7 +992,7 @@
           </div>
         </div>
         <div class="signed-toggle"><div class="label">✒️ Add author's signature</div><div class="toggle-switch" data-sign-toggle tabindex="0" role="switch" aria-checked="false" aria-label="Add author's signature"></div></div>
-        <div class="qty-row"><span style="font-size:0.85rem; color:var(--ink-soft); font-weight:600;">Quantity</span><div class="qty-control" data-qty><button data-dec aria-label="Decrease quantity">−</button><span>1</span><button data-inc aria-label="Increase quantity">+</button></div></div>
+        <div class="qty-row"><span style="font-size:0.85rem; color:var(--ink-soft); font-weight:600;">Quantity</span><div class="qty-control" data-qty><button data-dec aria-label="Decrease quantity"><i class="glyph-minus"></i></button><span>1</span><button data-inc aria-label="Increase quantity">+</button></div></div>
         <div class="buy-actions"><a href="#" class="btn btn-dark" data-cart-action="add">Add to Cart</a><a href="#" class="btn btn-outline" data-cart-action="buynow">Buy Now</a></div>
         <div class="buy-meta">
           <div>🚚 &nbsp; Ships worldwide from Freetown &amp; Nairobi warehouses</div>
@@ -991,19 +1008,6 @@
     <p><em>Mr. President, Can We Talk?</em> represents Alpha Amadu Jalloh's belief that questioning leadership is part of citizenship. Democracy cannot flourish where citizens are expected only to listen while those in authority do all the talking.</p></div></div>
   </section>
 
-  <section class="detail" id="mrp-reviews">
-    <div class="wrap">
-      <div class="section-head"><span class="eyebrow">Endorsements</span><h2>What readers &amp; reviewers are saying</h2><p>Placeholder endorsements. Swap in real quotes from Alpha's reviewers.</p></div>
-      <div class="endorsement-grid">
-        <div class="endorsement"><div class="quote">A fearless, necessary book. Jalloh writes with the clarity of someone who refuses to be silent.</div><div class="who">Reviewer Name <span>, Publication / Title</span></div></div>
-        <div class="endorsement"><div class="quote">This is what citizen journalism and public accountability should sound like across Africa.</div><div class="who">Reviewer Name <span>, Publication / Title</span></div></div>
-      </div>
-      <div style="margin-top:50px;">
-        <div class="review"><div class="review-head"><span class="review-stars">★★★★★</span><span class="review-name">Reader Name</span><span class="review-date">August 2026</span></div><p>Placeholder reader review. Real verified purchase reviews populate here once the store is live.</p></div>
-        <div class="review"><div class="review-head"><span class="review-stars">★★★★★</span><span class="review-name">Reader Name</span><span class="review-date">August 2026</span></div><p>Placeholder reader review. Real verified purchase reviews populate here once the store is live.</p></div>
-      </div>
-    </div>
-  </section>
 
   <section class="detail" id="mrp-audiobook">
     <div class="wrap">
@@ -1089,7 +1093,7 @@
         <div class="stars" id="mono-rating-display"><span class="icons">☆☆☆☆☆</span><span class="count">No ratings yet</span></div>
         <p class="lede">An earlier, foundational work examining inequality and the social imbalances that determine who enjoys opportunity, influence, recognition and prosperity, and who remains outside the circles where privilege is concentrated.</p>
         <div class="launch-strip">An important earlier work. Read alongside <a class="nav-link" data-view="book-mrp" style="color:var(--sl-blue-deep); font-weight:600;">Mr. President, Can We Talk?</a> for the fuller picture of his thinking.</div>
-        <div class="info-tabs"><a href="#mono-description">Description</a><a href="#mono-audiobook">Audiobook</a><a href="#mono-reviews">Reviews</a><a href="#mono-comments">Comments</a><a href="#mono-gallery">Gallery</a><a href="#mono-press">Media Coverage</a></div>
+        <div class="info-tabs"><a href="#mono-description">Description</a><a href="#mono-audiobook">Audiobook</a><a href="#mono-comments">Comments</a><a href="#mono-gallery">Gallery</a><a href="#mono-press">Media Coverage</a></div>
       </div>
       <div class="buy-box" data-book-id="mono" data-book-title="Monopoly of Happiness" data-cover="c2">
         <div class="price-row"><span class="price">$19.99</span></div>
@@ -1103,7 +1107,7 @@
           </div>
         </div>
         <div class="signed-toggle"><div class="label">✒️ Add author's signature</div><div class="toggle-switch" data-sign-toggle tabindex="0" role="switch" aria-checked="false" aria-label="Add author's signature"></div></div>
-        <div class="qty-row"><span style="font-size:0.85rem; color:var(--ink-soft); font-weight:600;">Quantity</span><div class="qty-control" data-qty><button data-dec aria-label="Decrease quantity">−</button><span>1</span><button data-inc aria-label="Increase quantity">+</button></div></div>
+        <div class="qty-row"><span style="font-size:0.85rem; color:var(--ink-soft); font-weight:600;">Quantity</span><div class="qty-control" data-qty><button data-dec aria-label="Decrease quantity"><i class="glyph-minus"></i></button><span>1</span><button data-inc aria-label="Increase quantity">+</button></div></div>
         <div class="buy-actions"><a href="#" class="btn btn-dark" data-cart-action="add">Add to Cart</a><a href="#" class="btn btn-outline" data-cart-action="buynow">Buy Now</a></div>
         <div class="buy-meta">
           <div>🚚 &nbsp; Ships worldwide from Freetown &amp; Nairobi warehouses</div>
@@ -1119,15 +1123,6 @@
     <p><em>Monopoly of Happiness</em> invites readers to examine Sierra Leonean society beyond political slogans, asking difficult questions about inequality, fairness, opportunity and belonging.</p></div></div>
   </section>
 
-  <section class="detail" id="mono-reviews">
-    <div class="wrap">
-      <div class="section-head"><span class="eyebrow">Endorsements</span><h2>What readers &amp; reviewers are saying</h2><p>Placeholder endorsements. Swap in real quotes when available.</p></div>
-      <div class="endorsement-grid">
-        <div class="endorsement"><div class="quote">A sharp, necessary look at who gets to be happy in Sierra Leone, and who doesn't.</div><div class="who">Reviewer Name <span>, Publication / Title</span></div></div>
-        <div class="endorsement"><div class="quote">Jalloh names the imbalance most public conversation is too polite to touch.</div><div class="who">Reviewer Name <span>, Publication / Title</span></div></div>
-      </div>
-    </div>
-  </section>
 
   <section class="detail" id="mono-audiobook">
     <div class="wrap">
@@ -1214,7 +1209,7 @@
         <div class="price-row"><span class="price" id="gb-price">$0.00</span></div>
         <div class="stock">In stock. Ships within 2 business days</div>
         <div class="signed-toggle"><div class="label">✒️ Add author's signature</div><div class="toggle-switch" data-sign-toggle tabindex="0" role="switch" aria-checked="false" aria-label="Add author's signature"></div></div>
-        <div class="qty-row"><span style="font-size:0.85rem; color:var(--ink-soft); font-weight:600;">Quantity</span><div class="qty-control" data-qty><button data-dec aria-label="Decrease quantity">−</button><span>1</span><button data-inc aria-label="Increase quantity">+</button></div></div>
+        <div class="qty-row"><span style="font-size:0.85rem; color:var(--ink-soft); font-weight:600;">Quantity</span><div class="qty-control" data-qty><button data-dec aria-label="Decrease quantity"><i class="glyph-minus"></i></button><span>1</span><button data-inc aria-label="Increase quantity">+</button></div></div>
         <div class="buy-actions"><a href="#" class="btn btn-dark" data-cart-action="add">Add to Cart</a><a href="#" class="btn btn-outline" data-cart-action="buynow">Buy Now</a></div>
       </div>
     </div>
@@ -1268,7 +1263,7 @@
       <h1>The Essay Library</h1>
       <p>Every essay and editorial Alpha Amadu Jalloh has written, preserved in one place. Search by title, subject or year.</p>
       <div class="search-bar"><input type="text" id="searchInput" placeholder="Search essays by title, subject or year…" aria-label="Search essays"></div>
-      <div class="result-count" id="resultCount">12 essays</div>
+      <div class="result-count" id="resultCount">Loading</div>
     </div>
   </section>
   <section class="lib-body">
@@ -1449,7 +1444,7 @@
     <div class="reader-bar">
       <div class="rb-title" id="readerBookTitle">Book Title</div>
       <div class="rb-controls">
-        <button data-font-dec>A−</button>
+        <button data-font-dec aria-label="Smaller text">A<i class="glyph-minus"></i></button>
         <button data-font-inc>A+</button>
         <button class="nav-link" data-view="bookclub">Exit Reader</button>
       </div>
@@ -2251,8 +2246,10 @@
       <span>© 2026 Alpha Amadu Jalloh. All rights reserved. · <a class="nav-link" data-view="privacy" style="text-decoration:underline; color:#8b9285;">Privacy</a> · <a class="nav-link" data-view="terms" style="text-decoration:underline; color:#8b9285;">Terms</a></span>
       <span class="built-by">
         <img src="icons/bna-developers-icon.png" alt="" width="22" height="22" loading="lazy" decoding="async">
-        Website built by <strong>B&amp;A&nbsp;Developers</strong>
-        <a href="tel:+254794698660" aria-label="Call B and A Developers on 0794 698 660">0794&nbsp;698&nbsp;660</a>
+        Website built by
+        <a class="bna-link" href="mailto:b.and.a.developers@gmail.com?subject=Website%20enquiry"
+           aria-label="Email B and A Developers"><strong>B&amp;A&nbsp;Developers</strong></a>
+        <a href="tel:+254794698660" aria-label="Call on 0794 698 660">0794&nbsp;698&nbsp;660</a>
       </span>
       <span>Sierra Leone 🇸🇱 · Question Power. Question Society. Question Yourself. · <a class="nav-link" data-view="admin" style="text-decoration:underline; color:#8b9285;">Author Login</a></span>
     </div>
@@ -2557,17 +2554,34 @@
       return matchesCat && matchesQuery;
     });
     grid.innerHTML = '';
+    // "No match" and "nothing here yet" are different messages. Showing the
+    // search wording when the library is simply empty reads like a fault.
+    const libraryEmpty = essays.length === 0;
     noResults.style.display = filtered.length === 0 ? 'block' : 'none';
+    noResults.textContent = libraryEmpty
+      ? 'No essays have been published yet. New writing appears here as Alpha publishes it.'
+      : 'No essays match your search. Try a different title, subject or year.';
     filtered.forEach(e => {
       const card = document.createElement('article');
       card.className = 'essay-card';
-      card.innerHTML = `${e.cover_image_url ? `<div class="cover-thumb" data-lightbox="${e.cover_image_url}" style="background-image:url('${e.cover_image_url}')"></div>` : ''}<span class="tag">${e.cat}</span><h3>${e.title}</h3><p>${e.excerpt}</p><div class="meta"><span>${e.year}</span><a data-open-essay="${e.id}" style="cursor:pointer;">Read More →</a></div>`;
+      // Titles and excerpts are author supplied, so they are set as text rather
+      // than interpolated into markup.
+      card.innerHTML = `${e.cover_image_url ? '<div class="cover-thumb"></div>' : ''}<span class="tag"></span><h3></h3><p></p><div class="meta"><span class="ey"></span><a data-open-essay="${e.id}" style="cursor:pointer;">Read More →</a></div>`;
+      if(e.cover_image_url){
+        const thumb = card.querySelector('.cover-thumb');
+        thumb.setAttribute('data-lightbox', e.cover_image_url);
+        lazyLoadCover(thumb, e.cover_image_url);
+      }
+      card.querySelector('.tag').textContent = e.cat || '';
+      card.querySelector('h3').textContent = e.title || '';
+      card.querySelector('p').textContent = e.excerpt || '';
+      card.querySelector('.ey').textContent = e.year || '';
       grid.appendChild(card);
     });
     grid.querySelectorAll('[data-open-essay]').forEach(el => {
       el.addEventListener('click', () => openEssay(el.dataset.openEssay));
     });
-    resultCount.textContent = `${filtered.length} essay${filtered.length === 1 ? '' : 's'}`;
+    resultCount.textContent = libraryEmpty ? 'None yet' : `${filtered.length} essay${filtered.length === 1 ? '' : 's'}`;
   }
   searchInput.addEventListener('input', renderEssays);
   filterItems.forEach(item => {
@@ -4582,6 +4596,17 @@
     const list = document.getElementById(bookId + '-chapter-list');
     if(!list) return;
     list.innerHTML = '';
+
+    // With no chapters uploaded there is nothing to sell. Leaving the section
+    // visible advertised a "Full Audiobook Bundle" and a price for content that
+    // does not exist, and the buy button would have taken money for nothing.
+    const section = document.getElementById(bookId + '-audiobook');
+    if(!chapters[bookId].length){
+      if(section) section.style.display = 'none';
+      return;
+    }
+    if(section) section.style.display = '';
+
     chapters[bookId].forEach((ch, i) => {
       const unlocked = ch.owned;
       const row = document.createElement('div');
