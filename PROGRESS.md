@@ -3,7 +3,7 @@
 Running state of the project. **Update this at the end of every working
 session** so the next one can pick up without re-deriving anything.
 
-Last updated: 6 October 2026
+Last updated: 6 October 2026 (second session)
 
 ---
 
@@ -33,17 +33,21 @@ Render. Database migrations are **run by hand** in the Supabase SQL editor.
       See `docs/email-setup.md`. Until it reports `verified`, no site email
       sends at all.
 - [ ] Lawyer review of `frontend/privacy.html` before any store submission.
+- [ ] Confirm the Resend test email arrived in the `@canwetalkvoice.com`
+      mailbox. The domain is verified and a send returned 200.
+
+- [ ] **Run `010_book_metadata.sql`.** The code is deployed and falls back
+      safely without it, so the site works either way, but the new author
+      fields will not save until the columns exist.
 
 ### Needs building
 
-- [ ] Standard book metadata fields for the author upload form (ISBN,
-      publisher, publication date, page count, language, genre) and a "Book
-      details" block on the book page. Needs a migration.
 - [ ] Decide the Play Billing approach before any Play build.
       See `docs/google-play/08-payments-and-billing.md`.
-- [ ] Comprehensive animation pass. Motion has been added where work was
-      already happening (page turn, shimmer, card lifts, bar charts, button
-      states) but no dedicated sweep has been done.
+- [ ] Shipping cost by country. Checkout charges the same regardless of
+      destination, which will not survive real international orders.
+- [ ] Stock is tracked but never set. `stock_count` is null on every format,
+      so nothing decrements and nothing can sell out.
 
 ---
 
@@ -60,6 +64,7 @@ Applied in order, by hand, in the Supabase SQL editor.
 | `007_developer_role_and_error_log.sql` | yes | `is_developer` flag, `app_error_logs` table |
 | `008_rls_policy_performance.sql` | yes | Wrapped `auth.uid()` in a select inside policies |
 | `009_comment_moderation.sql` | yes | `is_hidden` on comments, `comment_reports` table |
+| `010_book_metadata.sql` | **NO, pending** | ISBN, publisher, publication date, pages, language, genre, edition |
 
 ---
 
@@ -100,6 +105,15 @@ print('total',t)"
 
 Database text is checked by reading the tables through the REST API with the
 service role key and scanning every string column for the same characters.
+
+**Icons are versioned, never overwritten.** Replacing an image at the same URL
+leaves browsers, the service worker and Android's launcher serving the old file.
+Add a new filename (`icon-192-v3.png`), update the page, the manifest and the
+service worker shell list, and bump `VERSION` in `sw.js`.
+
+**All motion lives in one layer** near the top of the stylesheet, with shared
+easing and duration tokens, and is disabled wholesale under
+`prefers-reduced-motion`. Do not scatter transitions through the file.
 
 **Other standing rules**
 
