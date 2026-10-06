@@ -642,6 +642,103 @@
     border:1px solid var(--line); border-radius:5px;}
   .format-setup .fs-row input[type="checkbox"]{width:16px; height:16px; accent-color:var(--sl-green);}
 
+  /* Each view enters differently, so moving between them reads as moving
+     somewhere rather than the same page reloading. */
+  #view-home.active{animation:viewUp .55s cubic-bezier(.16,.84,.44,1);}
+  #view-books-catalog.active, #view-book-mrp.active,
+  #view-book-mono.active, #view-book-generic.active{animation:viewSlide .5s cubic-bezier(.16,.84,.44,1);}
+  #view-essays.active, #view-essay-detail.active{animation:viewFade .55s ease;}
+  #view-about.active, #view-speaking.active{animation:viewScale .5s cubic-bezier(.16,.84,.44,1);}
+  #view-reader.active{animation:viewOpen .6s cubic-bezier(.16,.84,.44,1);}
+  #view-bookclub.active, #view-events.active, #view-gallery.active{animation:viewRise .5s cubic-bezier(.16,.84,.44,1);}
+  #view-account.active, #view-admin.active{animation:viewFade .4s ease;}
+
+  @keyframes viewUp{from{opacity:0; transform:translate3d(0,14px,0);} to{opacity:1; transform:none;}}
+  @keyframes viewSlide{from{opacity:0; transform:translate3d(26px,0,0);} to{opacity:1; transform:none;}}
+  @keyframes viewFade{from{opacity:0;} to{opacity:1;}}
+  @keyframes viewScale{from{opacity:0; transform:scale(.975);} to{opacity:1; transform:none;}}
+  @keyframes viewRise{from{opacity:0; transform:translate3d(0,26px,0);} to{opacity:1; transform:none;}}
+  /* The reader opens like a cover being lifted. */
+  @keyframes viewOpen{from{opacity:0; transform:perspective(1400px) rotateX(5deg) translate3d(0,22px,0);}
+                      to{opacity:1; transform:none;}}
+
+  /* Author entry: shown to a visitor who is not signed in, so the author can
+     reach it, and to the author once they are. Hidden from ordinary readers,
+     who have nothing to sign in to there. */
+  body.signed-in .author-entry{display:none;}
+  body.signed-in.is-staff .author-entry{display:inline;}
+
+  /* ---------- Bottom docked layers ----------
+     Three things can sit at the bottom of the screen: the cart bar, the
+     consent notice and the install prompt. On a phone they overlapped each
+     other. They are now stacked in priority order, and anything below the
+     consent notice is pushed clear of it while it is showing. */
+  #consentBanner{padding-bottom:env(safe-area-inset-bottom, 0);}
+  #installBanner{bottom:calc(16px + env(safe-area-inset-bottom, 0px));}
+  .cart-bar{padding-bottom:calc(14px + env(safe-area-inset-bottom, 0px));}
+
+  body.consent-open #installBanner{bottom:calc(var(--consent-height, 120px) + 16px);}
+  body.consent-open .cart-bar{bottom:var(--consent-height, 120px);}
+
+  /* The install prompt waits its turn, so two notices never stack up. */
+  body.consent-open #installBanner.show{display:none;}
+
+  @media(max-width:700px){
+    .cb-inner{padding:14px 16px; gap:12px; flex-direction:column; align-items:stretch;}
+    .cb-actions{width:100%;}
+    .cb-actions .btn{flex:1;}
+    .cb-text span{font-size:0.8rem;}
+    #installBanner{left:10px; right:10px; padding:12px 13px; gap:11px;}
+    #installBanner img{width:40px; height:40px;}
+    #installBanner .ib-text strong{font-size:0.88rem;}
+    #installBanner .ib-text span{font-size:0.75rem;}
+  }
+
+  /* ---------- Mobile corrections ---------- */
+  @media(max-width:700px){
+    /* Nothing may push the page sideways. */
+    html, body{overflow-x:hidden; max-width:100%;}
+    .wrap{padding-left:16px; padding-right:16px;}
+
+    /* Tap targets: 44px is the smallest comfortable size. */
+    .icon-btn, .nav-cta, .menu-btn{min-height:44px; min-width:44px;}
+    .btn{min-height:44px;}
+    .format-opt{min-height:48px;}
+
+    /* Long unbroken strings, mostly emails and URLs, were widening the page. */
+    .bna-v, .de-meta, .an-row .ar-name, .mod-body{overflow-wrap:anywhere;}
+
+    /* The reader controls were cramped. */
+    .reader-bar{padding:11px 14px; gap:9px;}
+    .reader-bar .rb-title{font-size:0.82rem; flex:1 1 100%; order:-1;}
+    .reader-bar button{padding:8px 11px; font-size:0.76rem;}
+    .book-controls button{flex:1;}
+
+    /* Dashboard tables scroll rather than squeeze. */
+    .modal-panel table{min-width:520px;}
+    .modal-tabs{overflow-x:auto; -webkit-overflow-scrolling:touch; white-space:nowrap;}
+    .modal-tab{display:inline-block; float:none;}
+
+    /* Analytics and moderation rows stack. */
+    .an-row{flex-wrap:wrap;}
+    .ship-row{grid-template-columns:1fr 1fr; gap:8px;}
+    .ship-row .sr-name{grid-column:1 / -1;}
+    .ship-row button{grid-column:1 / -1;}
+
+    /* The handwritten welcome must fit a narrow screen. */
+    .wo-card{padding:30px 22px;}
+    .wo-script{font-size:clamp(1.4rem, 7.5vw, 2.1rem); white-space:normal;}
+    .wo-nib{display:none;}
+  }
+
+  @media(max-width:420px){
+    .hero-ctas{flex-direction:column; align-items:stretch;}
+    .hero-ctas .btn{width:100%;}
+    .book-meta-fields{grid-template-columns:1fr;}
+    .as-inner{flex-direction:column; text-align:center;}
+    .as-portrait{margin:0 auto;}
+  }
+
   /* ---------- Author photo preview ---------- */
   .photo-preview{width:110px; height:110px; border-radius:50%; margin-top:12px;
     background-size:cover; background-position:center top; border:3px solid var(--paper);
@@ -795,8 +892,6 @@
   }
 
   /* Views fade and lift slightly as they become active. */
-  .view.active{animation:viewIn var(--dur-slow) var(--ease-out);}
-  @keyframes viewIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
 
   /* Sections reveal as they scroll into range.
      Three variants so a long page does not repeat one motion, and a stagger so
@@ -2306,7 +2401,11 @@
             <h3 style="font-size:1.05rem; margin-top:8px;">Author bio &amp; photo</h3>
           </div>
           <div class="field"><label>Bio text (shown on the About page)</label><textarea id="settingsBio" style="min-height:120px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Write the author bio shown on the About page"></textarea></div>
-          <div class="field"><label>Author photo</label>
+          <div class="modal-error" id="settingsBioError">Something went wrong.</div>
+          <div class="modal-ok" id="settingsBioOk">Bio saved.</div>
+          <button class="btn btn-dark" id="saveBioBtn" style="align-self:flex-start;">Save bio</button>
+
+          <div class="field" style="margin-top:8px;"><label>Author photo</label>
             <input type="file" id="settingsPhoto" accept="image/jpeg,image/png,image/webp">
             <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">
               JPG, PNG or WebP, up to 10 MB. iPhone photos save as HEIC by default, which will not upload:
@@ -2314,9 +2413,9 @@
             </div>
             <div class="photo-preview" id="settingsPhotoPreview" style="display:none;"></div>
           </div>
-          <div class="modal-error" id="settingsBioError">Something went wrong.</div>
-          <div class="modal-ok" id="settingsBioOk">Saved. The photo now appears across the site.</div>
-          <button class="btn btn-dark" id="saveBioBtn" style="align-self:flex-start;">Save bio and photo</button>
+          <div class="modal-error" id="settingsPhotoError">Something went wrong.</div>
+          <div class="modal-ok" id="settingsPhotoOk">Photo saved. It now appears across the site.</div>
+          <button class="btn btn-dark" id="savePhotoBtn" style="align-self:flex-start;">Save photo</button>
 
           <div class="section-head" style="margin-bottom:0; margin-top:10px;">
             <span class="eyebrow">Social Links</span>
@@ -2623,7 +2722,7 @@
                 aria-label="Contact B and A Developers"><strong>B&amp;A&nbsp;Developers</strong></button>
         <a href="tel:+254794698660" aria-label="Call on 0794 698 660">0794&nbsp;698&nbsp;660</a>
       </span>
-      <span>Sierra Leone 🇸🇱 · Question Power. Question Society. Question Yourself. · <a class="nav-link" data-view="admin" style="text-decoration:underline; color:#8b9285;">Author Login</a></span>
+      <span>Sierra Leone 🇸🇱 · Question Power. Question Society. Question Yourself. · <a class="nav-link author-entry" data-view="admin" style="text-decoration:underline; color:#8b9285;">Author Login</a></span>
     </div>
   </div>
 </footer>
@@ -3076,6 +3175,7 @@
       loadAccountView();
     });
     closeAuth();
+    document.body.classList.add('signed-in');
     updateCommentGates();
     checkBookClubStatus();
     refreshStaffFlag();
@@ -4307,12 +4407,24 @@
     try { accepted = localStorage.getItem(KEY) === '1'; } catch(e){}
     if(accepted) return;
 
-    // Let the page settle before it appears.
-    setTimeout(() => banner.classList.add('show'), 1400);
+    // Let the page settle before it appears, then tell the rest of the layout
+    // how tall it is so the cart bar and install prompt can sit clear of it.
+    const measure = () => {
+      document.documentElement.style.setProperty('--consent-height', banner.offsetHeight + 'px');
+    };
+    setTimeout(() => {
+      banner.classList.add('show');
+      document.body.classList.add('consent-open');
+      measure();
+    }, 1400);
+    window.addEventListener('resize', () => { if(banner.classList.contains('show')) measure(); });
 
     const accept = () => {
       try { localStorage.setItem(KEY, '1'); } catch(e){}
       banner.classList.remove('show');
+      document.body.classList.remove('consent-open');
+      // The install prompt was held back while this was up; let it through now.
+      window.dispatchEvent(new CustomEvent('cwt:consent-accepted'));
     };
     document.getElementById('consentAccept')?.addEventListener('click', accept);
     document.getElementById('consentReadMore')?.addEventListener('click', () => {
@@ -4439,6 +4551,26 @@
     document.documentElement.classList.add('reveal-ready');
 
     // Which motion suits which kind of block.
+    // The landing page lifts; other views use a different direction, so the
+    // same scroll does not feel identical everywhere.
+    const BY_VIEW = {
+      'view-books-catalog': 'left',
+      'view-book-mrp': 'left',
+      'view-book-mono': 'left',
+      'view-book-generic': 'left',
+      'view-essays': 'fade',
+      'view-essay-detail': 'fade',
+      'view-about': 'scale',
+      'view-bookclub': 'scale',
+      'view-events': 'left',
+      'view-gallery': 'scale',
+      'view-speaking': 'fade'
+    };
+    const viewKindFor = (el) => {
+      const view = el.closest('.view');
+      return view ? BY_VIEW[view.id] : null;
+    };
+
     const PLAN = [
       ['.section-head',      'up'],
       ['.book-grid',         'up'],
@@ -4476,7 +4608,10 @@
       PLAN.forEach(([selector, kind]) => {
         root.querySelectorAll(selector).forEach((el) => {
           if(el.dataset.reveal) return;
-          el.dataset.reveal = kind;
+          // A view specific motion wins, except for grids where a lift reads
+          // best regardless of which page they are on.
+          const override = viewKindFor(el);
+          el.dataset.reveal = (override && !STAGGER.some(sel => el.matches(sel))) ? override : kind;
           if(STAGGER.some(sel => el.matches(sel))){
             el.setAttribute('data-reveal-stagger', '');
             // Each child waits a little longer than the one before it.
@@ -4561,7 +4696,7 @@
     await sb.auth.signOut();
     currentUser = null;
     currentSession = null;
-    document.body.classList.remove('is-staff');
+    document.body.classList.remove('is-staff', 'signed-in');
     const authArea = document.getElementById('authArea');
     authArea.innerHTML = '<a class="nav-cta" id="signInBtn">Sign In</a>';
     document.getElementById('signInBtn').addEventListener('click', openAuth);
@@ -6428,42 +6563,67 @@
     reader.readAsDataURL(file);
   });
 
-  // Bio and photo save on their own button, beside the fields they belong to.
-  // They previously shared a button five fields below labelled "Save Social
-  // Links", so there appeared to be no way to save them at all.
+  // Bio and photo save independently. Each request carries only its own field,
+  // so saving a photo can never blank the bio, and saving a bio can never drop
+  // the photo. They previously shared one button five fields below labelled
+  // "Save Social Links", so there appeared to be no way to save them at all.
   document.getElementById('saveBioBtn')?.addEventListener('click', async () => {
     if(!currentSession){ alert('Please sign in as the author account first.'); return; }
     setMsg('settingsBioOk', null, false);
     setMsg('settingsBioError', null, false);
 
+    const bio = document.getElementById('settingsBio').value.trim();
+    if(!bio){
+      // Clearing a bio on purpose is rare enough to be worth confirming,
+      // because the usual cause is an empty box nobody meant to submit.
+      if(!confirm('The bio box is empty. Save it as blank and remove the bio from the About page?')) return;
+    }
+
     await withBusy(document.getElementById('saveBioBtn'), 'Saving...', async () => {
       try {
-        const photoFile = document.getElementById('settingsPhoto').files[0];
-        const bio = document.getElementById('settingsBio').value.trim();
-        let author_photo_url;
-        if(photoFile){
-          author_photo_url = await uploadCover(photoFile, 'site');
-          // uploadCover explains its own failure and returns null.
-          if(!author_photo_url) return;
-        }
-        if(!photoFile && !bio){
-          setMsg('settingsBioError', 'Write a bio or choose a photo first.', true);
-          return;
-        }
-
-        const body = { author_bio: bio || null };
-        if(author_photo_url) body.author_photo_url = author_photo_url;
-
-        const res = await fetch(`${API_URL}/api/settings`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
+        const res = await fetch(`${API_URL}/api/settings`, {
+          method: 'PUT', headers: authHeaders(),
+          body: JSON.stringify({ author_bio: bio || null })
+        });
         if(!res.ok){
           const text = await res.text();
           throw new Error(res.status === 403 ? 'This account is not flagged as the author yet.' : text);
         }
         setMsg('settingsBioOk', null, true);
-        document.getElementById('settingsPhoto').value = '';
         loadSiteSettings();
       } catch(err){
         setMsg('settingsBioError', 'Could not save: ' + err.message, true);
+      }
+    });
+  });
+
+  document.getElementById('savePhotoBtn')?.addEventListener('click', async () => {
+    if(!currentSession){ alert('Please sign in as the author account first.'); return; }
+    setMsg('settingsPhotoOk', null, false);
+    setMsg('settingsPhotoError', null, false);
+
+    const photoFile = document.getElementById('settingsPhoto').files[0];
+    if(!photoFile){ setMsg('settingsPhotoError', 'Choose a photo first.', true); return; }
+
+    await withBusy(document.getElementById('savePhotoBtn'), 'Uploading...', async () => {
+      try {
+        // uploadCover explains its own failure and returns null.
+        const author_photo_url = await uploadCover(photoFile, 'site');
+        if(!author_photo_url) return;
+
+        const res = await fetch(`${API_URL}/api/settings`, {
+          method: 'PUT', headers: authHeaders(),
+          body: JSON.stringify({ author_photo_url })
+        });
+        if(!res.ok){
+          const text = await res.text();
+          throw new Error(res.status === 403 ? 'This account is not flagged as the author yet.' : text);
+        }
+        setMsg('settingsPhotoOk', null, true);
+        document.getElementById('settingsPhoto').value = '';
+        loadSiteSettings();
+      } catch(err){
+        setMsg('settingsPhotoError', 'Could not save: ' + err.message, true);
       }
     });
   });
@@ -6530,8 +6690,13 @@
       try { dismissed = localStorage.getItem(DISMISS_KEY) === '1'; } catch(e){}
       if(dismissed) return;
       if(!deferredPrompt && !isIOS()) return;
+      // One notice at a time. The consent notice has to be dealt with first.
+      if(document.body.classList.contains('consent-open')) return;
       banner.classList.add('show');
     }
+
+    // Try again once consent has been accepted.
+    window.addEventListener('cwt:consent-accepted', () => setTimeout(maybeShowBanner, 600));
 
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();          // stop Chrome's own mini infobar
