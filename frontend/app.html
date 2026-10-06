@@ -665,8 +665,6 @@
   /* Author entry: shown to a visitor who is not signed in, so the author can
      reach it, and to the author once they are. Hidden from ordinary readers,
      who have nothing to sign in to there. */
-  body.signed-in .author-entry{display:none;}
-  body.signed-in.is-staff .author-entry{display:inline;}
 
   /* ---------- Bottom docked layers ----------
      Three things can sit at the bottom of the screen: the cart bar, the
@@ -739,6 +737,79 @@
     .as-portrait{margin:0 auto;}
   }
 
+  /* ---------- Mobile navigation ----------
+     On a phone the bar is: brand, then search, cart and the menu button.
+     Everything else moves into the menu, where there is room for it. */
+  @media(max-width:900px){
+    .nav-inner{padding:12px 16px; gap:8px; flex-wrap:nowrap;}
+
+    /* The brand holds one line and shrinks rather than wrapping. */
+    .brand{font-size:0.95rem; white-space:nowrap; flex:0 1 auto; min-width:0; overflow:hidden;}
+    .brand small{font-size:0.55rem; letter-spacing:0.1em; white-space:nowrap;}
+
+    /* These belong in the menu on a narrow screen. */
+    #authArea,
+    .nav-inner > .nav-cta,
+    #navBack,
+    #navReload,
+    .nav-dash{display:none !important;}
+
+    /* What remains sits together on the right. */
+    .nav-inner > .icon-btn{margin-left:0; padding:8px; flex:0 0 auto;}
+    .nav-inner > #searchBtn{margin-left:auto;}
+    .menu-btn{flex:0 0 auto; padding:8px 4px 8px 10px;}
+
+    /* The menu carries the rest. */
+    .mobile-menu a{padding:14px 20px; font-size:0.95rem;}
+    .mobile-menu .mm-primary{background:var(--sl-green-deep); color:#fff; font-weight:700;}
+    .mobile-menu .mm-primary:hover{background:var(--sl-green);}
+  }
+
+  @media(max-width:380px){
+    .brand{font-size:0.86rem;}
+    .brand small{display:none;}
+  }
+
+  /* ---------- Author dashboard ---------- */
+  .dash-header{display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+    padding-bottom:22px; border-bottom:1px solid var(--line); margin-bottom:22px;}
+  .dh-who{display:flex; align-items:center; gap:16px; min-width:0;}
+  .dh-avatar{width:58px; height:58px; border-radius:50%; flex:0 0 auto;
+    background:var(--sl-green-deep) center top / cover no-repeat; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.1rem;
+    box-shadow:0 6px 16px rgba(12,61,34,0.22);}
+  .dash-header h2{font-family:'Fraunces',serif; font-size:1.45rem; line-height:1.2; margin:0;}
+  .dh-meta{display:flex; align-items:center; gap:10px; margin-top:6px; font-size:0.8rem; color:var(--ink-soft);
+    flex-wrap:wrap;}
+  .dh-badge{background:var(--sl-green-deep); color:#fff; padding:3px 10px; border-radius:20px;
+    font-size:0.68rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;}
+  .dh-badge.dev{background:var(--sl-blue-deep);}
+  .dh-actions{display:flex; gap:9px; flex-wrap:wrap;}
+
+  .dash-stats{display:grid; grid-template-columns:repeat(auto-fit, minmax(132px, 1fr)); gap:12px; margin-bottom:26px;}
+  .ds-card{border:1px solid var(--line); border-radius:9px; padding:14px 16px; background:var(--paper);}
+  .ds-card .dsv{font-family:'Fraunces',serif; font-size:1.35rem; color:var(--sl-green-deep); line-height:1.1;}
+  .ds-card .dsl{font-size:0.7rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-soft); margin-top:5px;}
+  .ds-card.alert .dsv{color:#b3261e;}
+
+  .dash-tabs{max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; white-space:nowrap;
+    scrollbar-width:thin; padding-bottom:2px;}
+
+  /* A way back into the dashboard while browsing the site as a reader. */
+  .nav-dash{display:none; align-items:center; gap:7px; background:var(--sl-green-deep); color:#fff;
+    padding:9px 15px; border-radius:5px; font-size:0.8rem; font-weight:700; cursor:pointer; margin-left:10px;}
+  body.is-staff .nav-dash{display:inline-flex;}
+  .nav-dash:hover{background:var(--sl-green);}
+
+  @media(max-width:700px){
+    .dash-header{gap:14px;}
+    .dash-header h2{font-size:1.2rem;}
+    .dh-avatar{width:48px; height:48px;}
+    .dh-actions{width:100%;}
+    .dh-actions .btn{flex:1;}
+    .nav-dash{display:none !important;}
+  }
+
   /* ---------- Author photo preview ---------- */
   .photo-preview{width:110px; height:110px; border-radius:50%; margin-top:12px;
     background-size:cover; background-position:center top; border:3px solid var(--paper);
@@ -784,6 +855,8 @@
   body.is-staff .author-hint{display:flex; align-items:center; justify-content:center;
     text-align:center; color:var(--ink-soft); font-size:0.84rem; padding:18px; line-height:1.6;}
   body.is-staff .author-hint.inline{display:block;}
+  .staff-only{display:none;}
+  body.is-staff .staff-only{display:block;}
 
   /* ---------- Author strip ---------- */
   .author-strip{background:var(--paper-dim); padding:64px 0;}
@@ -1116,6 +1189,7 @@
     <div id="authArea">
       <a class="nav-cta" id="signInBtn">Sign In</a>
     </div>
+    <a class="nav-dash nav-link" data-view="admin" id="navDash" title="Open your dashboard">Dashboard</a>
     <button class="icon-btn nav-ctrl" id="navBack" aria-label="Go back" title="Back" style="display:none;">←</button>
     <button class="icon-btn nav-ctrl" id="navReload" aria-label="Reload the page" title="Reload">⟳</button>
     <button class="icon-btn" id="searchBtn" aria-label="Search the site">🔍</button>
@@ -1133,6 +1207,8 @@
     <a class="nav-link" data-view="speaking">Speaking</a>
     <a class="nav-link" data-view="about">About Alpha</a>
     <a class="nav-link" data-view="contact">Contact</a>
+    <a class="nav-link staff-only" data-view="admin">Dashboard</a>
+    <a class="nav-link mm-primary" data-view="books-catalog">Shop Books</a>
     <a data-install-app>Get the App</a>
     <a id="signInBtnMobile">Sign In / Sign Up</a>
   </div>
@@ -2167,19 +2243,29 @@
       </div>
 
       <div id="admin-dashboard" style="display:none;">
-        <div class="section-head" style="margin-bottom:30px;">
-          <span class="eyebrow">Author Dashboard</span>
-          <h2>Welcome back, Alpha</h2>
-          <p>Add, edit, or remove books and essays. Changes appear on the live site instantly.</p>
+        <div class="dash-header">
+          <div class="dh-who">
+            <div class="dh-avatar" id="dashAvatar"></div>
+            <div>
+              <h2 id="dashName">Welcome back</h2>
+              <div class="dh-meta"><span class="dh-badge" id="dashRole">Author</span><span id="dashEmail"></span></div>
+            </div>
+          </div>
+          <div class="dh-actions">
+            <a class="btn btn-sm btn-outline-dark nav-link" data-view="home">View the site</a>
+            <button class="btn btn-sm btn-outline-dark" id="dashSignOut">Sign out</button>
+          </div>
         </div>
 
-        <div class="modal-tabs" style="max-width:640px;">
-          <div class="modal-tab active" data-admin-tab="analytics">Analytics</div>
+        <div class="dash-stats" id="dashStats"></div>
+
+        <div class="modal-tabs dash-tabs">
+          <div class="modal-tab active" data-admin-tab="analytics">Overview</div>
           <div class="modal-tab" data-admin-tab="books">Books</div>
           <div class="modal-tab" data-admin-tab="essays">Essays</div>
           <div class="modal-tab" data-admin-tab="audio">Audiobooks</div>
-          <div class="modal-tab" data-admin-tab="settings">Settings</div>
-          <div class="modal-tab" data-admin-tab="moderation" id="moderationTab">Comments</div>
+          <div class="modal-tab" data-admin-tab="settings">Site and postage</div>
+          <div class="modal-tab" data-admin-tab="moderation" id="moderationTab">Reader comments</div>
           <div class="modal-tab" data-admin-tab="security" id="securityTab">Security</div>
           <div class="modal-tab" data-admin-tab="developer" id="devTab" style="display:none;">Developer</div>
         </div>
@@ -2722,7 +2808,7 @@
                 aria-label="Contact B and A Developers"><strong>B&amp;A&nbsp;Developers</strong></button>
         <a href="tel:+254794698660" aria-label="Call on 0794 698 660">0794&nbsp;698&nbsp;660</a>
       </span>
-      <span>Sierra Leone 🇸🇱 · Question Power. Question Society. Question Yourself. · <a class="nav-link author-entry" data-view="admin" style="text-decoration:underline; color:#8b9285;">Author Login</a></span>
+      <span>Sierra Leone 🇸🇱 · Question Power. Question Society. Question Yourself.</span>
     </div>
   </div>
 </footer>
@@ -3153,6 +3239,21 @@
     return name.trim().split(/\s+/).slice(0,2).map(w => w[0].toUpperCase()).join('');
   }
 
+  // Sends the author into the dashboard after signing in, and unlocks it in one
+  // step so they do not have to press "Verify Access" as well.
+  async function openDashboardIfAuthor(){
+    if(!currentSession) return;
+    try {
+      const me = await (await fetch(`${API_URL}/api/auth/me`, { headers: authHeaders() })).json();
+      if(!me.is_author && !me.is_developer) return;
+      // A short pause so the welcome animation is seen rather than cut off.
+      setTimeout(() => {
+        showView('admin');
+        document.getElementById('adminUnlock')?.click();
+      }, 2400);
+    } catch(e){}
+  }
+
   // Author and developer accounts see guidance that readers should not.
   async function refreshStaffFlag(){
     if(!currentSession){ document.body.classList.remove('is-staff'); return; }
@@ -3167,6 +3268,18 @@
     currentUser = user;
     const authArea = document.getElementById('authArea');
     authArea.innerHTML = `<div class="nav-user" id="userMenuBtn"><div class="avatar">${initials(user.name)}</div>${user.name.split(' ')[0]}</div>`;
+
+    // The desktop auth area is hidden on a phone, so the menu needs its own
+    // way into the account page.
+    const mobileAuth = document.getElementById('signInBtnMobile');
+    if(mobileAuth){
+      mobileAuth.textContent = `${user.name.split(' ')[0]}: account settings`;
+      mobileAuth.onclick = () => {
+        document.getElementById('mobileMenu').classList.remove('open');
+        showView('account');
+        loadAccountView();
+      };
+    }
     // Clicking your name opens account settings rather than firing a bare
     // confirm() dialog. Sign out lives inside that page, next to everything
     // else about the account.
@@ -3181,6 +3294,10 @@
     refreshStaffFlag();
     // Only on a fresh sign in, not when the session is restored on every reload.
     if(isNewSession && !restoringSession) playWelcome(user.name || user.email);
+
+    // The author signs in to work, so go straight to the dashboard. The site
+    // stays fully browsable from there: this sets a starting point, not a cage.
+    if(isNewSession && !restoringSession) openDashboardIfAuthor();
   }
 
   function isValidEmail(v){ return /\S+@\S+\.\S+/.test(v); }
@@ -4225,6 +4342,7 @@
         document.getElementById('admin-lock').style.display = 'none';
         document.getElementById('admin-dashboard').style.display = 'block';
         applyDashboardRole();
+        paintDashboardHeader(profile);
         if(isAuthorUser){
           renderAdminBooksTable();
           renderAdminEssaysTable();
@@ -4700,6 +4818,14 @@
     const authArea = document.getElementById('authArea');
     authArea.innerHTML = '<a class="nav-cta" id="signInBtn">Sign In</a>';
     document.getElementById('signInBtn').addEventListener('click', openAuth);
+    const mobileAuth = document.getElementById('signInBtnMobile');
+    if(mobileAuth){
+      mobileAuth.textContent = 'Sign In / Sign Up';
+      mobileAuth.onclick = () => {
+        document.getElementById('mobileMenu').classList.remove('open');
+        openAuth();
+      };
+    }
     updateCommentGates();
     showView('home');
   }
@@ -5174,6 +5300,61 @@
       loadDevErrors();
     } catch(err){ alert('Could not clear the log: ' + err.message); }
   });
+
+  // Dashboard identity strip and quick figures. Drawn from the profile and the
+  // analytics endpoint, so the author sees the state of the business before
+  // choosing a tab rather than after.
+  async function paintDashboardHeader(profile){
+    const name = currentUser?.name || profile?.email || 'there';
+    document.getElementById('dashName').textContent = `Welcome back, ${String(name).split(' ')[0]}`;
+    document.getElementById('dashEmail').textContent = profile?.email || '';
+
+    const badge = document.getElementById('dashRole');
+    if(badge){
+      const isAuthor = Boolean(profile?.is_author);
+      badge.textContent = isAuthor ? 'Author' : 'Developer';
+      badge.classList.toggle('dev', !isAuthor);
+    }
+
+    const avatar = document.getElementById('dashAvatar');
+    if(avatar){
+      avatar.textContent = initials(String(name));
+      try {
+        const settings = await (await fetch(`${API_URL}/api/settings`)).json();
+        if(settings.author_photo_url && profile?.is_author){
+          avatar.style.backgroundImage = `url('${settings.author_photo_url}')`;
+          avatar.textContent = '';
+        }
+      } catch(e){}
+    }
+
+    const strip = document.getElementById('dashStats');
+    if(!strip || !profile?.is_author) { if(strip) strip.innerHTML = ''; return; }
+    try {
+      const a = await (await fetch(`${API_URL}/api/analytics/overview`, { headers: authHeaders() })).json();
+      const pending = a.orders?.by_status?.pending || 0;
+      const cards = [
+        [money(a.revenue.total_cents), 'Revenue', false],
+        [String(a.revenue.paid_orders), 'Paid orders', false],
+        [String(a.catalog.active_books), 'Books live', false],
+        [String(a.essays.published), 'Essays', false],
+        [String(a.customers.total), 'Readers', false],
+        [a.ratings.overall_average ? a.ratings.overall_average.toFixed(1) : 'None', 'Avg rating', false],
+        [String(pending), 'Unfinished checkouts', pending > 0]
+      ];
+      strip.innerHTML = '';
+      cards.forEach(([value, label, alert]) => {
+        const card = document.createElement('div');
+        card.className = 'ds-card' + (alert ? ' alert' : '');
+        card.innerHTML = '<div class="dsv"></div><div class="dsl"></div>';
+        card.querySelector('.dsv').textContent = value;
+        card.querySelector('.dsl').textContent = label;
+        strip.appendChild(card);
+      });
+    } catch(e){ strip.innerHTML = ''; }
+  }
+
+  document.getElementById('dashSignOut')?.addEventListener('click', signOutEverywhere);
 
   // ================= AUTHOR ANALYTICS =================
   const money = (c) => '$' + (Number(c || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
