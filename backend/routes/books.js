@@ -53,7 +53,7 @@ router.get('/:id/manage', requireAuth, requireAuthor, async (req, res) => {
 // POST /api/books: Author Dashboard: add a new book
 router.post('/', requireAuth, requireAuthor, async (req, res) => {
   const { title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text, formats, video_urls,
-    isbn, publisher, published_date, page_count, language, genre, edition } = req.body;
+    isbn, publisher, published_date, page_count, language, genre, edition, sample_chars } = req.body;
   if (typeof title !== 'string' || !title.trim() || typeof description !== 'string' || !description.trim()) return res.status(400).json({ error: 'Title and description are required' });
   const { data: existing } = await supabaseAdmin.from('books').select('id').ilike('title', title.trim()).limit(1).maybeSingle();
   if (existing) return res.status(409).json({ error: 'A book with this title already exists. Edit the existing book instead.' });
@@ -62,7 +62,7 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
     .insert(normalizeBookMeta(cleanTextFields({
       title, subtitle, description, cover_style, cover_image_url, back_cover_url, gallery_urls, reader_full_text,
       video_urls: normalizeVideoList(video_urls) ?? [],
-      isbn, publisher, published_date, page_count, language, genre, edition
+      isbn, publisher, published_date, page_count, language, genre, edition, sample_chars
     }, ['title', 'subtitle', 'description', 'reader_full_text', 'publisher', 'genre', 'edition'])))
     .select()
     .single();
@@ -116,6 +116,12 @@ function normalizeBookMeta(fields) {
   if (fields.page_count !== undefined) {
     const n = Number(fields.page_count);
     fields.page_count = Number.isInteger(n) && n > 0 ? n : null;
+  }
+  if (fields.sample_chars !== undefined) {
+    // Not null: the column is NOT NULL with a default of 0, and 0 means no
+    // sample, which is a meaningful value rather than a missing one.
+    const n = Number(fields.sample_chars);
+    fields.sample_chars = Number.isInteger(n) && n > 0 ? Math.min(n, 200000) : 0;
   }
   return fields;
 }
