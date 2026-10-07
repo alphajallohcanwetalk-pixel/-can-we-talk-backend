@@ -737,6 +737,11 @@
     .as-portrait{margin:0 auto;}
   }
 
+  /* Back and reload sit at the left, beside the brand, where a reader's thumb
+     and eye already go looking for them. */
+  .nav-left{display:flex; align-items:center; gap:6px; min-width:0;}
+  .nav-left .nav-ctrl{flex:0 0 auto;}
+
   /* ---------- Mobile navigation ----------
      On a phone the bar is: brand, then search, cart and the menu button.
      Everything else moves into the menu, where there is room for it. */
@@ -922,6 +927,50 @@
   .wo-name{margin-top:14px; font-size:0.92rem; color:var(--ink-soft); opacity:0;}
   #welcomeOverlay.show .wo-name{animation:woShowSoft .5s var(--ease-out) 2.1s forwards;}
   @keyframes woShowSoft{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+  /* ---------- Handwritten sign off ----------
+     The welcome writes a line on; this rubs one out. An eraser tracks right to
+     left while the words disappear behind it, with a little dust in its wake. */
+  #signoffOverlay{position:fixed; inset:0; z-index:6000; display:none; align-items:center; justify-content:center;
+    background:rgba(8,20,10,0.72); backdrop-filter:blur(3px);}
+  #signoffOverlay.show{display:flex; animation:woFade .3s var(--ease-out);}
+  .so-script-wrap{position:relative; display:inline-block;}
+  .so-script{
+    /* The mask starts full and shrinks from the right, so the words vanish
+       under the eraser rather than simply fading. */
+    -webkit-mask-image:linear-gradient(90deg,#000 0 0); mask-image:linear-gradient(90deg,#000 0 0);
+    -webkit-mask-size:100% 100%; mask-size:100% 100%;
+    -webkit-mask-position:left; mask-position:left;
+    -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;}
+  #signoffOverlay.show .so-script{animation:soErase 1.5s var(--ease-soft) .25s forwards;}
+  @keyframes soErase{to{-webkit-mask-size:0% 100%; mask-size:0% 100%;}}
+
+  .so-eraser{position:absolute; right:-6px; bottom:0; opacity:0;}
+  #signoffOverlay.show .so-eraser{animation:soRub 1.5s var(--ease-soft) .25s forwards;}
+  @keyframes soRub{
+    0%{opacity:1; right:-6px; transform:rotate(0deg);}
+    15%{transform:rotate(-7deg);}
+    35%{transform:rotate(6deg);}
+    55%{transform:rotate(-5deg);}
+    75%{transform:rotate(4deg);}
+    92%{opacity:1; right:100%; transform:rotate(0deg);}
+    100%{opacity:0; right:100%;}}
+
+  .so-dust{position:absolute; right:0; bottom:-2px; width:6px; height:6px; border-radius:50%;
+    background:rgba(154,123,60,0.55); opacity:0;}
+  #signoffOverlay.show .so-dust{animation:soDust 1.5s linear .35s forwards;}
+  @keyframes soDust{
+    0%{opacity:0; right:4%; transform:translateY(0) scale(1);}
+    20%{opacity:.8;}
+    100%{opacity:0; right:96%; transform:translateY(9px) scale(.4);}}
+
+  #signoffOverlay .wo-name{opacity:0;}
+  #signoffOverlay.show .wo-name{animation:woShowSoft .45s var(--ease-out) 1.6s forwards;}
+
+  @media(max-width:700px){
+    .so-script{white-space:normal;}
+    .so-eraser{display:none;}
+  }
 
   /* ---------- Consent banner ---------- */
   #consentBanner{position:fixed; left:0; right:0; bottom:0; z-index:5500; display:none;
@@ -1177,7 +1226,11 @@
 <!-- ============ NAV (persistent across all views) ============ -->
 <header class="site-nav">
   <div class="nav-inner">
-    <a class="brand nav-link" data-view="home">CAN WE TALK?<small>The Misfit Voice</small></a>
+    <div class="nav-left">
+      <button class="icon-btn nav-ctrl" id="navBack" aria-label="Go back" title="Back" style="display:none;">&#8592;</button>
+      <button class="icon-btn nav-ctrl" id="navReload" aria-label="Reload" title="Reload">&#8635;</button>
+      <a class="brand nav-link" data-view="home">CAN WE TALK?<small>The Misfit Voice</small></a>
+    </div>
     <nav class="links">
       <a class="nav-link" data-view="home">Home</a>
       <a class="nav-link" data-view="books-catalog">Books</a>
@@ -1190,8 +1243,6 @@
       <a class="nav-cta" id="signInBtn">Sign In</a>
     </div>
     <a class="nav-dash nav-link" data-view="admin" id="navDash" title="Open your dashboard">Dashboard</a>
-    <button class="icon-btn nav-ctrl" id="navBack" aria-label="Go back" title="Back" style="display:none;">←</button>
-    <button class="icon-btn nav-ctrl" id="navReload" aria-label="Reload the page" title="Reload">⟳</button>
     <button class="icon-btn" id="searchBtn" aria-label="Search the site">🔍</button>
     <button class="icon-btn" id="cartBtn" aria-label="View cart"><span>🛒</span><span class="cart-badge" id="cartBadge" style="display:none;">0</span></button>
     <a class="nav-cta nav-link" data-view="book-mrp" style="margin-left:10px;">Shop Books</a>
@@ -1926,7 +1977,7 @@
         <button id="readerListen" aria-label="Listen to this page">Listen</button>
         <button data-font-dec aria-label="Smaller text">A<i class="glyph-minus"></i></button>
         <button data-font-inc>A+</button>
-        <button class="nav-link" data-view="bookclub">Exit Reader</button>
+        <button class="nav-link" id="readerExit" data-view="essays">Close</button>
       </div>
     </div>
 
@@ -2245,6 +2296,7 @@
       <div id="admin-dashboard" style="display:none;">
         <div class="dash-header">
           <div class="dh-who">
+            <a class="btn btn-sm btn-outline-dark nav-link dh-back" data-view="home">View the site</a>
             <div class="dh-avatar" id="dashAvatar"></div>
             <div>
               <h2 id="dashName">Welcome back</h2>
@@ -2252,7 +2304,6 @@
             </div>
           </div>
           <div class="dh-actions">
-            <a class="btn btn-sm btn-outline-dark nav-link" data-view="home">View the site</a>
             <button class="btn btn-sm btn-outline-dark" id="dashSignOut">Sign out</button>
           </div>
         </div>
@@ -2858,6 +2909,23 @@
   </div>
 </div>
 
+<!-- Handwritten farewell, shown while signing out -->
+<div id="signoffOverlay" aria-hidden="true">
+  <div class="wo-card">
+    <div class="so-script-wrap">
+      <span class="wo-script so-script" id="signoffScript">Until next time</span>
+      <span class="so-eraser" aria-hidden="true">
+        <svg viewBox="0 0 28 28" width="26" height="26">
+          <rect x="4" y="13" width="17" height="10" rx="2.5" transform="rotate(-38 12 18)" fill="#e8d6b0" stroke="#9a7b3c" stroke-width="1.4"/>
+          <rect x="13" y="6" width="9" height="8" rx="1.6" transform="rotate(-38 17 10)" fill="#c05a4a" stroke="#8c3a2e" stroke-width="1.4"/>
+        </svg>
+      </span>
+      <span class="so-dust" aria-hidden="true"></span>
+    </div>
+    <p class="wo-name" id="signoffName">Signed out. Your place is saved.</p>
+  </div>
+</div>
+
 <div id="consentBanner" role="dialog" aria-label="Privacy and terms">
   <div class="cb-inner">
     <div class="cb-text">
@@ -3118,6 +3186,29 @@
     return pages.length ? pages : [['No content yet.']];
   }
 
+  // Essays now open in the same reader as books: the two page spread, page
+  // turns, swipe, Listen and saved position. A second, plainer reader meant
+  // essays read worse than books for no reason.
+  function openEssayInReader(essay){
+    showView('reader');
+    const exit = document.getElementById('readerExit');
+    if(exit) exit.dataset.view = 'essays';
+    document.getElementById('readerBookTitle').textContent = essay.title;
+    document.getElementById('reader-locked-msg').style.display = 'none';
+    document.getElementById('reader-content').style.display = 'block';
+    const banner = document.getElementById('sampleBanner');
+    if(banner) banner.style.display = 'none';
+
+    const body = (essay.full_text && essay.full_text.trim()) ? essay.full_text : essay.excerpt || '';
+    readerState = { bookId: 'essay:' + essay.id, sourceText: body, pages: [], page: 0, fontSize: 1.06 };
+    buildWatermark();
+    readerState.pages = paginateText(readerState.sourceText, '#bookPageRight', readerState.fontSize);
+    renderReaderPage();
+    progressBookId = null;
+    progressEssayId = essay.id;
+    restoreReadingProgress();
+  }
+
   function renderEssayPage(){
     const body = document.getElementById('essay-detail-body');
     body.replaceChildren(...(essayReaderPages[essayReaderPage] || []).map(text => {
@@ -3156,12 +3247,9 @@
     if(e.cover_image_url){ coverEl.style.display = 'block'; coverEl.style.backgroundImage = `url('${e.cover_image_url}')`; coverEl.setAttribute('data-lightbox', e.cover_image_url); }
     else { coverEl.style.display = 'none'; coverEl.removeAttribute('data-lightbox'); }
 
-    const text = fullEssay.full_text && fullEssay.full_text.trim() ? fullEssay.full_text : fullEssay.excerpt;
-    essaySourceText = text;
-    essayReaderPages = paginateText(essaySourceText, '#essay-detail-body');
-    essayReaderPage = 0;
-    renderEssayPage();
-    showView('essay-detail');
+    // Read it in the book reader, so an essay gets the same spread, page turns,
+    // typography and saved position a book does.
+    openEssayInReader({ id, title: e.title, full_text: fullEssay.full_text, excerpt: fullEssay.excerpt });
   }
 
   function renderEssays(){
@@ -4556,6 +4644,52 @@
     });
   })();
 
+  // ================= BROWSER ERROR REPORTING =================
+  // Anything that breaks in the browser is sent to the same log the server
+  // writes to, so the Developer tab shows the whole picture rather than only
+  // the half that happens on the server.
+  //
+  // Sentry is a separate, optional service and SENTRY_DSN is not set, so this
+  // log is the error system, not a copy of one.
+  (function clientErrors(){
+    const SEEN = new Set();
+    let sent = 0;
+
+    async function report(message, stack, context){
+      if(!message) return;
+      // A loop that throws every frame must not become a loop that posts every
+      // frame. Each distinct message goes once, and the total is capped.
+      const key = String(message).slice(0, 200);
+      if(SEEN.has(key) || sent >= 15) return;
+      SEEN.add(key);
+      sent += 1;
+      try {
+        await fetch(`${API_URL}/api/telemetry/client-error`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: String(message).slice(0, 1000),
+            stack: stack ? String(stack).slice(0, 4000) : null,
+            path: location.hash || location.pathname,
+            context: context || {}
+          })
+        });
+      } catch(e){ /* reporting must never cascade */ }
+    }
+
+    window.addEventListener('error', e => {
+      if(e.message) report(e.message, e.error?.stack, { line: e.lineno, col: e.colno, file: e.filename });
+    });
+
+    window.addEventListener('unhandledrejection', e => {
+      const r = e.reason;
+      report(r?.message || String(r), r?.stack, { kind: 'unhandled promise rejection' });
+    });
+
+    // Make it available so a caught error can be reported deliberately.
+    window.reportClientError = report;
+  })();
+
   // ================= NARRATION =================
   // Reads a page aloud using the device's own speech engine. This works today,
   // offline, on every modern browser, at no cost.
@@ -4810,7 +4944,31 @@
   });
 
   // ================= ACCOUNT =================
+  // A short farewell while the session is torn down. The welcome wrote a line
+  // on; this rubs it out, so signing in and signing out bookend each other.
+  function playSignoff(){
+    return new Promise(resolve => {
+      const overlay = document.getElementById('signoffOverlay');
+      if(!overlay){ resolve(); return; }
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden', 'false');
+      setTimeout(() => {
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden', 'true');
+        resolve();
+      }, reduced ? 700 : 2300);
+    });
+  }
+
   async function signOutEverywhere(){
+    // Clear the welcome marker so signing back in is greeted again.
+    try {
+      const name = (currentUser?.name || '').toLowerCase();
+      if(name) localStorage.removeItem('cwt_welcomed_' + name);
+    } catch(e){}
+
+    const farewell = playSignoff();
     await sb.auth.signOut();
     currentUser = null;
     currentSession = null;
@@ -4828,6 +4986,7 @@
     }
     updateCommentGates();
     showView('home');
+    await farewell;
   }
 
   document.getElementById('acctSignOut')?.addEventListener('click', signOutEverywhere);
@@ -6175,6 +6334,8 @@
       if(!res.ok) throw new Error(res.status === 403 ? 'Book Club membership required.' : 'Reader unavailable.');
       const book = await res.json();
       document.getElementById('readerBookTitle').textContent = book.title;
+      const exit = document.getElementById('readerExit');
+      if(exit) exit.dataset.view = 'books-catalog';
       document.getElementById('reader-locked-msg').style.display = 'none';
       document.getElementById('reader-content').style.display = 'block';
       readerState = { bookId: bookKey, sourceText: book.reader_full_text || '', pages: [], page:0, fontSize:1.06 };
@@ -6199,6 +6360,7 @@
       readerState.pages = paginateText(readerState.sourceText, '#bookPageRight', readerState.fontSize);
       renderReaderPage();
       progressBookId = bookId;
+      progressEssayId = null;
       restoreReadingProgress();
     } catch(err) {
       document.getElementById('reader-locked-msg').style.display = 'block';
@@ -6212,6 +6374,7 @@
   // used to find the right page again on a different device.
   let progressTimer = null;
   let progressBookId = null;
+  let progressEssayId = null;
 
   function charOffsetForPage(index){
     let count = 0;
@@ -6231,12 +6394,20 @@
     return Math.max(0, readerState.pages.length - 1);
   }
 
+  // Where to save, depending on whether a book or an essay is open.
+  function progressEndpoint(){
+    if(progressBookId) return `${API_URL}/api/reading/${progressBookId}`;
+    if(progressEssayId) return `${API_URL}/api/reading/essay/${progressEssayId}`;
+    return null;
+  }
+
   function saveReadingProgress(){
-    if(!currentSession || !progressBookId || !readerState.pages.length) return;
+    const url = progressEndpoint();
+    if(!currentSession || !url || !readerState.pages.length) return;
     clearTimeout(progressTimer);
     // Debounced: turning several pages quickly should be one write, not six.
     progressTimer = setTimeout(() => {
-      fetch(`${API_URL}/api/reading/${progressBookId}`, {
+      fetch(url, {
         method: 'PUT',
         headers: authHeaders(),
         body: JSON.stringify({
@@ -6249,9 +6420,10 @@
   }
 
   async function restoreReadingProgress(){
-    if(!currentSession || !progressBookId) return;
+    const url = progressEndpoint();
+    if(!currentSession || !url) return;
     try {
-      const res = await fetch(`${API_URL}/api/reading/${progressBookId}`, { headers: authHeaders() });
+      const res = await fetch(url, { headers: authHeaders() });
       if(!res.ok) return;
       const saved = await res.json();
       if(!saved || (!saved.char_offset && !saved.page)) return;

@@ -19,6 +19,7 @@ import analyticsRoutes from './routes/analytics.js';
 import devRoutes from './routes/dev.js';
 import readingRoutes from './routes/reading.js';
 import newsletterRoutes from './routes/newsletter.js';
+import telemetryRoutes from './routes/telemetry.js';
 import shippingRoutes from './routes/shipping.js';
 import webhookRoutes from './routes/webhooks.js';
 import { logAppError } from './lib/errorLog.js';
@@ -85,6 +86,10 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/dev', devRoutes);
 app.use('/api/reading', readingRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+// Public browser error reporting. Open on purpose, because the errors worth
+// knowing about happen to readers, not to the developer. Rate limited so it
+// cannot be used to flood the log.
+app.use('/api/telemetry', rateLimit({ windowMs: 60 * 1000, limit: 20, standardHeaders: 'draft-8', legacyHeaders: false }), telemetryRoutes);
 app.use('/api/shipping', shippingRoutes);
 
 app.get('/', (req, res) => res.json({
