@@ -775,6 +775,11 @@
     .brand small{display:none;}
   }
 
+  /* ---------- Admin row thumbnails ---------- */
+  .admin-thumb{display:block; width:40px; height:54px; border-radius:3px; background-size:cover;
+    background-position:center; background-color:var(--paper-dim); border:1px solid var(--line);}
+  .admin-thumb.no-cover{background:repeating-linear-gradient(45deg, var(--paper-dim) 0 6px, #e8e4d8 6px 12px);}
+
   /* ---------- Author dashboard ---------- */
   .dash-header{display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
     padding-bottom:22px; border-bottom:1px solid var(--line); margin-bottom:22px;}
@@ -1015,31 +1020,66 @@
 
   /* Views fade and lift slightly as they become active. */
 
-  /* Sections reveal as they scroll into range.
-     Three variants so a long page does not repeat one motion, and a stagger so
-     a grid arrives as a sequence rather than a block. The elements are only
-     hidden once the observer is known to be running: if anything goes wrong
-     the content stays visible, because an invisible page is far worse than a
-     missing animation. */
-  [data-reveal]{will-change:opacity, transform;}
-  html.reveal-ready [data-reveal]{opacity:0;}
-  html.reveal-ready [data-reveal="up"]{transform:translate3d(0, 34px, 0);}
-  html.reveal-ready [data-reveal="fade"]{transform:none;}
-  html.reveal-ready [data-reveal="scale"]{transform:scale(.94);}
-  html.reveal-ready [data-reveal="left"]{transform:translate3d(-28px, 0, 0);}
+  /* Sections reveal as they scroll into range, and settle back when they leave,
+     so scrolling up is as alive as scrolling down.
 
+     The motion is deliberately restrained: a short travel, a small scale, and a
+     touch of blur clearing as it arrives. Blur is what makes an entrance read as
+     focus rather than as a slide, and it is cheap because it animates on the
+     compositor alongside opacity and transform. Nothing animates width, height,
+     top or left, so no frame costs a layout. */
+  :root{
+    --spring: linear(0, .006, .025 2.8%, .101 6.1%, .539 18.9%, .721 25.3%, .849 31.5%,
+      .937 38.1%, .968 41.8%, .991 45.7%, 1.006 50.1%, 1.015 55%, 1.017 63.9%, 1.001 100%);
+    --glide: cubic-bezier(.16,.84,.44,1);
+  }
+
+  [data-reveal]{will-change:opacity, transform, filter;}
   html.reveal-ready [data-reveal]{
-    transition:opacity .7s cubic-bezier(.16,.84,.44,1), transform .7s cubic-bezier(.16,.84,.44,1);
+    opacity:0;
+    filter:blur(7px);
+    transition:opacity .62s var(--glide), transform .72s var(--spring), filter .62s var(--glide);
     transition-delay:var(--reveal-delay, 0ms);}
-  html.reveal-ready [data-reveal].is-in{opacity:1; transform:none;}
+  html.reveal-ready [data-reveal="up"]{transform:translate3d(0, 30px, 0) scale(.985);}
+  html.reveal-ready [data-reveal="fade"]{transform:scale(.99);}
+  html.reveal-ready [data-reveal="scale"]{transform:scale(.93);}
+  html.reveal-ready [data-reveal="left"]{transform:translate3d(-30px, 0, 0) scale(.99);}
+  html.reveal-ready [data-reveal="right"]{transform:translate3d(30px, 0, 0) scale(.99);}
 
-  /* Children of a revealed grid arrive one after another. */
-  html.reveal-ready [data-reveal-stagger] > *{opacity:0; transform:translate3d(0, 26px, 0);
-    transition:opacity .6s cubic-bezier(.16,.84,.44,1), transform .6s cubic-bezier(.16,.84,.44,1);}
-  html.reveal-ready [data-reveal-stagger].is-in > *{opacity:1; transform:none;}
+  html.reveal-ready [data-reveal].is-in{opacity:1; transform:none; filter:blur(0);}
 
-  /* The hero drifts very slightly as the page moves, for depth without parallax jitter. */
+  /* Leaving is quicker and softer than arriving, so scrolling back does not
+     feel like the page is fighting you. */
+  html.reveal-ready [data-reveal].is-out{
+    transition:opacity .34s var(--glide), transform .34s var(--glide), filter .34s var(--glide);}
+
+  html.reveal-ready [data-reveal-stagger] > *{
+    opacity:0; transform:translate3d(0, 22px, 0) scale(.985); filter:blur(5px);
+    transition:opacity .55s var(--glide), transform .65s var(--spring), filter .55s var(--glide);}
+  html.reveal-ready [data-reveal-stagger].is-in > *{opacity:1; transform:none; filter:blur(0);}
+
   .hero-content{will-change:transform;}
+
+  /* ---------- Scrollbar ----------
+     The default bar is a grey system artefact sitting against a warm page. This
+     is the same width, so nothing reflows, but it belongs to the site. */
+  html{scrollbar-width:thin; scrollbar-color:var(--sl-green) rgba(18,25,15,0.06);}
+  ::-webkit-scrollbar{width:11px; height:11px;}
+  ::-webkit-scrollbar-track{background:rgba(18,25,15,0.05);}
+  ::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, var(--sl-green), var(--sl-green-deep));
+    border-radius:20px; border:3px solid var(--paper); background-clip:padding-box;}
+  ::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg, var(--sl-green-bright), var(--sl-green)); background-clip:padding-box;}
+  ::-webkit-scrollbar-corner{background:transparent;}
+
+  /* A thin line across the top showing how far through the page you are. */
+  #scrollProgress{position:fixed; top:0; left:0; height:3px; width:0; z-index:300;
+    background:linear-gradient(90deg, var(--sl-green-bright), var(--gold), var(--sl-blue));
+    transition:width .08s linear; pointer-events:none;}
+
+  @media (prefers-reduced-motion: reduce){
+    #scrollProgress{display:none;}
+  }
 
   /* Buttons: a consistent lift, and a real press. */
   .btn{transition:transform var(--dur-fast) var(--ease-out), background var(--dur) var(--ease-soft),
@@ -1084,7 +1124,7 @@
     *, *::before, *::after{
       animation-duration:.001ms !important; animation-iteration-count:1 !important;
       transition-duration:.001ms !important; scroll-behavior:auto !important;}
-    html.reveal-ready [data-reveal], html.reveal-ready [data-reveal-stagger] > *{opacity:1 !important; transform:none !important;}
+    html.reveal-ready [data-reveal], html.reveal-ready [data-reveal-stagger] > *{opacity:1 !important; transform:none !important; filter:none !important;}
   }
 
   /* ---------- Hero install button ---------- */
@@ -2393,7 +2433,7 @@
           <div style="overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
               <thead><tr style="text-align:left; border-bottom:2px solid var(--line);">
-                <th style="padding:10px;">Title</th><th style="padding:10px;">Price</th><th style="padding:10px;">Actions</th>
+                <th style="padding:10px; width:56px;">Cover</th><th style="padding:10px;">Title</th><th style="padding:10px;">Price</th><th style="padding:10px;">Actions</th>
               </tr></thead>
               <tbody id="admin-books-table"></tbody>
             </table>
@@ -4789,39 +4829,18 @@
   });
 
   // ================= SCROLL REVEAL =================
-  // Elements fade and lift as they come into range.
+  // Elements arrive as they enter the viewport and settle back as they leave,
+  // so scrolling up is as alive as scrolling down. The observer is never
+  // detached, which is what made the first version a one way trip.
   //
-  // Two safeguards, because a reveal bug that leaves content invisible is much
-  // worse than no animation at all:
-  //   1. The hiding CSS only applies once `reveal-ready` is on <html>, which is
-  //      set from here. If this code never runs, nothing is ever hidden.
-  //   2. Anything still hidden after a few seconds is shown regardless.
+  // Two safeguards, because content stuck invisible is far worse than no
+  // animation: the hiding CSS only applies once this code has set a flag on
+  // <html>, and anything still hidden after a few seconds is shown regardless.
   (function scrollReveal(){
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if(reduced || !('IntersectionObserver' in window)) return;
 
     document.documentElement.classList.add('reveal-ready');
-
-    // Which motion suits which kind of block.
-    // The landing page lifts; other views use a different direction, so the
-    // same scroll does not feel identical everywhere.
-    const BY_VIEW = {
-      'view-books-catalog': 'left',
-      'view-book-mrp': 'left',
-      'view-book-mono': 'left',
-      'view-book-generic': 'left',
-      'view-essays': 'fade',
-      'view-essay-detail': 'fade',
-      'view-about': 'scale',
-      'view-bookclub': 'scale',
-      'view-events': 'left',
-      'view-gallery': 'scale',
-      'view-speaking': 'fade'
-    };
-    const viewKindFor = (el) => {
-      const view = el.closest('.view');
-      return view ? BY_VIEW[view.id] : null;
-    };
 
     const PLAN = [
       ['.section-head',      'up'],
@@ -4848,27 +4867,56 @@
     ];
     const STAGGER = ['.book-grid', '.essay-grid', '.cross-grid', '.video-grid-live', '.gallery-grid', '.stat-grid'];
 
+    // Alternating direction on repeated blocks, so a column of cards does not
+    // march in identically all the way down.
+    const BY_VIEW = {
+      'view-books-catalog': 'left', 'view-book-mrp': 'left', 'view-book-mono': 'left',
+      'view-book-generic': 'left', 'view-essays': 'fade', 'view-essay-detail': 'fade',
+      'view-about': 'scale', 'view-bookclub': 'scale', 'view-events': 'left',
+      'view-gallery': 'scale', 'view-speaking': 'fade'
+    };
+    const viewKindFor = (el) => {
+      const view = el.closest('.view');
+      return view ? BY_VIEW[view.id] : null;
+    };
+
     const io = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if(!entry.isIntersecting) return;
-        entry.target.classList.add('is-in');
-        io.unobserve(entry.target);
+        const el = entry.target;
+        if(entry.isIntersecting){
+          el.classList.remove('is-out');
+          el.classList.add('is-in');
+        } else if(el.classList.contains('is-in')) {
+          // Only reset once it is well clear, so a element sitting on the edge
+          // does not flicker in and out as the page settles.
+          const box = entry.boundingClientRect;
+          const past = box.top > window.innerHeight || box.bottom < 0;
+          if(past){
+            el.classList.add('is-out');
+            el.classList.remove('is-in');
+          }
+        }
       });
-    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.08 });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: [0, 0.08] });
 
+    let alternate = 0;
     function mark(root){
       PLAN.forEach(([selector, kind]) => {
         root.querySelectorAll(selector).forEach((el) => {
           if(el.dataset.reveal) return;
-          // A view specific motion wins, except for grids where a lift reads
-          // best regardless of which page they are on.
+          const isGrid = STAGGER.some(sel => el.matches(sel));
           const override = viewKindFor(el);
-          el.dataset.reveal = (override && !STAGGER.some(sel => el.matches(sel))) ? override : kind;
-          if(STAGGER.some(sel => el.matches(sel))){
+          let chosen = (override && !isGrid) ? override : kind;
+          // Cards in a long list alternate side, which reads as rhythm rather
+          // than repetition.
+          if(!isGrid && (el.matches('.cross-card') || el.matches('.identity-item') || el.matches('.writing-card'))){
+            chosen = (alternate++ % 2) ? 'right' : 'left';
+          }
+          el.dataset.reveal = chosen;
+          if(isGrid){
             el.setAttribute('data-reveal-stagger', '');
-            // Each child waits a little longer than the one before it.
             [...el.children].forEach((child, i) => {
-              child.style.transitionDelay = Math.min(i * 70, 560) + 'ms';
+              child.style.transitionDelay = Math.min(i * 65, 520) + 'ms';
             });
           }
           io.observe(el);
@@ -4878,30 +4926,39 @@
 
     mark(document);
 
-    // Content rendered after load, and views shown later, need marking too.
     const remark = () => mark(document);
     window.addEventListener('load', remark);
     window.addEventListener('hashchange', () => setTimeout(remark, 60));
     document.addEventListener('click', () => setTimeout(remark, 120));
 
-    // Anything inside a view that has just become active is on screen now, so
-    // reveal it rather than waiting for a scroll that may never come.
-    const activate = () => {
-      document.querySelectorAll('.view.active [data-reveal]').forEach(el => {
-        const box = el.getBoundingClientRect();
-        if(box.top < window.innerHeight * 0.95) el.classList.add('is-in');
-      });
-    };
-    window.addEventListener('scroll', activate, { passive: true });
-    setInterval(activate, 900);
-
-    // Last resort: never leave anything invisible.
+    // Never leave anything invisible.
     setTimeout(() => {
       document.querySelectorAll('[data-reveal]:not(.is-in)').forEach(el => {
         const box = el.getBoundingClientRect();
-        if(box.top < window.innerHeight * 1.5) el.classList.add('is-in');
+        if(box.top < window.innerHeight && box.bottom > 0) el.classList.add('is-in');
       });
     }, 2500);
+  })();
+
+  // ================= SCROLL PROGRESS =================
+  (function scrollProgress(){
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const bar = document.createElement('div');
+    bar.id = 'scrollProgress';
+    document.body.appendChild(bar);
+    let ticking = false;
+    const update = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = max > 0 ? ((window.scrollY / max) * 100) + '%' : '0%';
+      ticking = false;
+    };
+    window.addEventListener('scroll', () => {
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    }, { passive: true });
+    window.addEventListener('resize', update);
+    update();
   })();
 
   // A slow drift on the hero as the page scrolls. Transform only, so it never
@@ -5667,8 +5724,13 @@
     books.forEach(b => {
       const tr = document.createElement('tr');
       tr.style.borderBottom = '1px solid var(--line)';
-      tr.innerHTML = `<td style="padding:10px;">${b.title}</td><td style="padding:10px;">$${Number(b.price).toFixed(2)}</td>
+      tr.innerHTML = `<td style="padding:10px;"><span class="admin-thumb" data-thumb></span></td><td style="padding:10px;">${b.title}</td><td style="padding:10px;">$${Number(b.price).toFixed(2)}</td>
         <td style="padding:10px;"><a data-view-book="${b.id}" style="color:var(--sl-green-deep); font-weight:600; margin-right:14px; cursor:pointer;">View</a><a data-edit-book="${b.id}" style="color:var(--sl-blue); font-weight:600; margin-right:14px; cursor:pointer;">Edit</a><a data-delete-book="${b.id}" style="color:#b3261e; font-weight:600; cursor:pointer;">Delete</a></td>`;
+      // Seeing the cover beside the title makes the right row obvious at a
+      // glance, which matters once there is more than a handful of books.
+      const thumb = tr.querySelector('[data-thumb]');
+      if(b.cover_image_url) lazyLoadCover(thumb, b.cover_image_url);
+      else thumb.classList.add('no-cover');
       tbody.appendChild(tr);
     });
     tbody.querySelectorAll('[data-view-book]').forEach(el => el.addEventListener('click', () => openBook(el.dataset.viewBook)));
@@ -6802,7 +6864,7 @@
   renderAdminBooksTable = function(){
     origRenderAdminBooksTable();
     const tbody = document.getElementById('admin-books-table');
-    if(books.length === 0) tbody.innerHTML = '<tr><td colspan="3" style="padding:16px; color:var(--ink-soft);">No books yet. Add your first one below.</td></tr>';
+    if(books.length === 0) tbody.innerHTML = '<tr><td colspan="4" style="padding:16px; color:var(--ink-soft);">No books yet. Add your first one below.</td></tr>';
   };
   const origRenderAdminEssaysTable2 = renderAdminEssaysTable;
   renderAdminEssaysTable = function(){
