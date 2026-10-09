@@ -315,7 +315,7 @@
 
   /* ================= FOOTER ================= */
   footer{background:var(--ink); color:#e9ece6; padding:70px 0 30px;}
-  .footer-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px; margin-bottom:56px;}
+  .footer-grid{display:grid; grid-template-columns:1.4fr repeat(auto-fit, minmax(150px, 1fr)); gap:40px; margin-bottom:56px;}
   .footer-brand h3{color:#fff; font-family:'Fraunces',serif; font-size:1.4rem;}
   .footer-brand p{color:#a9b0a3; font-size:0.88rem; margin-top:14px; max-width:280px;}
   .footer-col h4{font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:#8fbf9a; margin-bottom:16px;}
@@ -567,7 +567,6 @@
     .menu-btn{display:block;}
     .book-grid{grid-template-columns:1fr;}
     .identity-grid{grid-template-columns:1fr;}
-    .footer-grid{grid-template-columns:1fr 1fr; gap:32px;}
     .hero-layout{grid-template-columns:1fr;}
     .cover-frame{position:static; max-width:320px; margin:0 auto;}
     .buy-box{position:static;}
@@ -671,6 +670,8 @@
   #consentBanner{padding-bottom:env(safe-area-inset-bottom, 0);}
   #installBanner{bottom:calc(16px + env(safe-area-inset-bottom, 0px));}
   .cart-bar{padding-bottom:calc(14px + env(safe-area-inset-bottom, 0px));}
+  .mini-player{padding-bottom:calc(14px + env(safe-area-inset-bottom, 0px));}
+  body.consent-open .mini-player{bottom:var(--consent-height, 120px);}
 
   body.consent-open #installBanner{bottom:calc(var(--consent-height, 120px) + 16px);}
   body.consent-open .cart-bar{bottom:var(--consent-height, 120px);}
@@ -773,6 +774,53 @@
   /* The catalogue used an inline column count, which a media query cannot
      override, so it stayed three wide on a phone. */
   .catalog-grid{grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));}
+
+  /* A few labels were set to never wrap, which is right on a wide screen and
+     wrong on a narrow one: a long outlet name or a price then pushes the page
+     sideways. They wrap below the phone breakpoint. */
+  @media(max-width:700px){
+    .press-row a{white-space:normal; overflow-wrap:anywhere;}
+    .chapter-action{white-space:normal; text-align:right;}
+    .an-row .ar-name{white-space:normal; overflow-wrap:anywhere;}
+    .mini-player{padding-left:14px; padding-right:14px; gap:10px; flex-wrap:wrap;}
+    .mini-player .mp-progress-wrap{flex:1 1 100%; order:3;}
+  }
+
+  /* ---------- Footer on small screens ----------
+     The columns were squeezed to a couple of words wide and the bottom row ran
+     to the very edge of the glass, with nothing clearing the home indicator. */
+  @media(max-width:700px){
+    footer{padding:48px 0 0;}
+    .footer-grid{grid-template-columns:1fr; gap:30px; margin-bottom:34px;}
+    .footer-brand p{max-width:none;}
+
+    /* Link columns read better as a two column block than as one long list. */
+    .footer-col{display:grid; grid-template-columns:1fr 1fr; gap:4px 16px;}
+    .footer-col h4{grid-column:1 / -1; margin-bottom:8px;}
+    .footer-col a{margin-bottom:7px; font-size:0.86rem;}
+
+    /* The bottom row stacked and given room to breathe, plus space below for
+       the iPhone home indicator so the last line is not under it. */
+    .footer-bottom{
+      flex-direction:column; align-items:flex-start; gap:14px;
+      text-align:left; line-height:1.7;
+      padding-top:20px;
+      padding-bottom:calc(22px + env(safe-area-inset-bottom, 0px));}
+    .footer-bottom > span{display:block; width:100%;}
+
+    .built-by{gap:7px; row-gap:4px;}
+    .built-by img{width:20px; height:20px;}
+
+    .news-form{max-width:none; width:100%;}
+    .nf-row{flex-wrap:wrap;}
+    .nf-row input{flex:1 1 100%;}
+    .nf-row .btn{width:100%;}
+  }
+
+  @media(max-width:380px){
+    /* At this width two link columns start to break words. */
+    .footer-col{grid-template-columns:1fr;}
+  }
 
   /* ---------- Dashboard layout ----------
      Sections run down the left on a laptop, where there is width to spare and a
