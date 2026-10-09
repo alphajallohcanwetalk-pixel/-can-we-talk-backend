@@ -774,6 +774,51 @@
      override, so it stayed three wide on a phone. */
   .catalog-grid{grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));}
 
+  /* ---------- Dashboard layout ----------
+     Sections run down the left on a laptop, where there is width to spare and a
+     persistent list means one click to anywhere. On a phone the same list wraps
+     above the content, because a sidebar would eat a third of the screen. */
+  .dash-body{display:grid; grid-template-columns:212px minmax(0, 1fr); gap:30px; align-items:start;}
+  .dash-nav{position:sticky; top:84px;}
+  .dash-content{min-width:0;}   /* lets wide tables scroll instead of stretching the grid */
+
+  .dash-body .dash-tabs{
+    display:flex; flex-direction:column; gap:3px;
+    border-bottom:0; padding-bottom:0; margin-bottom:0;}
+  .dash-body .dash-tabs .modal-tab{
+    flex:0 0 auto;
+    text-align:left;
+    padding:11px 14px;
+    border:0;
+    border-radius:7px;
+    border-left:3px solid transparent;
+    background:transparent;
+    white-space:normal;
+    font-size:0.88rem;
+    color:var(--ink-soft);
+    transition:background .18s var(--ease-soft), color .18s, border-color .18s;}
+  .dash-body .dash-tabs .modal-tab:hover{background:var(--paper-dim); color:var(--ink); transform:none;}
+  .dash-body .dash-tabs .modal-tab.active{
+    background:rgba(30,181,58,0.12); color:var(--sl-green-deep);
+    border-left-color:var(--sl-green-bright); font-weight:700;}
+
+  /* The first panel carried a top margin from when it sat under a tab strip. */
+  .dash-content .modal-panel{margin-top:0 !important;}
+
+  @media(max-width:900px){
+    /* One column, with the sections as wrapping chips above the content. */
+    .dash-body{grid-template-columns:1fr; gap:18px;}
+    .dash-nav{position:static;}
+    .dash-body .dash-tabs{
+      flex-direction:row; flex-wrap:wrap; gap:7px;
+      border-bottom:1px solid var(--line); padding-bottom:12px;}
+    .dash-body .dash-tabs .modal-tab{
+      border:1px solid var(--line); border-radius:20px; background:var(--paper);
+      padding:9px 14px; font-size:0.82rem; white-space:nowrap; text-align:center;}
+    .dash-body .dash-tabs .modal-tab.active{
+      background:var(--sl-green-deep); color:#fff; border-color:var(--sl-green-deep);}
+  }
+
   /* ---------- Admin row thumbnails ---------- */
   .admin-thumb{display:block; width:40px; height:54px; border-radius:3px; background-size:cover;
     background-position:center; background-color:var(--paper-dim); border:1px solid var(--line);}
@@ -2369,380 +2414,385 @@
 
         <div class="dash-stats" id="dashStats"></div>
 
-        <div class="modal-tabs dash-tabs">
-          <div class="modal-tab active" data-admin-tab="analytics">Overview</div>
-          <div class="modal-tab" data-admin-tab="books">Books</div>
-          <div class="modal-tab" data-admin-tab="essays">Essays</div>
-          <div class="modal-tab" data-admin-tab="audio">Audiobooks</div>
-          <div class="modal-tab" data-admin-tab="settings">Site and postage</div>
-          <div class="modal-tab" data-admin-tab="moderation" id="moderationTab">Reader comments</div>
-          <div class="modal-tab" data-admin-tab="security" id="securityTab">Security</div>
-          <div class="modal-tab" data-admin-tab="developer" id="devTab" style="display:none;">Developer</div>
-        </div>
+        <div class="dash-body">
+          <nav class="dash-nav" aria-label="Dashboard sections">
+          <div class="modal-tabs dash-tabs">
+            <div class="modal-tab active" data-admin-tab="analytics">Overview</div>
+            <div class="modal-tab" data-admin-tab="books">Books</div>
+            <div class="modal-tab" data-admin-tab="essays">Essays</div>
+            <div class="modal-tab" data-admin-tab="audio">Audiobooks</div>
+            <div class="modal-tab" data-admin-tab="settings">Site and postage</div>
+            <div class="modal-tab" data-admin-tab="moderation" id="moderationTab">Reader comments</div>
+            <div class="modal-tab" data-admin-tab="security" id="securityTab">Security</div>
+            <div class="modal-tab" data-admin-tab="developer" id="devTab" style="display:none;">Developer</div>
+          </div>
+          </nav>
 
-        <!-- ANALYTICS -->
-        <div class="modal-panel active" id="admin-panel-analytics" style="display:flex; flex-direction:column; gap:26px; margin-top:30px;">
-          <div class="an-head">
+          <div class="dash-content">
+          <div class="modal-panel active" id="admin-panel-analytics" style="display:flex; flex-direction:column; gap:26px; margin-top:30px;">
+            <div class="an-head">
+              <div>
+                <h3 style="font-family:'Fraunces',serif; font-size:1.3rem;">Performance overview</h3>
+                <p style="color:var(--ink-soft); font-size:0.85rem;" id="anGeneratedAt">Loading your numbers…</p>
+              </div>
+              <button class="btn btn-sm btn-outline-dark" id="anRefresh">Refresh</button>
+            </div>
+  
+            <div class="stat-grid" id="anStatGrid"></div>
+  
+            <div class="an-cols">
+              <div class="an-card">
+                <h4>Revenue by month</h4>
+                <div id="anRevenueChart" class="bar-chart"></div>
+              </div>
+              <div class="an-card">
+                <h4>Rating breakdown</h4>
+                <div id="anRatingChart" class="bar-chart"></div>
+              </div>
+            </div>
+  
+            <div class="an-cols">
+              <div class="an-card">
+                <h4>Best selling books</h4>
+                <div id="anBestSellers" class="an-list"></div>
+              </div>
+              <div class="an-card">
+                <h4>Format mix</h4>
+                <div id="anFormats" class="an-list"></div>
+              </div>
+            </div>
+  
+            <div class="an-cols">
+              <div class="an-card">
+                <h4>Top rated books</h4>
+                <div id="anTopBooks" class="an-list"></div>
+              </div>
+              <div class="an-card">
+                <h4>Top rated essays</h4>
+                <div id="anTopEssays" class="an-list"></div>
+              </div>
+            </div>
+  
+            <div class="an-cols">
+              <div class="an-card">
+                <h4>Audiobook chapters</h4>
+                <div id="anAudio" class="an-list"></div>
+              </div>
+              <div class="an-card">
+                <h4>Top customers</h4>
+                <div id="anCustomers" class="an-list"></div>
+              </div>
+            </div>
+  
+            <div class="an-card">
+              <h4>Recent orders</h4>
+              <div id="anRecentOrders" class="an-list"></div>
+            </div>
+  
+            <div class="an-card" id="anHealthCard">
+              <h4>Needs your attention</h4>
+              <div id="anHealth" class="an-list"></div>
+            </div>
+          </div>
+  
+          <!-- BOOKS ADMIN -->
+          <div class="modal-panel" id="admin-panel-books" style="flex-direction:column; gap:30px; margin-top:30px;">
+            <div style="overflow-x:auto;">
+              <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
+                <thead><tr style="text-align:left; border-bottom:2px solid var(--line);">
+                  <th style="padding:10px; width:56px;">Cover</th><th style="padding:10px;">Title</th><th style="padding:10px;">Price</th><th style="padding:10px;">Actions</th>
+                </tr></thead>
+                <tbody id="admin-books-table"></tbody>
+              </table>
+            </div>
+  
+            <div style="border:1px solid var(--line); border-radius:6px; padding:24px; background:var(--paper-dim); max-width:560px;">
+              <h3 style="font-size:1.05rem; margin-bottom:16px;" id="bookFormHeading">+ Add New Book</h3>
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div class="field"><label>Title</label><input type="text" id="newBookTitle" placeholder="Book title"></div>
+                <div class="field"><label>Subtitle</label><input type="text" id="newBookSubtitle" placeholder="Subtitle"></div>
+                <div class="field"><label>Price (USD), paperback</label><input type="number" id="newBookPrice" placeholder="19.99" step="0.01"></div>
+                <div class="field">
+                  <label>Also sell as</label>
+                  <div class="format-setup">
+                    <label class="fs-row"><input type="checkbox" id="newBookHardcover"> Hardcover
+                      <input type="number" id="newBookHardcoverPrice" step="0.01" placeholder="34.99"></label>
+                    <label class="fs-row"><input type="checkbox" id="newBookEbook"> eBook
+                      <input type="number" id="newBookEbookPrice" step="0.01" placeholder="12.99"></label>
+                  </div>
+                  <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">
+                    Tick a format and give it a price. It goes on sale straight away. Nothing needs setting up in Stripe.
+                  </div>
+                </div>
+                <div class="field"><label>Description</label><textarea id="newBookDescription" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="What is this book about?"></textarea></div>
+                <div class="field"><label>eBook text</label><textarea id="newBookReaderText" style="min-height:180px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Paste the full eBook text. Separate pages or sections with a blank line."></textarea></div>
+                <div class="field"><label>Upload eBook file</label><input type="file" id="newBookReaderFile" accept=".txt,.epub,.pdf,text/plain,application/epub+zip,application/pdf"></div>
+                <div class="field"><label>Front cover image</label><input type="file" id="newBookCover" accept="image/*"></div>
+                <div class="field"><label>Back cover image</label><input type="file" id="newBookBackCover" accept="image/*"></div>
+                <div class="field"><label>Launch / gallery photos (up to 6)</label><input type="file" id="newBookGallery" accept="image/*" multiple></div>
+                <div class="book-meta-fields">
+                  <div class="field"><label>ISBN</label><input type="text" id="newBookIsbn" placeholder="978-0-000000-0-0"></div>
+                  <div class="field"><label>Publisher</label><input type="text" id="newBookPublisher" placeholder="Publisher name"></div>
+                  <div class="field"><label>Publication date</label><input type="date" id="newBookPubDate"></div>
+                  <div class="field"><label>Pages</label><input type="number" id="newBookPages" min="1" placeholder="248"></div>
+                  <div class="field"><label>Language</label><input type="text" id="newBookLanguage" placeholder="English"></div>
+                  <div class="field"><label>Genre</label><input type="text" id="newBookGenre" placeholder="Nonfiction, Politics"></div>
+                  <div class="field"><label>Edition</label><input type="text" id="newBookEdition" placeholder="First edition"></div>
+                  <div class="field"><label>Free sample (words)</label><input type="number" id="newBookSampleWords" min="0" step="50" placeholder="0">
+                    <div style="font-size:0.72rem; color:var(--ink-soft); margin-top:5px;">How much anyone may read before buying. 0 means none.</div>
+                  </div>
+                </div>
+                <div class="field"><label>Video links (one per line)</label>
+                  <textarea id="newBookVideos" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="https://www.youtube.com/watch?v=...&#10;https://vimeo.com/...&#10;https://.../launch.mp4"></textarea>
+                  <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Paste YouTube or Vimeo links straight from the address bar, or a direct video file link. They play on the book page.</div>
+                </div>
+                <div class="field"><label>Upload a video file</label><input type="file" id="newBookVideoFile" accept="video/mp4,video/webm,video/ogg,video/quicktime">
+                  <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Up to 500 MB. For long films, a YouTube link streams better and costs nothing.</div>
+                </div>
+                <button class="btn btn-dark" id="addBookBtn" style="align-self:flex-start;">Publish Book</button>
+                <button class="btn btn-outline-dark" id="cancelBookEditBtn" style="display:none;">Cancel Edit</button>
+              </div>
+            </div>
+  
+            <!-- FORMATS & PRICING (only shown while editing an existing book) -->
+            <div id="bookFormatsPanel" style="display:none; border:1px solid var(--line); border-radius:6px; padding:24px; background:var(--paper-dim); max-width:560px;">
+              <h3 style="font-size:1.05rem; margin-bottom:16px;">Formats &amp; Pricing</h3>
+              <div id="bookFormatsList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;"></div>
+              <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+                <div class="field" style="flex:1; min-width:140px;"><label>Format</label>
+                  <select id="newFormatName"><option>Paperback</option><option>Hardcover</option><option>eBook</option><option>Audiobook</option></select>
+                </div>
+                <div class="field" style="width:120px;"><label>Price (USD)</label><input type="number" id="newFormatPrice" step="0.01" placeholder="19.99"></div>
+                <button class="btn btn-sm btn-dark" id="addFormatBtn">Add Format</button>
+              </div>
+            </div>
+  
+            <!-- MEDIA COVERAGE (only shown while editing an existing book) -->
+            <div id="bookMediaPanel" style="display:none; border:1px solid var(--line); border-radius:6px; padding:24px; background:var(--paper-dim); max-width:560px;">
+              <h3 style="font-size:1.05rem; margin-bottom:16px;">Media Coverage</h3>
+              <div id="bookMediaList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;"></div>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <div class="field"><label>Outlet name</label><input type="text" id="newMediaOutlet" placeholder="e.g. BBC Africa"></div>
+                <div class="field"><label>Headline</label><input type="text" id="newMediaHeadline" placeholder="Headline about the coverage"></div>
+                <div class="field"><label>Link URL</label><input type="text" id="newMediaUrl" placeholder="https://..."></div>
+                <div class="field"><label>Type</label><select id="newMediaType"><option value="article">Article</option><option value="video">Video</option></select></div>
+                <button class="btn btn-sm btn-dark" id="addMediaBtn" style="align-self:flex-start;">Add Coverage</button>
+              </div>
+            </div>
+          </div>
+  
+          <!-- ESSAYS ADMIN -->
+          <div class="modal-panel" id="admin-panel-essays" style="flex-direction:column; gap:30px; margin-top:30px;">
+            <div style="overflow-x:auto;">
+              <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
+                <thead><tr style="text-align:left; border-bottom:2px solid var(--line);">
+                  <th style="padding:10px;">Title</th><th style="padding:10px;">Category</th><th style="padding:10px;">Year</th><th style="padding:10px;">Actions</th>
+                </tr></thead>
+                <tbody id="admin-essays-table"></tbody>
+              </table>
+            </div>
+  
+            <div style="border:1px solid var(--line); border-radius:6px; padding:24px; background:var(--paper-dim); max-width:560px;">
+              <h3 style="font-size:1.05rem; margin-bottom:16px;" id="essayFormHeading">+ Add New Essay</h3>
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div class="field"><label>Title</label><input type="text" id="newEssayTitle" placeholder="Essay title"></div>
+                <div class="field"><label>Category</label>
+                  <select id="newEssayCategory">
+                    <option>Leadership and Power</option><option>Sierra Leone</option><option>Africa</option>
+                    <option>Human Rights and Justice</option><option>Democracy and Governance</option><option>Youth and the Future</option>
+                    <option>Peace and Conflict</option><option>Society and Inequality</option><option>Human Relationships</option>
+                    <option>Diaspora and Migration</option><option>Personal Reflections</option><option>Life and Morality</option><option>The Misfit Essays</option>
+                  </select>
+                </div>
+                <div class="field"><label>Year</label><input type="number" id="newEssayYear" placeholder="2026"></div>
+                <div class="field"><label>Excerpt</label><textarea id="newEssayExcerpt" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="A short summary for the library card"></textarea></div>
+                <div class="field"><label>Full essay text (optional, shown on the essay's own page)</label><textarea id="newEssayFullText" style="min-height:120px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Paste the full essay here. Leave blank to show just the excerpt for now."></textarea></div>
+                <div class="field"><label>Cover image</label><input type="file" id="newEssayCover" accept="image/*"></div>
+                <button class="btn btn-dark" id="addEssayBtn" style="align-self:flex-start;">Publish Essay</button>
+                <button class="btn btn-outline-dark" id="cancelEssayEditBtn" style="display:none;">Cancel Edit</button>
+              </div>
+            </div>
+          </div>
+          <!-- AUDIOBOOKS ADMIN -->
+          <div class="modal-panel" id="admin-panel-audio" style="flex-direction:column; gap:30px; margin-top:30px;">
+            <div style="border:1px solid var(--line); border-radius:6px; padding:24px; background:var(--paper-dim); max-width:560px;">
+              <h3 style="font-size:1.05rem; margin-bottom:16px;">+ Add Narrated Chapter</h3>
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div class="field"><label>Book</label>
+                  <select id="newChapterBook"><option value="mrp">Mr. President, Can We Talk?</option><option value="mono">Monopoly of Happiness</option></select>
+                </div>
+                <div class="field"><label>Chapter title</label><input type="text" id="newChapterTitle" placeholder="e.g. Chapter 3: The Weight of Silence"></div>
+                <div class="field"><label>Duration (mm:ss)</label><input type="text" id="newChapterDuration" placeholder="8:24"></div>
+                <div class="field"><label>Price (USD)</label><input type="number" id="newChapterPrice" step="0.01" placeholder="2.99"></div>
+                <div class="field"><label>Narration audio file</label><input type="file" id="newChapterFile" accept="audio/*">
+                  <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Uploaded straight to private storage. Listeners only ever get a link that expires after an hour, and only once they have bought the chapter.</div>
+                </div>
+                <button class="btn btn-dark" id="addChapterBtn" style="align-self:flex-start;">Publish Chapter</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
+                <thead><tr style="text-align:left; border-bottom:2px solid var(--line);"><th style="padding:10px;">Chapter</th><th style="padding:10px;">Book</th><th style="padding:10px;">Duration</th><th style="padding:10px;">Price</th><th style="padding:10px;">Actions</th></tr></thead>
+                <tbody id="admin-audio-table"></tbody>
+              </table>
+            </div>
+          </div>
+  
+          <!-- SITE SETTINGS -->
+          <div class="modal-panel" id="admin-panel-settings" style="flex-direction:column; gap:20px; margin-top:30px; max-width:520px;">
+            <div class="section-head" style="margin-bottom:0;">
+              <span class="eyebrow">About Page</span>
+              <h3 style="font-size:1.05rem; margin-top:8px;">Author bio &amp; photo</h3>
+            </div>
+            <div class="field"><label>Bio text (shown on the About page)</label><textarea id="settingsBio" style="min-height:120px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Write the author bio shown on the About page"></textarea></div>
+            <div class="modal-error" id="settingsBioError">Something went wrong.</div>
+            <div class="modal-ok" id="settingsBioOk">Bio saved.</div>
+            <button class="btn btn-dark" id="saveBioBtn" style="align-self:flex-start;">Save bio</button>
+  
+            <div class="field" style="margin-top:8px;"><label>Author photo</label>
+              <input type="file" id="settingsPhoto" accept="image/jpeg,image/png,image/webp">
+              <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">
+                JPG, PNG or WebP, up to 10 MB. iPhone photos save as HEIC by default, which will not upload:
+                in Settings, Camera, Formats, choose Most Compatible, or send the photo to yourself first to convert it.
+              </div>
+              <div class="photo-preview" id="settingsPhotoPreview" style="display:none;"></div>
+            </div>
+            <div class="modal-error" id="settingsPhotoError">Something went wrong.</div>
+            <div class="modal-ok" id="settingsPhotoOk">Photo saved. It now appears across the site.</div>
+            <button class="btn btn-dark" id="savePhotoBtn" style="align-self:flex-start;">Save photo</button>
+  
+            <div class="section-head" style="margin-bottom:0; margin-top:10px;">
+              <span class="eyebrow">Social Links</span>
+              <h3 style="font-size:1.05rem; margin-top:8px;">Shown in the site footer</h3>
+              <p style="font-size:0.85rem; color:var(--ink-soft); margin-top:6px;">Leave any field blank to hide that icon from the footer.</p>
+            </div>
+            <div class="field"><label>Instagram URL</label><input type="text" id="settingsInstagram" placeholder="https://instagram.com/..."></div>
+            <div class="field"><label>Facebook URL</label><input type="text" id="settingsFacebook" placeholder="https://facebook.com/..."></div>
+            <div class="field"><label>X (Twitter) URL</label><input type="text" id="settingsTwitter" placeholder="https://x.com/..."></div>
+            <div class="field"><label>YouTube URL</label><input type="text" id="settingsYoutube" placeholder="https://youtube.com/..."></div>
+            <div class="field"><label>TikTok URL</label><input type="text" id="settingsTiktok" placeholder="https://tiktok.com/..."></div>
+            <div class="modal-error" id="settingsSocialError">Something went wrong.</div>
+            <div class="modal-ok" id="settingsSocialOk">Social links saved.</div>
+            <button class="btn btn-dark" id="saveSettingsBtn" style="align-self:flex-start;">Save social links</button>
+  
+            <div class="section-head" style="margin-bottom:0; margin-top:30px;">
+              <span class="eyebrow">Postage</span>
+              <h3 style="font-size:1.05rem; margin-top:8px;">Shipping rates by destination</h3>
+              <p style="font-size:0.85rem; color:var(--ink-soft); margin-top:6px;">
+                What a reader pays to have a printed book posted. Set a free postage threshold, or leave it blank for none.
+                The last row, Everywhere else, is the fallback for any country not listed. Do not delete it.
+              </p>
+            </div>
+            <div id="shippingRates" class="an-list"></div>
+          </div>
+  
+          <!-- COMMENT MODERATION -->
+          <div class="modal-panel" id="admin-panel-moderation" style="flex-direction:column; gap:18px; margin-top:30px;">
+            <div class="an-head">
+              <div>
+                <h3 style="font-family:'Fraunces',serif; font-size:1.3rem;">Reader comments</h3>
+                <p style="color:var(--ink-soft); font-size:0.85rem;" id="modStatus">Loading…</p>
+              </div>
+              <button class="btn btn-sm btn-outline-dark" id="modRefresh">Refresh</button>
+            </div>
+            <div id="modList"></div>
+          </div>
+  
+          <!-- SECURITY / TWO FACTOR -->
+          <div class="modal-panel" id="admin-panel-security" style="flex-direction:column; gap:22px; margin-top:30px; max-width:560px;">
             <div>
-              <h3 style="font-family:'Fraunces',serif; font-size:1.3rem;">Performance overview</h3>
-              <p style="color:var(--ink-soft); font-size:0.85rem;" id="anGeneratedAt">Loading your numbers…</p>
+              <h3 style="font-family:'Fraunces',serif; font-size:1.3rem;">Two factor authentication</h3>
+              <p style="color:var(--ink-soft); font-size:0.88rem; margin-top:8px; line-height:1.65;">
+                A second factor means a stolen password is not enough to publish books, change prices or read your error logs.
+                You will need an authenticator app such as Google Authenticator, Microsoft Authenticator or 1Password.
+              </p>
             </div>
-            <button class="btn btn-sm btn-outline-dark" id="anRefresh">Refresh</button>
-          </div>
-
-          <div class="stat-grid" id="anStatGrid"></div>
-
-          <div class="an-cols">
-            <div class="an-card">
-              <h4>Revenue by month</h4>
-              <div id="anRevenueChart" class="bar-chart"></div>
-            </div>
-            <div class="an-card">
-              <h4>Rating breakdown</h4>
-              <div id="anRatingChart" class="bar-chart"></div>
-            </div>
-          </div>
-
-          <div class="an-cols">
-            <div class="an-card">
-              <h4>Best selling books</h4>
-              <div id="anBestSellers" class="an-list"></div>
-            </div>
-            <div class="an-card">
-              <h4>Format mix</h4>
-              <div id="anFormats" class="an-list"></div>
-            </div>
-          </div>
-
-          <div class="an-cols">
-            <div class="an-card">
-              <h4>Top rated books</h4>
-              <div id="anTopBooks" class="an-list"></div>
-            </div>
-            <div class="an-card">
-              <h4>Top rated essays</h4>
-              <div id="anTopEssays" class="an-list"></div>
-            </div>
-          </div>
-
-          <div class="an-cols">
-            <div class="an-card">
-              <h4>Audiobook chapters</h4>
-              <div id="anAudio" class="an-list"></div>
-            </div>
-            <div class="an-card">
-              <h4>Top customers</h4>
-              <div id="anCustomers" class="an-list"></div>
-            </div>
-          </div>
-
-          <div class="an-card">
-            <h4>Recent orders</h4>
-            <div id="anRecentOrders" class="an-list"></div>
-          </div>
-
-          <div class="an-card" id="anHealthCard">
-            <h4>Needs your attention</h4>
-            <div id="anHealth" class="an-list"></div>
-          </div>
-        </div>
-
-        <!-- BOOKS ADMIN -->
-        <div class="modal-panel" id="admin-panel-books" style="flex-direction:column; gap:30px; margin-top:30px;">
-          <div style="overflow-x:auto;">
-            <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
-              <thead><tr style="text-align:left; border-bottom:2px solid var(--line);">
-                <th style="padding:10px; width:56px;">Cover</th><th style="padding:10px;">Title</th><th style="padding:10px;">Price</th><th style="padding:10px;">Actions</th>
-              </tr></thead>
-              <tbody id="admin-books-table"></tbody>
-            </table>
-          </div>
-
-          <div style="border:1px solid var(--line); border-radius:6px; padding:24px; background:var(--paper-dim); max-width:560px;">
-            <h3 style="font-size:1.05rem; margin-bottom:16px;" id="bookFormHeading">+ Add New Book</h3>
-            <div style="display:flex; flex-direction:column; gap:12px;">
-              <div class="field"><label>Title</label><input type="text" id="newBookTitle" placeholder="Book title"></div>
-              <div class="field"><label>Subtitle</label><input type="text" id="newBookSubtitle" placeholder="Subtitle"></div>
-              <div class="field"><label>Price (USD), paperback</label><input type="number" id="newBookPrice" placeholder="19.99" step="0.01"></div>
-              <div class="field">
-                <label>Also sell as</label>
-                <div class="format-setup">
-                  <label class="fs-row"><input type="checkbox" id="newBookHardcover"> Hardcover
-                    <input type="number" id="newBookHardcoverPrice" step="0.01" placeholder="34.99"></label>
-                  <label class="fs-row"><input type="checkbox" id="newBookEbook"> eBook
-                    <input type="number" id="newBookEbookPrice" step="0.01" placeholder="12.99"></label>
-                </div>
-                <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">
-                  Tick a format and give it a price. It goes on sale straight away. Nothing needs setting up in Stripe.
-                </div>
+  
+            <div class="an-card" id="mfaStatusCard">
+              <h4>Status</h4>
+              <div id="mfaStatus" class="an-list"><p class="an-empty">Checking…</p></div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+                <button class="btn btn-sm btn-dark" id="mfaEnrollBtn">Turn on two factor</button>
+                <button class="btn btn-sm btn-outline-dark" id="mfaDisableBtn" style="display:none; color:#b3261e;">Turn off</button>
               </div>
-              <div class="field"><label>Description</label><textarea id="newBookDescription" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="What is this book about?"></textarea></div>
-              <div class="field"><label>eBook text</label><textarea id="newBookReaderText" style="min-height:180px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Paste the full eBook text. Separate pages or sections with a blank line."></textarea></div>
-              <div class="field"><label>Upload eBook file</label><input type="file" id="newBookReaderFile" accept=".txt,.epub,.pdf,text/plain,application/epub+zip,application/pdf"></div>
-              <div class="field"><label>Front cover image</label><input type="file" id="newBookCover" accept="image/*"></div>
-              <div class="field"><label>Back cover image</label><input type="file" id="newBookBackCover" accept="image/*"></div>
-              <div class="field"><label>Launch / gallery photos (up to 6)</label><input type="file" id="newBookGallery" accept="image/*" multiple></div>
-              <div class="book-meta-fields">
-                <div class="field"><label>ISBN</label><input type="text" id="newBookIsbn" placeholder="978-0-000000-0-0"></div>
-                <div class="field"><label>Publisher</label><input type="text" id="newBookPublisher" placeholder="Publisher name"></div>
-                <div class="field"><label>Publication date</label><input type="date" id="newBookPubDate"></div>
-                <div class="field"><label>Pages</label><input type="number" id="newBookPages" min="1" placeholder="248"></div>
-                <div class="field"><label>Language</label><input type="text" id="newBookLanguage" placeholder="English"></div>
-                <div class="field"><label>Genre</label><input type="text" id="newBookGenre" placeholder="Nonfiction, Politics"></div>
-                <div class="field"><label>Edition</label><input type="text" id="newBookEdition" placeholder="First edition"></div>
-                <div class="field"><label>Free sample (words)</label><input type="number" id="newBookSampleWords" min="0" step="50" placeholder="0">
-                  <div style="font-size:0.72rem; color:var(--ink-soft); margin-top:5px;">How much anyone may read before buying. 0 means none.</div>
-                </div>
+            </div>
+  
+            <div class="an-card" id="mfaEnrollCard" style="display:none;">
+              <h4>Scan this with your authenticator app</h4>
+              <div id="mfaQr" style="text-align:center; padding:12px 0;"></div>
+              <p style="font-size:0.8rem; color:var(--ink-soft); text-align:center;">
+                Cannot scan? Enter this key by hand:
+              </p>
+              <div id="mfaSecret" style="text-align:center; font-family:'IBM Plex Mono',monospace; font-size:0.86rem;
+                   word-break:break-all; background:var(--paper-dim); padding:10px 12px; border-radius:6px; margin:8px 0 16px;"></div>
+              <div class="field"><label for="mfaEnrollCode">Enter the 6 digit code it shows</label>
+                <input type="text" id="mfaEnrollCode" inputmode="numeric" maxlength="6" placeholder="123456"
+                       style="letter-spacing:0.4em; font-family:'IBM Plex Mono',monospace;"></div>
+              <div class="modal-error" id="mfaEnrollError" style="margin-top:10px;">That code was not accepted.</div>
+              <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+                <button class="btn btn-sm btn-dark" id="mfaConfirmBtn">Confirm and turn on</button>
+                <button class="btn btn-sm btn-outline-dark" id="mfaCancelEnrollBtn">Cancel</button>
               </div>
-              <div class="field"><label>Video links (one per line)</label>
-                <textarea id="newBookVideos" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="https://www.youtube.com/watch?v=...&#10;https://vimeo.com/...&#10;https://.../launch.mp4"></textarea>
-                <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Paste YouTube or Vimeo links straight from the address bar, or a direct video file link. They play on the book page.</div>
+            </div>
+  
+            <div class="an-card">
+              <h4>Good practice</h4>
+              <div class="an-list" style="font-size:0.85rem; color:var(--ink-soft); line-height:1.7;">
+                <div>Keep a backup of the setup key somewhere safe and offline. Losing the phone without it means losing access.</div>
+                <div>Turn this on for the author account first. That is the one that can change prices and publish content.</div>
+                <div>Once it is on, the API enforces it too, not just this page.</div>
               </div>
-              <div class="field"><label>Upload a video file</label><input type="file" id="newBookVideoFile" accept="video/mp4,video/webm,video/ogg,video/quicktime">
-                <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Up to 500 MB. For long films, a YouTube link streams better and costs nothing.</div>
-              </div>
-              <button class="btn btn-dark" id="addBookBtn" style="align-self:flex-start;">Publish Book</button>
-              <button class="btn btn-outline-dark" id="cancelBookEditBtn" style="display:none;">Cancel Edit</button>
             </div>
           </div>
-
-          <!-- FORMATS & PRICING (only shown while editing an existing book) -->
-          <div id="bookFormatsPanel" style="display:none; border:1px solid var(--line); border-radius:6px; padding:24px; background:var(--paper-dim); max-width:560px;">
-            <h3 style="font-size:1.05rem; margin-bottom:16px;">Formats &amp; Pricing</h3>
-            <div id="bookFormatsList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;"></div>
-            <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
-              <div class="field" style="flex:1; min-width:140px;"><label>Format</label>
-                <select id="newFormatName"><option>Paperback</option><option>Hardcover</option><option>eBook</option><option>Audiobook</option></select>
+  
+          <!-- DEVELOPER DIAGNOSTICS -->
+          <div class="modal-panel" id="admin-panel-developer" style="flex-direction:column; gap:22px; margin-top:30px;">
+            <div class="an-head">
+              <div>
+                <h3 style="font-family:'Fraunces',serif; font-size:1.3rem;">Developer diagnostics</h3>
+                <p style="color:var(--ink-soft); font-size:0.85rem;" id="devStatusLine">Loading system state…</p>
               </div>
-              <div class="field" style="width:120px;"><label>Price (USD)</label><input type="number" id="newFormatPrice" step="0.01" placeholder="19.99"></div>
-              <button class="btn btn-sm btn-dark" id="addFormatBtn">Add Format</button>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-sm btn-outline-dark" id="devRefresh">Refresh</button>
+                <button class="btn btn-sm btn-outline-dark" id="devClearErrors" style="color:#b3261e;">Clear log</button>
+              </div>
             </div>
-          </div>
-
-          <!-- MEDIA COVERAGE (only shown while editing an existing book) -->
-          <div id="bookMediaPanel" style="display:none; border:1px solid var(--line); border-radius:6px; padding:24px; background:var(--paper-dim); max-width:560px;">
-            <h3 style="font-size:1.05rem; margin-bottom:16px;">Media Coverage</h3>
-            <div id="bookMediaList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;"></div>
-            <div style="display:flex; flex-direction:column; gap:10px;">
-              <div class="field"><label>Outlet name</label><input type="text" id="newMediaOutlet" placeholder="e.g. BBC Africa"></div>
-              <div class="field"><label>Headline</label><input type="text" id="newMediaHeadline" placeholder="Headline about the coverage"></div>
-              <div class="field"><label>Link URL</label><input type="text" id="newMediaUrl" placeholder="https://..."></div>
-              <div class="field"><label>Type</label><select id="newMediaType"><option value="article">Article</option><option value="video">Video</option></select></div>
-              <button class="btn btn-sm btn-dark" id="addMediaBtn" style="align-self:flex-start;">Add Coverage</button>
+  
+            <div class="an-card">
+              <h4>System checks</h4>
+              <div id="devChecks" class="an-list"></div>
             </div>
-          </div>
-        </div>
-
-        <!-- ESSAYS ADMIN -->
-        <div class="modal-panel" id="admin-panel-essays" style="flex-direction:column; gap:30px; margin-top:30px;">
-          <div style="overflow-x:auto;">
-            <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
-              <thead><tr style="text-align:left; border-bottom:2px solid var(--line);">
-                <th style="padding:10px;">Title</th><th style="padding:10px;">Category</th><th style="padding:10px;">Year</th><th style="padding:10px;">Actions</th>
-              </tr></thead>
-              <tbody id="admin-essays-table"></tbody>
-            </table>
-          </div>
-
-          <div style="border:1px solid var(--line); border-radius:6px; padding:24px; background:var(--paper-dim); max-width:560px;">
-            <h3 style="font-size:1.05rem; margin-bottom:16px;" id="essayFormHeading">+ Add New Essay</h3>
-            <div style="display:flex; flex-direction:column; gap:12px;">
-              <div class="field"><label>Title</label><input type="text" id="newEssayTitle" placeholder="Essay title"></div>
-              <div class="field"><label>Category</label>
-                <select id="newEssayCategory">
-                  <option>Leadership and Power</option><option>Sierra Leone</option><option>Africa</option>
-                  <option>Human Rights and Justice</option><option>Democracy and Governance</option><option>Youth and the Future</option>
-                  <option>Peace and Conflict</option><option>Society and Inequality</option><option>Human Relationships</option>
-                  <option>Diaspora and Migration</option><option>Personal Reflections</option><option>Life and Morality</option><option>The Misfit Essays</option>
+  
+            <div class="an-cols">
+              <div class="an-card">
+                <h4>Runtime</h4>
+                <div id="devRuntime" class="an-list"></div>
+              </div>
+              <div class="an-card">
+                <h4>Table row counts</h4>
+                <div id="devCounts" class="an-list"></div>
+              </div>
+            </div>
+  
+            <div class="an-card">
+              <h4>Errors, last 7 days</h4>
+              <div id="devErrorSummary" class="an-list" style="margin-bottom:16px;"></div>
+              <div class="dev-filter">
+                <label style="font-size:0.78rem; color:var(--ink-soft);">Level</label>
+                <select id="devLevelFilter" style="padding:7px 10px; border:1px solid var(--line); border-radius:5px; font-size:0.82rem;">
+                  <option value="">All</option>
+                  <option value="error">Error</option>
+                  <option value="warn">Warning</option>
+                  <option value="info">Info</option>
                 </select>
               </div>
-              <div class="field"><label>Year</label><input type="number" id="newEssayYear" placeholder="2026"></div>
-              <div class="field"><label>Excerpt</label><textarea id="newEssayExcerpt" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="A short summary for the library card"></textarea></div>
-              <div class="field"><label>Full essay text (optional, shown on the essay's own page)</label><textarea id="newEssayFullText" style="min-height:120px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Paste the full essay here. Leave blank to show just the excerpt for now."></textarea></div>
-              <div class="field"><label>Cover image</label><input type="file" id="newEssayCover" accept="image/*"></div>
-              <button class="btn btn-dark" id="addEssayBtn" style="align-self:flex-start;">Publish Essay</button>
-              <button class="btn btn-outline-dark" id="cancelEssayEditBtn" style="display:none;">Cancel Edit</button>
             </div>
-          </div>
-        </div>
-        <!-- AUDIOBOOKS ADMIN -->
-        <div class="modal-panel" id="admin-panel-audio" style="flex-direction:column; gap:30px; margin-top:30px;">
-          <div style="border:1px solid var(--line); border-radius:6px; padding:24px; background:var(--paper-dim); max-width:560px;">
-            <h3 style="font-size:1.05rem; margin-bottom:16px;">+ Add Narrated Chapter</h3>
-            <div style="display:flex; flex-direction:column; gap:12px;">
-              <div class="field"><label>Book</label>
-                <select id="newChapterBook"><option value="mrp">Mr. President, Can We Talk?</option><option value="mono">Monopoly of Happiness</option></select>
-              </div>
-              <div class="field"><label>Chapter title</label><input type="text" id="newChapterTitle" placeholder="e.g. Chapter 3: The Weight of Silence"></div>
-              <div class="field"><label>Duration (mm:ss)</label><input type="text" id="newChapterDuration" placeholder="8:24"></div>
-              <div class="field"><label>Price (USD)</label><input type="number" id="newChapterPrice" step="0.01" placeholder="2.99"></div>
-              <div class="field"><label>Narration audio file</label><input type="file" id="newChapterFile" accept="audio/*">
-                <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Uploaded straight to private storage. Listeners only ever get a link that expires after an hour, and only once they have bought the chapter.</div>
-              </div>
-              <button class="btn btn-dark" id="addChapterBtn" style="align-self:flex-start;">Publish Chapter</button>
-            </div>
-          </div>
-          <div style="overflow-x:auto;">
-            <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
-              <thead><tr style="text-align:left; border-bottom:2px solid var(--line);"><th style="padding:10px;">Chapter</th><th style="padding:10px;">Book</th><th style="padding:10px;">Duration</th><th style="padding:10px;">Price</th><th style="padding:10px;">Actions</th></tr></thead>
-              <tbody id="admin-audio-table"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- SITE SETTINGS -->
-        <div class="modal-panel" id="admin-panel-settings" style="flex-direction:column; gap:20px; margin-top:30px; max-width:520px;">
-          <div class="section-head" style="margin-bottom:0;">
-            <span class="eyebrow">About Page</span>
-            <h3 style="font-size:1.05rem; margin-top:8px;">Author bio &amp; photo</h3>
-          </div>
-          <div class="field"><label>Bio text (shown on the About page)</label><textarea id="settingsBio" style="min-height:120px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Write the author bio shown on the About page"></textarea></div>
-          <div class="modal-error" id="settingsBioError">Something went wrong.</div>
-          <div class="modal-ok" id="settingsBioOk">Bio saved.</div>
-          <button class="btn btn-dark" id="saveBioBtn" style="align-self:flex-start;">Save bio</button>
-
-          <div class="field" style="margin-top:8px;"><label>Author photo</label>
-            <input type="file" id="settingsPhoto" accept="image/jpeg,image/png,image/webp">
-            <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">
-              JPG, PNG or WebP, up to 10 MB. iPhone photos save as HEIC by default, which will not upload:
-              in Settings, Camera, Formats, choose Most Compatible, or send the photo to yourself first to convert it.
-            </div>
-            <div class="photo-preview" id="settingsPhotoPreview" style="display:none;"></div>
-          </div>
-          <div class="modal-error" id="settingsPhotoError">Something went wrong.</div>
-          <div class="modal-ok" id="settingsPhotoOk">Photo saved. It now appears across the site.</div>
-          <button class="btn btn-dark" id="savePhotoBtn" style="align-self:flex-start;">Save photo</button>
-
-          <div class="section-head" style="margin-bottom:0; margin-top:10px;">
-            <span class="eyebrow">Social Links</span>
-            <h3 style="font-size:1.05rem; margin-top:8px;">Shown in the site footer</h3>
-            <p style="font-size:0.85rem; color:var(--ink-soft); margin-top:6px;">Leave any field blank to hide that icon from the footer.</p>
-          </div>
-          <div class="field"><label>Instagram URL</label><input type="text" id="settingsInstagram" placeholder="https://instagram.com/..."></div>
-          <div class="field"><label>Facebook URL</label><input type="text" id="settingsFacebook" placeholder="https://facebook.com/..."></div>
-          <div class="field"><label>X (Twitter) URL</label><input type="text" id="settingsTwitter" placeholder="https://x.com/..."></div>
-          <div class="field"><label>YouTube URL</label><input type="text" id="settingsYoutube" placeholder="https://youtube.com/..."></div>
-          <div class="field"><label>TikTok URL</label><input type="text" id="settingsTiktok" placeholder="https://tiktok.com/..."></div>
-          <div class="modal-error" id="settingsSocialError">Something went wrong.</div>
-          <div class="modal-ok" id="settingsSocialOk">Social links saved.</div>
-          <button class="btn btn-dark" id="saveSettingsBtn" style="align-self:flex-start;">Save social links</button>
-
-          <div class="section-head" style="margin-bottom:0; margin-top:30px;">
-            <span class="eyebrow">Postage</span>
-            <h3 style="font-size:1.05rem; margin-top:8px;">Shipping rates by destination</h3>
-            <p style="font-size:0.85rem; color:var(--ink-soft); margin-top:6px;">
-              What a reader pays to have a printed book posted. Set a free postage threshold, or leave it blank for none.
-              The last row, Everywhere else, is the fallback for any country not listed. Do not delete it.
-            </p>
-          </div>
-          <div id="shippingRates" class="an-list"></div>
-        </div>
-
-        <!-- COMMENT MODERATION -->
-        <div class="modal-panel" id="admin-panel-moderation" style="flex-direction:column; gap:18px; margin-top:30px;">
-          <div class="an-head">
-            <div>
-              <h3 style="font-family:'Fraunces',serif; font-size:1.3rem;">Reader comments</h3>
-              <p style="color:var(--ink-soft); font-size:0.85rem;" id="modStatus">Loading…</p>
-            </div>
-            <button class="btn btn-sm btn-outline-dark" id="modRefresh">Refresh</button>
-          </div>
-          <div id="modList"></div>
-        </div>
-
-        <!-- SECURITY / TWO FACTOR -->
-        <div class="modal-panel" id="admin-panel-security" style="flex-direction:column; gap:22px; margin-top:30px; max-width:560px;">
-          <div>
-            <h3 style="font-family:'Fraunces',serif; font-size:1.3rem;">Two factor authentication</h3>
-            <p style="color:var(--ink-soft); font-size:0.88rem; margin-top:8px; line-height:1.65;">
-              A second factor means a stolen password is not enough to publish books, change prices or read your error logs.
-              You will need an authenticator app such as Google Authenticator, Microsoft Authenticator or 1Password.
-            </p>
-          </div>
-
-          <div class="an-card" id="mfaStatusCard">
-            <h4>Status</h4>
-            <div id="mfaStatus" class="an-list"><p class="an-empty">Checking…</p></div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-              <button class="btn btn-sm btn-dark" id="mfaEnrollBtn">Turn on two factor</button>
-              <button class="btn btn-sm btn-outline-dark" id="mfaDisableBtn" style="display:none; color:#b3261e;">Turn off</button>
-            </div>
-          </div>
-
-          <div class="an-card" id="mfaEnrollCard" style="display:none;">
-            <h4>Scan this with your authenticator app</h4>
-            <div id="mfaQr" style="text-align:center; padding:12px 0;"></div>
-            <p style="font-size:0.8rem; color:var(--ink-soft); text-align:center;">
-              Cannot scan? Enter this key by hand:
-            </p>
-            <div id="mfaSecret" style="text-align:center; font-family:'IBM Plex Mono',monospace; font-size:0.86rem;
-                 word-break:break-all; background:var(--paper-dim); padding:10px 12px; border-radius:6px; margin:8px 0 16px;"></div>
-            <div class="field"><label for="mfaEnrollCode">Enter the 6 digit code it shows</label>
-              <input type="text" id="mfaEnrollCode" inputmode="numeric" maxlength="6" placeholder="123456"
-                     style="letter-spacing:0.4em; font-family:'IBM Plex Mono',monospace;"></div>
-            <div class="modal-error" id="mfaEnrollError" style="margin-top:10px;">That code was not accepted.</div>
-            <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
-              <button class="btn btn-sm btn-dark" id="mfaConfirmBtn">Confirm and turn on</button>
-              <button class="btn btn-sm btn-outline-dark" id="mfaCancelEnrollBtn">Cancel</button>
-            </div>
-          </div>
-
-          <div class="an-card">
-            <h4>Good practice</h4>
-            <div class="an-list" style="font-size:0.85rem; color:var(--ink-soft); line-height:1.7;">
-              <div>Keep a backup of the setup key somewhere safe and offline. Losing the phone without it means losing access.</div>
-              <div>Turn this on for the author account first. That is the one that can change prices and publish content.</div>
-              <div>Once it is on, the API enforces it too, not just this page.</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- DEVELOPER DIAGNOSTICS -->
-        <div class="modal-panel" id="admin-panel-developer" style="flex-direction:column; gap:22px; margin-top:30px;">
-          <div class="an-head">
-            <div>
-              <h3 style="font-family:'Fraunces',serif; font-size:1.3rem;">Developer diagnostics</h3>
-              <p style="color:var(--ink-soft); font-size:0.85rem;" id="devStatusLine">Loading system state…</p>
-            </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              <button class="btn btn-sm btn-outline-dark" id="devRefresh">Refresh</button>
-              <button class="btn btn-sm btn-outline-dark" id="devClearErrors" style="color:#b3261e;">Clear log</button>
-            </div>
-          </div>
-
-          <div class="an-card">
-            <h4>System checks</h4>
-            <div id="devChecks" class="an-list"></div>
-          </div>
-
-          <div class="an-cols">
+  
             <div class="an-card">
-              <h4>Runtime</h4>
-              <div id="devRuntime" class="an-list"></div>
-            </div>
-            <div class="an-card">
-              <h4>Table row counts</h4>
-              <div id="devCounts" class="an-list"></div>
+              <h4>Error log</h4>
+              <div id="devErrorList" class="dev-log"></div>
             </div>
           </div>
-
-          <div class="an-card">
-            <h4>Errors, last 7 days</h4>
-            <div id="devErrorSummary" class="an-list" style="margin-bottom:16px;"></div>
-            <div class="dev-filter">
-              <label style="font-size:0.78rem; color:var(--ink-soft);">Level</label>
-              <select id="devLevelFilter" style="padding:7px 10px; border:1px solid var(--line); border-radius:5px; font-size:0.82rem;">
-                <option value="">All</option>
-                <option value="error">Error</option>
-                <option value="warn">Warning</option>
-                <option value="info">Info</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="an-card">
-            <h4>Error log</h4>
-            <div id="devErrorList" class="dev-log"></div>
           </div>
         </div>
 
