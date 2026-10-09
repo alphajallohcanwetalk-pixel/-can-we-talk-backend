@@ -118,7 +118,7 @@
   .book-meta{display:flex; align-items:center; gap:10px; margin-top:18px; margin-bottom:6px; font-size:0.82rem; color:var(--sl-green-deep); font-weight:600;}
   .book-actions{display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;}
 
-  .writings-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:28px;}
+  .writings-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(270px, 1fr)); gap:28px;}
   .writing-card{border:1px solid var(--line); border-radius:6px; padding:30px 26px; background:var(--paper); transition:box-shadow .25s, transform .25s;}
   .writing-card:hover{box-shadow:var(--shadow); transform:translateY(-4px);}
   .writing-card .tag{font-family:'IBM Plex Mono',monospace; font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--sl-blue); font-weight:500;}
@@ -215,7 +215,7 @@
   .review-name{font-weight:600; font-size:0.88rem;}
   .review-date{font-size:0.78rem; color:var(--ink-soft); margin-left:auto;}
   .review p{color:var(--ink-soft); font-size:0.92rem; max-width:70ch;}
-  .gallery-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+  .gallery-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:14px;}
   .gallery-item{aspect-ratio:1; border-radius:5px; background:var(--paper-dim); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; text-align:center; padding:14px; font-size:0.72rem; color:var(--ink-soft);}
   .press-row{display:flex; justify-content:space-between; align-items:center; padding:18px 0; border-bottom:1px solid var(--line); font-size:0.92rem; flex-wrap:wrap; gap:10px;}
   .press-row .outlet{font-weight:600;}
@@ -289,7 +289,7 @@
   .bio-grid p{color:var(--ink-soft); margin-bottom:18px;}
   .bio-grid h2{font-size:1.6rem; margin-bottom:20px;}
   .pillars{background:var(--paper-dim); padding:70px 0;}
-  .pillar-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:24px;}
+  .pillar-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:24px;}
   .pillar{padding:26px; background:var(--paper); border:1px solid var(--line); border-radius:6px; border-top:3px solid var(--sl-green-bright);}
   .pillar h3{font-size:1.05rem; margin-bottom:10px;}
   .pillar p{font-size:0.86rem; color:var(--ink-soft);}
@@ -384,13 +384,13 @@
   .event-tag{display:inline-block; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; padding:4px 10px; border-radius:12px; margin-bottom:8px;}
   .event-tag.past{background:var(--paper-dim); color:var(--ink-soft);}
   .event-tag.upcoming{background:rgba(30,181,58,0.12); color:var(--sl-green-deep);}
-  .video-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  .video-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:22px;}
   .video-card{border-radius:6px; overflow:hidden; border:1px solid var(--line);}
   .video-thumb{aspect-ratio:16/9; background:linear-gradient(155deg, var(--sl-green-deep), var(--sl-blue-deep)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:2rem; cursor:pointer;}
   .video-card .vt{padding:14px 16px; font-size:0.9rem; font-weight:600;}
-  .full-gallery-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+  .full-gallery-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:14px;}
   .full-gallery-grid .gallery-item{aspect-ratio:1;}
-  .speaking-topics{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin:36px 0;}
+  .speaking-topics{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:20px; margin:36px 0;}
   .topic-chip{padding:20px; border:1px solid var(--line); border-radius:6px; border-top:3px solid var(--sl-green-bright); font-size:0.9rem; font-weight:600;}
   .legal-body{max-width:760px; padding:20px 0 90px;}
   .legal-body h2{font-size:1.3rem; margin-top:34px; margin-bottom:12px;}
@@ -414,7 +414,7 @@
   .plan-features div::before{content:'✓ '; color:var(--sl-green); font-weight:700;}
   .club-status{margin-top:36px; padding:16px 20px; border-radius:6px; font-size:0.88rem;}
   .club-status.active{background:rgba(30,181,58,0.1); border:1px solid var(--sl-green-bright); color:var(--sl-green-deep);}
-  .club-library-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:24px; margin-top:20px;}
+  .club-library-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px; margin-top:20px;}
   .club-book{border:1px solid var(--line); border-radius:6px; padding:22px; background:var(--paper); display:flex; gap:18px; align-items:center;}
   .club-book-cover{width:64px; aspect-ratio:3/4; border-radius:4px; flex-shrink:0;}
   .club-book-cover.c1{background:linear-gradient(155deg, var(--sl-green-deep), var(--sl-blue-deep));}
@@ -566,21 +566,18 @@
     nav.links{display:none;}
     .menu-btn{display:block;}
     .book-grid{grid-template-columns:1fr;}
-    .writings-grid{grid-template-columns:1fr;}
     .identity-grid{grid-template-columns:1fr;}
     .footer-grid{grid-template-columns:1fr 1fr; gap:32px;}
     .hero-layout{grid-template-columns:1fr;}
     .cover-frame{position:static; max-width:320px; margin:0 auto;}
     .buy-box{position:static;}
     .endorsement-grid{grid-template-columns:1fr;}
-    .gallery-grid{grid-template-columns:repeat(2,1fr);}
     .lib-layout{grid-template-columns:1fr;}
     .filter-panel{position:static;}
     .essay-grid{grid-template-columns:1fr;}
     .about-layout{grid-template-columns:1fr;}
     .portrait{max-width:280px;}
     .bio-grid{grid-template-columns:1fr;}
-    .pillar-grid{grid-template-columns:1fr 1fr;}
     .contact-layout{grid-template-columns:1fr;}
     .reader-page-wrap,.essay-page{min-height:560px; padding:38px 28px;}
   }
@@ -714,8 +711,6 @@
 
     /* Dashboard tables scroll rather than squeeze. */
     .modal-panel table{min-width:520px;}
-    .modal-tabs{overflow-x:auto; -webkit-overflow-scrolling:touch; white-space:nowrap;}
-    .modal-tab{display:inline-block; float:none;}
 
     /* Analytics and moderation rows stack. */
     .an-row{flex-wrap:wrap;}
@@ -775,6 +770,10 @@
     .brand small{display:none;}
   }
 
+  /* The catalogue used an inline column count, which a media query cannot
+     override, so it stayed three wide on a phone. */
+  .catalog-grid{grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));}
+
   /* ---------- Admin row thumbnails ---------- */
   .admin-thumb{display:block; width:40px; height:54px; border-radius:3px; background-size:cover;
     background-position:center; background-color:var(--paper-dim); border:1px solid var(--line);}
@@ -802,8 +801,28 @@
   .ds-card .dsl{font-size:0.7rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-soft); margin-top:5px;}
   .ds-card.alert .dsv{color:#b3261e;}
 
-  .dash-tabs{max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; white-space:nowrap;
-    scrollbar-width:thin; padding-bottom:2px;}
+  /* Dashboard tabs are chips that wrap, not columns that divide the width.
+     Eight of them cannot share one line legibly at any screen size. */
+  .dash-tabs{display:flex; flex-wrap:wrap; gap:7px; border-bottom:1px solid var(--line);
+    padding-bottom:12px; margin-bottom:24px; max-width:100%;}
+  .dash-tabs .modal-tab{
+    flex:0 0 auto;                 /* overrides the flex:1 meant for the sign in modal */
+    padding:9px 16px;
+    border:1px solid var(--line);
+    border-radius:20px;
+    border-bottom-width:1px;       /* the underline style does not suit a chip */
+    background:var(--paper);
+    white-space:nowrap;
+    font-size:0.84rem;
+    transition:background .2s var(--ease-soft), color .2s, border-color .2s, transform .18s var(--ease-out);}
+  .dash-tabs .modal-tab:hover{background:var(--paper-dim); transform:translateY(-1px);}
+  .dash-tabs .modal-tab.active{
+    background:var(--sl-green-deep); color:#fff; border-color:var(--sl-green-deep);}
+
+  @media(max-width:700px){
+    .dash-tabs{gap:6px; padding-bottom:10px;}
+    .dash-tabs .modal-tab{padding:9px 13px; font-size:0.8rem;}
+  }
 
   /* A way back into the dashboard while browsing the site as a reader. */
   .nav-dash{display:none; align-items:center; gap:7px; background:var(--sl-green-deep); color:#fff;
@@ -1820,7 +1839,7 @@
   </section>
   <section style="padding:0 0 90px;">
     <div class="wrap">
-      <div class="book-grid" id="catalogBookGrid" style="grid-template-columns:repeat(3,1fr);"></div>
+      <div class="book-grid catalog-grid" id="catalogBookGrid"></div>
     </div>
   </section>
 </div>
