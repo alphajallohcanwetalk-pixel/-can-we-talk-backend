@@ -1,6 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  // Google Play build. Inside the app distributed through the Play Store,
+  // Google requires its own billing for digital goods, so that build sells
+  // printed books only and hides eBook, audiobook and Book Club purchases.
+  // The website and the app installed from the website are not affected.
+  // The Play app opens /?src=play and reports an android-app:// referrer; the
+  // flag lives in sessionStorage so it never leaks into the same person's
+  // browser tabs, which share storage with the app.
+  (function(){
+    try {
+      var q = new URLSearchParams(location.search).get('src') === 'play';
+      var r = (document.referrer || '').indexOf('android-app://com.canwetalkvoice.app') === 0;
+      if(q || r) sessionStorage.setItem('cwt.play', '1');
+      if(sessionStorage.getItem('cwt.play') === '1') document.documentElement.classList.add('play-build');
+    } catch(e){}
+  })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Can We Talk? (The Misfit Voice) | Alpha Amadu Jalloh</title>
@@ -979,6 +996,14 @@
     color:#fff; font-size:1.4rem; flex:0 0 auto;}
   .event-card .event-info{flex:1 1 220px; min-width:0;}
   @media(max-width:600px){ .event-thumb{width:100%; order:-1;} }
+
+  /* ---------- Google Play build: no digital purchases ---------- */
+  .play-only{display:none;}
+  .play-build .play-only{display:inline;}
+  .play-build .web-only,
+  .play-build #club-plans,
+  .play-build [data-subscribe],
+  .play-build .chapter-action.locked{display:none !important;}
 
   /* The catalogue used an inline column count, which a media query cannot
      override, so it stayed three wide on a phone. */
@@ -2344,7 +2369,7 @@
       <span class="eyebrow">Members Only</span>
       <h2 style="margin-top:14px;">Join the AJ Book Club to read this online</h2>
       <p style="color:var(--ink-soft); margin-top:12px;">Online reading is a book club member benefit.</p>
-      <a class="btn btn-dark nav-link" data-view="bookclub" style="margin-top:22px;">See Membership Plans</a>
+      <a class="btn btn-dark nav-link web-only" data-view="bookclub" style="margin-top:22px;">See Membership Plans</a>
     </div>
 
     <div id="reader-content" style="display:none;">
@@ -2375,7 +2400,7 @@
 
       <div class="sample-banner" id="sampleBanner" style="display:none;">
         <span id="sampleBannerText">You are reading a free sample.</span>
-        <a class="btn btn-sm btn-dark nav-link" data-view="books-catalog">Buy the full book</a>
+        <a class="btn btn-sm btn-dark nav-link" data-view="books-catalog"><span class="web-only">Buy the full book</span><span class="play-only">See the printed book</span></a>
       </div>
 
       <div class="book-progress">
@@ -3420,6 +3445,7 @@
   const SUPABASE_URL = "https://ppojnjgzrolzjmtblgwf.supabase.co";        // e.g. https://abcdefgh.supabase.co
   const SUPABASE_ANON_KEY = "sb_publishable_slVay-YwkZRin-oGiUDGYQ_aoROXBsx";
   const API_URL = "https://can-we-talk-backend.onrender.com";
+  const PLAY_BUILD = document.documentElement.classList.contains('play-build');
 
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentSession = null; // holds the Supabase session (access_token etc.) once signed in
@@ -4846,7 +4872,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     applySampleButton(key, book);
     // The eBook is already the author's own, so it is not offered for sale to him.
     const formats = (book.formats || []).filter(format => format.is_offered !== false
-      && !(ownerAccount && /^e-?book$/i.test(format.format_name)));
+      && !((ownerAccount || PLAY_BUILD) && /^e-?book$/i.test(format.format_name)));
     const options = buyBox.querySelector('.format-options');
     if(!options || !formats.length) return;
     options.replaceChildren(...formats.map((format, index) => {
@@ -7131,7 +7157,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     // hidden rather than advertising audio that does not exist.
     const section = document.getElementById(key + '-audiobook');
     const bookId = key === 'mrp' ? mrpBookId : key === 'mono' ? monoBookId : key;
-    const rows = chapters[key] || [];
+    const rows = (chapters[key] || []).filter(ch => !PLAY_BUILD || ch.owned);
     if(section) section.style.display = rows.length ? '' : 'none';
     list.replaceChildren(...rows.map(ch => buildChapterRow(bookId, ch)));
   }
@@ -7209,7 +7235,8 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       return card;
     }));
 
-    const withAudio = books.filter(b => (chaptersByBook[b.id] || []).length);
+    const listable = (bookId) => (chaptersByBook[bookId] || []).filter(ch => !PLAY_BUILD || ch.owned);
+    const withAudio = books.filter(b => listable(b.id).length);
     document.getElementById('audioBooksHead').hidden = !withAudio.length;
     bookBox.replaceChildren(...withAudio.map(b => {
       const block = document.createElement('section');
@@ -7217,7 +7244,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       block.innerHTML = '<div class="ab-cover"></div><div class="ab-main"><h3></h3><p class="ab-sub"></p><div class="ab-chapters"></div></div>';
       if(b.cover_image_url) lazyLoadCover(block.querySelector('.ab-cover'), b.cover_image_url);
       block.querySelector('h3').textContent = b.title;
-      const list = chaptersByBook[b.id];
+      const list = listable(b.id);
       const owned = list.filter(c => c.owned).length;
       block.querySelector('.ab-sub').textContent = ownerAccount
         ? `${list.length} chapter${list.length === 1 ? '' : 's'} · all included in your account`

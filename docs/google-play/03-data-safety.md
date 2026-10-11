@@ -61,6 +61,15 @@ Mark this as **publicly visible**: comments are shown to every other reader.
 | Type | Collected | Shared | Purpose |
 |---|---|---|---|
 | Other user-generated content | Yes | No | Ratings |
+| Other actions | Yes | No | Reading position in a book or essay, so readers resume where they stopped. Signed in readers only |
+
+### Device or other IDs
+
+| Type | Collected | Shared | Optional? | Purpose |
+|---|---|---|---|---|
+| Device or other IDs | Yes | No | Optional | App functionality: the push notification address for a device, only if the reader turns notifications on. Deleted when they turn them off or uninstall |
+
+(Added 11 October 2026, with app notifications for new releases.)
 
 ### App info and performance
 
