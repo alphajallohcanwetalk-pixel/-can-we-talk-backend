@@ -1,5 +1,10 @@
 # Release checklist
 
+Status 11 October 2026: everything up to "Play Console" is done. Option A
+(printed books only in the Play app) is built in. The signed bundle, store
+graphics and a step by step guide are in `Desktop/can-we-talk-android/`
+(`PLAY-STORE-SUBMISSION.md`), outside this repository on purpose.
+
 Work top to bottom. Anything marked BLOCKER will fail review or break the app.
 
 ## Before building

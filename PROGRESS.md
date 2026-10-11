@@ -40,10 +40,6 @@ Render. Database migrations are **run by hand** in the Supabase SQL editor.
       safely without it, so the site works either way, but the new author
       fields will not save until the columns exist.
 
-- [ ] **Run `014_audio_essays_gallery_push.sql`** in the Supabase SQL editor.
-      Until then: the Gallery and press tab says to run it, essays cannot carry
-      narration audio, and app notifications have nowhere to store devices.
-      Everything else works without it.
 - [ ] **Add the notification keys to Render** (backend, Environment):
       `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` from
       `Desktop/vapid-keys-for-render.json` (not in the repo), and
@@ -53,8 +49,13 @@ Render. Database migrations are **run by hand** in the Supabase SQL editor.
 - [ ] Paste each book's full text into the dashboard (Books, Edit, reader
       text). Both books have none yet, so Book Club "Read Online" says the book
       is not in the reader yet.
-- [ ] Re-upload the cover for the essay "REALITY HATES ME" (Essays, Edit). It
-      was published before covers were saved.
+- [ ] Optional: `GITHUB_DEPLOY_TOKEN` in Render (fine grained token, this repo,
+      Actions read and write) so a new essay's WhatsApp preview is ready within
+      minutes. Without it the share pages refresh every two hours.
+- [ ] **Google Play:** follow `Desktop/can-we-talk-android/PLAY-STORE-SUBMISSION.md`.
+      The signed bundle, store graphics and screenshots are in that folder.
+      **Back up `Desktop/can-we-talk-android/signing/` today.** After the first
+      upload, add Play's app signing SHA-256 to `frontend/.well-known/assetlinks.json`.
 
 ### Needs building
 
@@ -86,7 +87,7 @@ Applied in order, by hand, in the Supabase SQL editor.
 | `009_comment_moderation.sql` | yes | `is_hidden` on comments, `comment_reports` table |
 | `010_book_metadata.sql` | yes | ISBN, publisher, publication date, pages, language, genre, edition |
 | `011` to `013` | yes | Reading progress, newsletter, shipping, samples, essay progress, storage author check |
-| `014_audio_essays_gallery_push.sql` | **NO, pending** | `essays.audio_url`, `gallery_items`, `push_subscriptions`, audio allowed in `media` bucket |
+| `014_audio_essays_gallery_push.sql` | yes (11 Oct) | `essays.audio_url`, `gallery_items`, `push_subscriptions`, audio allowed in `media` bucket |
 
 ---
 
@@ -116,6 +117,29 @@ ElevenLabs narration; author photo shown whole instead of a tight crop.
 Verified with a headless browser on phone (390 px) and laptop (1366 px) across
 22 pages: no script errors, nothing off screen, every reader page ends on a
 sentence. Owner access verified against the API as the author account.
+
+## 11 October 2026, later the same day
+
+- Essay cover for "REALITY HATES ME" recovered from storage and attached.
+- Round author avatars show the whole head; author strip photo uncropped.
+- Every upload path tested live as the author and cleaned up: covers, gallery
+  photos, essay audio, gallery video, private chapter audio. Real limit is
+  50 MB per file (storage plan); the dashboard now says so before uploading.
+- Events page, Gallery and a home "Latest events, articles and news" section
+  are fed from the dashboard's Gallery and press tab, newest first.
+- Share links: `/essay/<id>.html` and `/book/<id>.html` carry title and cover
+  for WhatsApp; share buttons in the reader, on essay cards and book pages.
+  Unbuilt links fall through 404.html to the right essay or book.
+- Manuscripts: Word, EPUB, text and PDF import with paragraphs; editing a book
+  no longer wipes its manuscript; the dash clean up no longer flattens
+  paragraphs (it did for any text containing a dash); book routes take up to
+  5 MB. Visitors read the front matter plus the first page of Chapter One;
+  buyers, members and the author read everything.
+- Watermark: reader's name and email, faint, behind the text.
+- Play build mode (`/?src=play`): eBook, chapter and Book Club purchases
+  hidden. Privacy policy and Data safety updated.
+- Download offer appears during the first visit only; afterwards a footer link.
+- Desktop footer columns restored (an invalid grid rule had collapsed them).
 
 ## Current data
 
