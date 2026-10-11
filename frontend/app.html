@@ -975,6 +975,11 @@
 
   .format-loading{padding:12px 14px; border:1px dashed var(--line); border-radius:5px; font-size:0.84rem; color:var(--ink-soft);}
 
+  .event-thumb{width:110px; aspect-ratio:4/3; border-radius:6px; border:0; cursor:pointer; background:var(--sl-green-deep) center / cover no-repeat;
+    color:#fff; font-size:1.4rem; flex:0 0 auto;}
+  .event-card .event-info{flex:1 1 220px; min-width:0;}
+  @media(max-width:600px){ .event-thumb{width:100%; order:-1;} }
+
   /* The catalogue used an inline column count, which a media query cannot
      override, so it stayed three wide on a phone. */
   .catalog-grid{grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));}
@@ -1751,6 +1756,18 @@
     </div>
   </section>
 
+  <section class="pad home-news" id="homeNews" hidden>
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Events and the press</span>
+        <h2>Latest events, articles and news</h2>
+        <p>Where Alpha has been, what he has written, and what the media are saying.</p>
+      </div>
+      <div class="gal-grid" id="homeNewsGrid"></div>
+      <a class="btn btn-outline-dark nav-link" data-view="gallery" style="margin-top:26px;">See everything</a>
+    </div>
+  </section>
+
   <section class="library-section">
     <div class="wrap">
       <div class="section-head">
@@ -2469,7 +2486,8 @@
   <section class="page-hero"><div class="wrap"><span class="eyebrow">Events</span><h1>Upcoming &amp; past appearances</h1><p>Book launches, panel discussions and public conversations with Alpha Amadu Jalloh.</p></div></section>
   <section style="padding:0 0 90px;">
     <div class="wrap">
-      <div class="event-card">
+      <div id="eventsLive"></div>
+      <div class="event-card" id="eventTbaCard">
         <div class="event-date"><span class="day">TBA</span><span class="mon">2026</span></div>
         <div class="event-info"><span class="event-tag upcoming">Upcoming</span><h3>Freetown Reader Conversation</h3><p>A public discussion on Mr. President, Can We Talk? Location and date to be announced.</p></div>
         <a class="btn btn-sm btn-outline-dark nav-link" data-view="contact">Get Notified</a>
@@ -2830,7 +2848,7 @@
                   <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Paste YouTube or Vimeo links straight from the address bar, or a direct video file link. They play on the book page.</div>
                 </div>
                 <div class="field"><label>Upload a video file</label><input type="file" id="newBookVideoFile" accept="video/mp4,video/webm,video/ogg,video/quicktime">
-                  <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Up to 500 MB. For long films, a YouTube link streams better and costs nothing.</div>
+                  <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:6px;">Up to 50 MB each. For longer films, a YouTube link streams better and costs nothing.</div>
                 </div>
                 <button class="btn btn-dark" id="addBookBtn" style="align-self:flex-start;">Publish Book</button>
                 <button class="btn btn-outline-dark" id="cancelBookEditBtn" style="display:none;">Cancel Edit</button>
@@ -2894,7 +2912,7 @@
                   <div class="cover-preview-row"><span class="admin-thumb no-cover" id="essayCoverPreview"></span>
                   <small class="field-hint">The cover shows on the essay card in the Essay Library, in New releases on the home page, and as the front page when the essay opens.</small></div></div>
                 <div class="field"><label>Narration audio (optional: makes it an audio essay)</label><input type="file" id="newEssayAudio" accept="audio/*">
-                  <small class="field-hint">MP3 or M4A. Readers can listen on the Listen page and save it to their phone for offline listening.</small></div>
+                  <small class="field-hint">MP3 or M4A, up to 50 MB. Readers can listen on the Listen page and save it to their phone for offline listening.</small></div>
                 <button class="btn btn-dark" id="addEssayBtn" style="align-self:flex-start;">Publish Essay</button>
                 <button class="btn btn-outline-dark" id="cancelEssayEditBtn" style="display:none;">Cancel Edit</button>
               </div>
@@ -2938,7 +2956,7 @@
                 <div class="field"><label>Date</label><input type="date" id="gDate"></div>
                 <div class="field"><label>Short description (optional)</label><textarea id="gCaption" rows="3" maxlength="2000" style="padding:11px 13px; border:1px solid var(--line); border-radius:5px; font:inherit;"></textarea></div>
                 <div class="field"><label>Photo (JPG, PNG or WebP, up to 10 MB)</label><input type="file" id="gPhoto" accept="image/jpeg,image/png,image/webp"></div>
-                <div class="field"><label>Video file (optional)</label><input type="file" id="gVideoFile" accept="video/*"></div>
+                <div class="field"><label>Video file (optional, up to 50 MB)</label><input type="file" id="gVideoFile" accept="video/*"></div>
                 <div class="field"><label>Or a YouTube or Vimeo video link (optional)</label><input type="url" id="gVideoLink" placeholder="https://www.youtube.com/watch?v=..."></div>
                 <div class="field"><label>Link to the article, report or Facebook post (optional)</label><input type="url" id="gLink" placeholder="https://..."></div>
                 <button class="btn btn-dark" id="gAddBtn" style="align-self:flex-start;">Add to gallery</button>
@@ -4549,8 +4567,7 @@
   // Covers still go through uploadCover, which targets the image-only bucket.
   async function uploadMedia(file, folder){
     if(!file) return null;
-    const MAX = 500 * 1024 * 1024;
-    if(file.size > MAX){ alert('Files must be 500 MB or smaller. For a longer video, use a YouTube link.'); return null; }
+    if(file.size > STORAGE_FILE_LIMIT){ alert(tooBigMessage(file)); return null; }
     const path = `${folder}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '')}`;
     const { error } = await sb.storage.from('media').upload(path, file, { contentType: resolveMime(file, 'video/mp4') });
     if(error){
@@ -4565,8 +4582,23 @@
   // decides whether the upload is allowed and hands back a one-off signed URL;
   // the file itself goes straight from the browser to Storage, never through
   // the API, which would choke on a 300 MB body.
+  // The storage plan accepts files up to 50 MB each. Checking before the
+  // upload starts saves waiting for a large file only to have it refused.
+  const STORAGE_FILE_LIMIT = 50 * 1024 * 1024;
+  function tooBigMessage(file){
+    const mb = (file.size / 1048576).toFixed(0);
+    return /^video/.test(file.type)
+      ? `This video is ${mb} MB. Uploads can be up to 50 MB.
+
+For a longer video, upload it to YouTube and paste the link instead, or send a shorter clip.`
+      : `This file is ${mb} MB. Uploads can be up to 50 MB.
+
+Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into parts.`;
+  }
+
   async function uploadChapterAudio(file, onProgress){
     if(!file) return null;
+    if(file.size > STORAGE_FILE_LIMIT) throw new Error(tooBigMessage(file));
     const res = await fetch(`${API_URL}/api/audiobook/upload-url`, {
       method: 'POST', headers: authHeaders(), body: JSON.stringify({ filename: file.name })
     });
@@ -7300,6 +7332,8 @@
     } catch(e){ /* keep what is showing */ }
     renderGallery();
     renderVideoWall();
+    renderHomeNews();
+    renderEvents();
     if(document.getElementById('admin-dashboard')?.style.display === 'block') renderAdminGallery();
   }
 
@@ -7379,7 +7413,7 @@
   function renderGallery(){
     const grid = document.getElementById('galleryGrid');
     if(!grid) return;
-    const shown = galleryItems.filter(i => galleryFilter === 'all' || i.section === galleryFilter);
+    const shown = galleryItems.filter(i => galleryFilter === 'all' || i.section === galleryFilter).sort(byLatest);
     grid.replaceChildren(...shown.map(galleryCard));
     const empty = document.getElementById('galleryEmpty');
     if(empty) empty.hidden = shown.length > 0;
@@ -7394,10 +7428,71 @@
     renderGallery();
   }));
 
+  // Newest first: by the date of the event or article, then by when added.
+  const byLatest = (a, b) => String(b.event_date || b.created_at || '').localeCompare(String(a.event_date || a.created_at || ''));
+
+  function renderHomeNews(){
+    const box = document.getElementById('homeNewsGrid');
+    const section = document.getElementById('homeNews');
+    if(!box || !section) return;
+    const latest = galleryItems.slice().sort(byLatest).slice(0, 3);
+    section.hidden = latest.length === 0;
+    box.replaceChildren(...latest.map(galleryCard));
+  }
+
+  // The Events page: events added in the dashboard, upcoming ones first
+  // (soonest at the top), then past ones (most recent at the top).
+  function renderEvents(){
+    const box = document.getElementById('eventsLive');
+    if(!box) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const events = galleryItems.filter(i => i.section === 'event');
+    const upcoming = events.filter(e => e.event_date && e.event_date >= today).sort((a, b) => a.event_date.localeCompare(b.event_date));
+    const past = events.filter(e => !e.event_date || e.event_date < today).sort(byLatest);
+    const tba = document.getElementById('eventTbaCard');
+    if(tba) tba.style.display = upcoming.length ? 'none' : '';
+    box.replaceChildren(...upcoming.concat(past).map(e => {
+      const isUpcoming = upcoming.includes(e);
+      const card = document.createElement('div');
+      card.className = 'event-card';
+      const d = e.event_date ? new Date(e.event_date + 'T00:00:00') : null;
+      card.innerHTML = '<div class="event-date"><span class="day"></span><span class="mon"></span></div><div class="event-info"><span class="event-tag"></span><h3></h3><p></p></div>';
+      card.querySelector('.day').textContent = d ? String(d.getDate()).padStart(2, '0') : 'TBA';
+      card.querySelector('.mon').textContent = d ? d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : '';
+      const tag = card.querySelector('.event-tag');
+      tag.textContent = isUpcoming ? 'Upcoming' : 'Past';
+      tag.classList.add(isUpcoming ? 'upcoming' : 'past');
+      card.querySelector('h3').textContent = e.title;
+      const p = card.querySelector('p');
+      if(e.caption) p.textContent = e.caption; else p.remove();
+      if(e.image_url || e.video_url){
+        const thumb = document.createElement('button');
+        thumb.type = 'button';
+        thumb.className = 'event-thumb';
+        thumb.setAttribute('aria-label', 'Open photo or video');
+        if(e.image_url) thumb.style.backgroundImage = `url('${e.image_url}')`;
+        else thumb.textContent = '▶';
+        thumb.addEventListener('click', () => {
+          if(e.video_url){ galleryFilter = 'event'; showView('gallery'); document.querySelectorAll('[data-gal]').forEach(b => b.classList.toggle('active', b.dataset.gal === 'event')); renderGallery(); }
+          else openLightbox(e.image_url);
+        });
+        card.appendChild(thumb);
+      }
+      if(e.link_url){
+        const a = document.createElement('a');
+        a.className = 'btn btn-sm btn-outline-dark';
+        a.href = e.link_url; a.target = '_blank'; a.rel = 'noopener';
+        a.textContent = 'Details';
+        card.appendChild(a);
+      }
+      return card;
+    }));
+  }
+
   function renderVideoWall(){
     const grid = document.getElementById('videoGrid');
     if(!grid) return;
-    const videos = galleryItems.filter(i => i.video_url);
+    const videos = galleryItems.filter(i => i.video_url).sort(byLatest);
     grid.replaceChildren(...videos.map(galleryCard));
     const empty = document.getElementById('videoEmpty');
     if(empty) empty.hidden = videos.length > 0;
