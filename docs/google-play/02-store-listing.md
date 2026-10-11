@@ -41,15 +41,25 @@ democracy, inequality, migration, and the ordinary human questions underneath
 all of them.
 
 A proper reading experience
-Books and essays open as a real book, two pages at a time, turning page by page,
-with adjustable type. Pages you have already opened stay readable offline.
+Books and essays open as a real book, cover first, turning page by page, with
+every page ending on a complete sentence and adjustable type. Pages you have
+already opened stay readable offline, and the app remembers where you stopped.
+
+Listen
+Turn on Listen and each page is read aloud as you turn to it. Audio essays can
+be played anywhere and saved to your phone for listening with no connection.
 
 Order signed copies
 Buy paperback and hardcover editions and request the author's signature.
 Secure checkout, with your order history kept in your account.
 
+Never miss a new release
+New books and essays appear first under New releases, and you can choose to get
+a notification each time Alpha publishes something new.
+
 Follow the work
-Events, launch galleries, press coverage and speaking enquiries.
+Events Alpha has attended, articles he has written, and what the press is
+saying, with photos and video. Speaking enquiries too.
 
 ABOUT THE AUTHOR
 

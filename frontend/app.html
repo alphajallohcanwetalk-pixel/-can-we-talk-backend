@@ -4866,6 +4866,11 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     btn.textContent = owns ? 'Read the book now' : 'Read a free sample';
   }
 
+  const FORMAT_NOTES = {
+    ebook: 'Read instantly in the app', paperback: 'Printed and posted to you',
+    hardcover: "Collector's edition, posted to you", 'signed paperback': 'Signed by the author, posted to you'
+  };
+
   function applyBookFormats(key, book){
     const buyBox = document.querySelector(`.buy-box[data-book-id="${key}"]`);
     if(!buyBox || !book) return;
@@ -4879,7 +4884,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       const option = document.createElement('div');
       option.className = `format-opt${index === 0 ? ' selected' : ''}`;
       option.dataset.formatName = format.format_name;
-      option.innerHTML = `<div><div class="fname"></div><div class="fnote">${format.format_name === 'eBook' ? 'Instant online reading' : format.format_name}</div></div><div class="fprice"></div>`;
+      option.innerHTML = `<div><div class="fname"></div><div class="fnote">${FORMAT_NOTES[String(format.format_name).toLowerCase()] || 'Printed and posted to you'}</div></div><div class="fprice"></div>`;
       option.querySelector('.fname').textContent = format.format_name;
       option.querySelector('.fprice').textContent = `$${(format.price_cents / 100).toFixed(2)}`;
       return option;
