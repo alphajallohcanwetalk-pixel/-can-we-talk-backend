@@ -9,7 +9,7 @@
  *    with the cached shell as the offline fallback.
  */
 
-const VERSION = 'cwt-v2';
+const VERSION = 'cwt-v3';
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 
@@ -107,6 +107,43 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => cached);
       return cached || network;
+    })
+  );
+});
+
+// ---------------------------------------------------------------------------
+// App notifications. The server sends one when a new book or essay is
+// published; tapping it opens that publication.
+// ---------------------------------------------------------------------------
+self.addEventListener('push', (event) => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data && event.data.text() }; }
+  const title = data.title || 'Can We Talk?';
+  const options = {
+    body: data.body || 'Something new has been published.',
+    icon: '/icons/icon-192-v2.png',
+    badge: '/icons/icon-192-v2.png',
+    data: { url: data.url || '/' },
+    tag: data.url || 'cwt-release',
+    renotify: true
+  };
+  if (data.image) options.image = data.image;
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const target = new URL((event.notification.data && event.notification.data.url) || '/', self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((wins) => {
+      // Reuse an open window when there is one, rather than stacking copies.
+      for (const win of wins) {
+        if ('focus' in win) {
+          win.navigate(target).catch(() => {});
+          return win.focus();
+        }
+      }
+      return self.clients.openWindow(target);
     })
   );
 });

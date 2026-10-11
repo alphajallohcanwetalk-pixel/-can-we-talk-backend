@@ -2,6 +2,7 @@ import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { stripe } from '../lib/stripe.js';
 import { requireAuth } from '../middleware/auth.js';
+import { isOwnerAccount } from '../lib/entitlements.js';
 
 const router = express.Router();
 
@@ -51,6 +52,8 @@ router.get('/status', requireAuth, async (req, res) => {
     .select('book_club_active, book_club_plan')
     .eq('id', req.user.id)
     .single();
+  // The author owns the club, so he is always a member.
+  if (await isOwnerAccount(req.user.id)) return res.json({ book_club_active: true, book_club_plan: 'owner', is_owner: true });
   res.json(data || { book_club_active: false });
 });
 
@@ -81,7 +84,7 @@ router.get('/read/:bookId', requireAuth, async (req, res) => {
       hasEbookPurchase = Boolean(ebook);
     }
   }
-  const entitled = Boolean(profile?.book_club_active) || hasEbookPurchase;
+  const entitled = Boolean(profile?.book_club_active) || hasEbookPurchase || await isOwnerAccount(req.user.id);
 
   // sample_chars arrives with migration 011. Select it separately so a book
   // still opens for entitled readers if the column is not there yet.
@@ -90,13 +93,13 @@ router.get('/read/:bookId', requireAuth, async (req, res) => {
   {
     const full = await supabaseAdmin
       .from('books')
-      .select('title, reader_full_text, sample_chars')
+      .select('title, reader_full_text, sample_chars, cover_image_url')
       .eq('id', req.params.bookId)
       .single();
     if (full.error) {
       const legacy = await supabaseAdmin
         .from('books')
-        .select('title, reader_full_text')
+        .select('title, reader_full_text, cover_image_url')
         .eq('id', req.params.bookId)
         .single();
       if (legacy.error) return res.status(404).json({ error: 'Book not found' });
@@ -108,7 +111,7 @@ router.get('/read/:bookId', requireAuth, async (req, res) => {
   }
 
   if (entitled) {
-    return res.json({ title: book.title, reader_full_text: book.reader_full_text, is_sample: false });
+    return res.json({ title: book.title, reader_full_text: book.reader_full_text, cover_image_url: book.cover_image_url || null, is_sample: false });
   }
 
   // Not entitled. If the author has opened a sample, send that much and say so,
@@ -120,8 +123,15 @@ router.get('/read/:bookId', requireAuth, async (req, res) => {
     // sentence.
     const lastBreak = cut.lastIndexOf('\n\n');
     if (lastBreak > sampleChars * 0.5) cut = cut.slice(0, lastBreak);
+    else {
+      // No paragraph break near the end: stop after the last full sentence.
+      const ends = [...cut.matchAll(/[.!?]["'”’)]*(?=\s)/g)];
+      const last = ends[ends.length - 1];
+      if (last && last.index > sampleChars * 0.5) cut = cut.slice(0, last.index + last[0].length);
+    }
     return res.json({
       title: book.title,
+      cover_image_url: book.cover_image_url || null,
       reader_full_text: cut,
       is_sample: true,
       sample_chars: sampleChars,

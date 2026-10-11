@@ -2,6 +2,7 @@ import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { sendWelcomeEmail } from '../lib/email.js';
 import { requireAuth } from '../middleware/auth.js';
+import { libraryFor } from '../lib/entitlements.js';
 
 const router = express.Router();
 
@@ -43,6 +44,16 @@ router.get('/me', requireAuth, async (req, res) => {
 
   if (error || !data) return res.status(404).json({ error: 'Profile not found' });
   res.json(data);
+});
+
+// GET /api/auth/library: everything this account may read or hear. The browser
+// asks for it after a payment, so what was bought opens straight away.
+router.get('/library', requireAuth, async (req, res) => {
+  try {
+    res.json(await libraryFor(req.user.id));
+  } catch (err) {
+    res.status(500).json({ error: 'Could not load your library' });
+  }
 });
 
 // DELETE /api/auth/account

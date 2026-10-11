@@ -2,13 +2,46 @@
 
 Written for: Alpha and the B&A Developers team.
 
-## What works now
+## What works now (updated 11 October 2026)
 
-A **Listen** button is live in the reader. It reads the open pages aloud using
-the device's own speech engine. It works offline, on every modern phone and
-desktop browser, and costs nothing.
+A **Listen** button is live in the reader. It reads the page that is open,
+then waits. Turning the page (swipe, scroll, arrow keys or Next) reads the new
+page. It never reads ahead of the page on screen. Pressing it again stops.
 
-It is not Alpha's voice. It is the generic system voice.
+It uses the device's own speech engine, and picks a male English voice,
+preferring West African English (Nigerian, Ghanaian), then East and South
+African, then British, read slower and lower for a mature voice. Because these
+voices belong to each device, a phone and a laptop will not sound identical,
+and a device without a male English voice falls back to a lowered female one.
+That is a hard limit of speech built into browsers.
+
+**The only way to get one voice everywhere, offline included, is real audio
+files.** That is now built:
+
+* **Audio essays.** In the dashboard, Essays, attach an MP3 or M4A recording
+  to any essay. It plays on the Listen page and in the reader ("Recording"
+  button), and readers can save it to their phone for offline listening.
+* **Narrate in my voice.** Once the ElevenLabs keys below are set, each essay
+  in the dashboard gets a "Narrate in my voice" link. The server reads the
+  essay in Alpha's cloned voice, stores the MP3, and it becomes an audio essay
+  automatically, with a notification to app users.
+
+### Setting up the cloned voice (about 15 minutes)
+
+1. Create an ElevenLabs account (Creator plan or above for Professional Voice
+   Cloning; Starter allows Instant Voice Cloning).
+2. Voices, Add voice, Instant (or Professional) Voice Clone. Upload clean
+   recordings of **Alpha himself** reading, at least one minute, ideally ten or
+   more. The WhatsApp recording `AUD-20261010-WA0003.mp3` (about 5 MB) can be
+   used if it is Alpha's own voice, with little background noise. ElevenLabs
+   asks you to confirm you have the speaker's consent: only clone Alpha's voice
+   with his permission.
+3. Copy the **Voice ID** of the new voice, and an **API key** from your profile.
+4. In Render, backend service, Environment, add `ELEVENLABS_API_KEY` and
+   `ELEVENLABS_VOICE_ID`. Save; Render redeploys.
+5. Dashboard, Essays: "Narrate in my voice" now appears beside each essay.
+
+Cost is per character read. A 3,000 word essay is about 18,000 characters.
 
 The code is deliberately written against a tiny interface, `speak`, `stop` and a
 state callback, so that the real voice can be dropped in behind the same button

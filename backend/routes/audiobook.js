@@ -3,6 +3,7 @@ import { supabaseAdmin } from '../lib/supabase.js';
 import { stripe } from '../lib/stripe.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
 import { stripDashes } from '../lib/validate.js';
+import { isOwnerAccount, optionalUser, ownedChapterIds } from '../lib/entitlements.js';
 
 const router = express.Router();
 
@@ -18,24 +19,16 @@ router.get('/:bookId/chapters', async (req, res) => {
     .order('sort_order');
   if (error) return res.status(500).json({ error: error.message });
 
-  // If an Authorization header is present, mark which chapters are owned
-  const authHeader = req.headers.authorization || '';
-  const token = authHeader.replace('Bearer ', '');
-  let ownedIds = [];
-  if (token) {
-    const { data: userData } = await supabaseAdmin.auth.getUser(token);
-    if (userData?.user) {
-      const { data: purchases } = await supabaseAdmin
-        .from('chapter_purchases')
-        .select('chapter_id')
-        .eq('user_id', userData.user.id);
-      ownedIds = (purchases || []).map((p) => p.chapter_id);
-    }
-  }
+  // If an Authorization header is present, mark which chapters are owned. The
+  // author owns every chapter, and a chapter priced at nothing is free to any
+  // signed in listener.
+  const user = await optionalUser(req);
+  const owner = user ? await isOwnerAccount(user.id) : false;
+  const ownedIds = user ? await ownedChapterIds(user.id) : [];
   // audio_url is the paid asset. Never send it to someone who has not bought the
   // chapter: this endpoint is public, so selecting '*' was handing it out free.
   res.json(chaptersData.map((c) => {
-    const owned = ownedIds.includes(c.id);
+    const owned = owner || ownedIds.includes(c.id) || (Boolean(user) && Number(c.price_cents) === 0);
     const { audio_url, ...safe } = c;
     return owned ? { ...safe, audio_url, owned } : { ...safe, owned };
   }));
@@ -49,6 +42,7 @@ router.post('/chapters/:chapterId/buy', requireAuth, async (req, res) => {
     .eq('id', req.params.chapterId)
     .single();
   if (!chapter) return res.status(404).json({ error: 'Chapter not found' });
+  if (await isOwnerAccount(req.user.id)) return res.status(409).json({ error: 'This is your own audiobook. Every chapter is already yours.' });
 
   // Already bought: send them back instead of charging twice.
   const { data: owned } = await supabaseAdmin
@@ -68,8 +62,10 @@ router.post('/chapters/:chapterId/buy', requireAuth, async (req, res) => {
       }],
       customer_email: req.user.email,
       metadata: { chapter_purchase_user_id: req.user.id, chapter_id: chapter.id },
-      success_url: `${process.env.FRONTEND_APP_URL}#book-mrp?chapter_unlocked=1`,
-      cancel_url: `${process.env.FRONTEND_APP_URL}#book-mrp`
+      // Back to the listening room, which waits for the payment to land and
+      // then opens the chapter.
+      success_url: `${process.env.FRONTEND_APP_URL}#audio?chapter_unlocked=${chapter.id}`,
+      cancel_url: `${process.env.FRONTEND_APP_URL}#audio`
     });
     res.json({ checkout_url: session.url });
   } catch (error) {
@@ -80,20 +76,23 @@ router.post('/chapters/:chapterId/buy', requireAuth, async (req, res) => {
 
 // GET /api/audiobook/chapters/:chapterId/stream: signed URL, only if owned
 router.get('/chapters/:chapterId/stream', requireAuth, async (req, res) => {
-  const { data: owns } = await supabaseAdmin
-    .from('chapter_purchases')
-    .select('chapter_id')
-    .eq('user_id', req.user.id)
-    .eq('chapter_id', req.params.chapterId)
-    .maybeSingle();
-  if (!owns) return res.status(403).json({ error: 'Chapter not purchased' });
-
   const { data: chapter } = await supabaseAdmin
     .from('audiobook_chapters')
-    .select('audio_url, audio_path')
+    .select('audio_url, audio_path, price_cents')
     .eq('id', req.params.chapterId)
     .single();
   if (!chapter) return res.status(404).json({ error: 'Chapter not found' });
+
+  const free = Number(chapter.price_cents) === 0;
+  if (!free && !(await isOwnerAccount(req.user.id))) {
+    const { data: owns } = await supabaseAdmin
+      .from('chapter_purchases')
+      .select('chapter_id')
+      .eq('user_id', req.user.id)
+      .eq('chapter_id', req.params.chapterId)
+      .maybeSingle();
+    if (!owns) return res.status(403).json({ error: 'Chapter not purchased' });
+  }
 
   // Preferred path: the file lives in the private `audiobook` bucket and is
   // handed out as a link that dies in an hour, so a shared URL does not become

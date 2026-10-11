@@ -1,6 +1,7 @@
 import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
+import { announce } from '../lib/push.js';
 import { normalizeVideoList, cleanTextFields, stripDashes } from '../lib/validate.js';
 
 const router = express.Router();
@@ -91,6 +92,7 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
       return res.status(201).json({ ...book, formats_warning: formatError.message });
     }
   }
+  announce({ title: 'New book from Alpha Amadu Jalloh', body: book.title, url: `/#book-${book.id}`, image: book.cover_image_url || null });
   res.status(201).json(book);
 });
 

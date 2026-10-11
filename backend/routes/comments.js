@@ -71,13 +71,16 @@ router.get('/', async (req, res) => {
 router.post('/', requireAuth, async (req, res) => {
   const { target_type, target_id, rating, body } = req.body;
   if (!['book', 'essay'].includes(target_type)) return res.status(400).json({ error: 'Invalid target_type' });
-  if (!/^[0-9a-f-]{36}$/i.test(target_id || '') || !Number.isInteger(rating) || rating < 1 || rating > 5 || typeof body !== 'string' || !body.trim() || body.length > 2000) {
+  // A rating on its own is allowed: the end of book prompt asks for one tap,
+  // with a written note optional.
+  const text = typeof body === 'string' ? body.trim() : '';
+  if (!/^[0-9a-f-]{36}$/i.test(target_id || '') || !Number.isInteger(rating) || rating < 1 || rating > 5 || text.length > 2000) {
     return res.status(400).json({ error: 'Invalid comment' });
   }
 
   const { data, error } = await supabaseAdmin
     .from('comments')
-    .insert({ user_id: req.user.id, target_type, target_id, rating, body })
+    .insert({ user_id: req.user.id, target_type, target_id, rating, body: text })
     .select('*, profiles(full_name)')
     .single();
   if (error) return res.status(500).json({ error: error.message });

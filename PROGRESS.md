@@ -3,7 +3,7 @@
 Running state of the project. **Update this at the end of every working
 session** so the next one can pick up without re-deriving anything.
 
-Last updated: 6 October 2026 (third session)
+Last updated: 11 October 2026
 
 ---
 
@@ -40,6 +40,22 @@ Render. Database migrations are **run by hand** in the Supabase SQL editor.
       safely without it, so the site works either way, but the new author
       fields will not save until the columns exist.
 
+- [ ] **Run `014_audio_essays_gallery_push.sql`** in the Supabase SQL editor.
+      Until then: the Gallery and press tab says to run it, essays cannot carry
+      narration audio, and app notifications have nowhere to store devices.
+      Everything else works without it.
+- [ ] **Add the notification keys to Render** (backend, Environment):
+      `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` from
+      `Desktop/vapid-keys-for-render.json` (not in the repo), and
+      `VAPID_SUBJECT=mailto:alpha.jalloh@canwetalkvoice.com`. Then delete that file.
+- [ ] Optional: `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID` for narration in
+      Alpha's own voice. Steps in `docs/voice-narration.md`.
+- [ ] Paste each book's full text into the dashboard (Books, Edit, reader
+      text). Both books have none yet, so Book Club "Read Online" says the book
+      is not in the reader yet.
+- [ ] Re-upload the cover for the essay "REALITY HATES ME" (Essays, Edit). It
+      was published before covers were saved.
+
 ### Needs building
 
 - [ ] Decide the Play Billing approach before any Play build.
@@ -48,9 +64,8 @@ Render. Database migrations are **run by hand** in the Supabase SQL editor.
       destination, which will not survive real international orders.
 - [ ] Stock is tracked but never set. `stock_count` is null on every format,
       so nothing decrements and nothing can sell out.
-- [ ] Narration in Alpha's own voice. The Listen button works today using the
-      device speech engine; the cloned voice needs an ElevenLabs account and
-      key. Plan and recording script in `docs/voice-narration.md`.
+- [x] Narration in Alpha's own voice: built (11 Oct), waits on the ElevenLabs
+      keys. Device voices now prefer a male West African English voice.
 - [ ] Blocking screenshots needs `FLAG_SECURE` in an Android build. A website
       cannot do it. See `docs/content-protection.md`, including the tradeoff.
 
@@ -69,9 +84,38 @@ Applied in order, by hand, in the Supabase SQL editor.
 | `007_developer_role_and_error_log.sql` | yes | `is_developer` flag, `app_error_logs` table |
 | `008_rls_policy_performance.sql` | yes | Wrapped `auth.uid()` in a select inside policies |
 | `009_comment_moderation.sql` | yes | `is_hidden` on comments, `comment_reports` table |
-| `010_book_metadata.sql` | **NO, pending** | ISBN, publisher, publication date, pages, language, genre, edition |
+| `010_book_metadata.sql` | yes | ISBN, publisher, publication date, pages, language, genre, edition |
+| `011` to `013` | yes | Reading progress, newsletter, shipping, samples, essay progress, storage author check |
+| `014_audio_essays_gallery_push.sql` | **NO, pending** | `essays.audio_url`, `gallery_items`, `push_subscriptions`, audio allowed in `media` bucket |
 
 ---
+
+## 11 October 2026 session
+
+Fixed: essay covers were uploaded but never saved (API dropped the field);
+dashboard tables showed "No essays yet" before data arrived, which looked like
+a published essay had vanished; refresh and Stripe returns always landed on
+home; phones had no back button; essay categories were a long list (now a chip
+row that jumps to results); Book Club library and home essays were hand typed
+placeholders; a stale "Audiobook $16.99" and old prices showed before live
+prices loaded; choosing a format on a book page did not select it, so every
+order went in as the first format; plans, contact form and essay column ran
+off the side of a phone.
+
+Added: phone tab bar (Home, Books, Essays, Listen, More); Listen page for
+audiobooks and audio essays with save for offline; working player progress and
+seeking; New releases on home; reader pages end on full sentences; cover as the
+first page; read along narration that follows page turns; scroll and swipe to
+turn pages; rating prompt at the end; owner entitlements (author gets every
+paid feature, eBook not offered to him); "Your library" on the account page;
+payment returns wait for Stripe and open what was bought; gallery of events,
+articles and media with photos and videos (dashboard tab "Gallery and press");
+app notifications for new books and essays; audio upload for essays; optional
+ElevenLabs narration; author photo shown whole instead of a tight crop.
+
+Verified with a headless browser on phone (390 px) and laptop (1366 px) across
+22 pages: no script errors, nothing off screen, every reader page ends on a
+sentence. Owner access verified against the API as the author account.
 
 ## Current data
 
