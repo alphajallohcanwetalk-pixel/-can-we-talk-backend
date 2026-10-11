@@ -91,6 +91,86 @@ ${JSON.stringify({
 `;
 }
 
+function essayPage(essay) {
+  const title = `${essay.title} | Alpha Amadu Jalloh`;
+  const description = trim(essay.excerpt || 'An essay by Alpha Amadu Jalloh, The Misfit Voice.', 300);
+  const image = essay.cover_image_url || `${SITE}/icons/icon-512-v2.png`;
+  const target = `${SITE}/#essay-${essay.id}`;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${esc(title)}</title>
+<meta name="description" content="${esc(description)}">
+<link rel="canonical" href="${esc(target)}">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="${esc(essay.title)}">
+<meta property="og:description" content="${esc(description)}">
+<meta property="og:image" content="${esc(image)}">
+<meta property="og:url" content="${esc(`${SITE}/essay/${essay.id}.html`)}">
+<meta property="og:site_name" content="Can We Talk? (The Misfit Voice)">
+<meta property="article:author" content="Alpha Amadu Jalloh">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${esc(essay.title)}">
+<meta name="twitter:description" content="${esc(description)}">
+<meta name="twitter:image" content="${esc(image)}">
+
+<script type="application/ld+json">
+${JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: essay.title,
+  author: { '@type': 'Person', name: 'Alpha Amadu Jalloh' },
+  description,
+  image,
+  url: target,
+  ...(essay.created_at ? { datePublished: essay.created_at } : {})
+}, null, 2)}
+</script>
+
+<meta http-equiv="refresh" content="0; url=${esc(target)}">
+<script>location.replace(${JSON.stringify(target)});</script>
+<style>
+  body{margin:0;background:#faf8f2;color:#12190f;
+    font:16px/1.7 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:24px;}
+  a{color:#0c3d22;}
+</style>
+</head>
+<body>
+  <div>
+    <h1>${esc(essay.title)}</h1>
+    <p>Opening the essay. <a href="${esc(target)}">Continue</a> if nothing happens.</p>
+  </div>
+</body>
+</html>
+`;
+}
+
+async function writeEssays() {
+  let essays = [];
+  try {
+    const res = await fetch(`${API}/api/essays`, { signal: AbortSignal.timeout(25000) });
+    if (!res.ok) throw new Error(`API returned ${res.status}`);
+    essays = await res.json();
+  } catch (error) {
+    console.log(`Essay share pages skipped: ${error.message}`);
+    return;
+  }
+  if (!Array.isArray(essays) || !essays.length) return;
+  const dir = path.join(OUT, 'essay');
+  await fs.mkdir(dir, { recursive: true });
+  for (const essay of essays) {
+    if (!essay?.id) continue;
+    await fs.writeFile(path.join(dir, `${essay.id}.html`), essayPage(essay), 'utf8');
+    console.log(`  /essay/${essay.id}.html  ${essay.title}`);
+  }
+  console.log(`Essay share pages written: ${essays.length}`);
+}
+
 async function main() {
   let books = [];
   try {
@@ -118,4 +198,7 @@ async function main() {
   console.log(`Share pages written: ${books.length}`);
 }
 
-main();
+// The API on Render may be asleep; wake it before asking for anything.
+await fetch(`${API}/api/books`, { signal: AbortSignal.timeout(60000) }).catch(() => {});
+await main();
+await writeEssays();

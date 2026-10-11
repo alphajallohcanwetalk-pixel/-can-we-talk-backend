@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Rebuild every two hours so new essays and books get their share pages
+  # (the WhatsApp preview with title and cover) without anyone pushing code.
+  schedule:
+    - cron: '17 */2 * * *'
 
 permissions:
   contents: read

@@ -3,6 +3,7 @@ import { supabaseAdmin } from '../lib/supabase.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
 import { sendNewEssayAlert } from '../lib/email.js';
 import { announce } from '../lib/push.js';
+import { requestSiteRebuild } from '../lib/redeploy.js';
 import { cleanTextFields, isSafeHttpUrl } from '../lib/validate.js';
 
 // A stored link must be a plain http(s) address; anything else is dropped.
@@ -77,6 +78,7 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
     image: essay.cover_image_url || null,
   });
 
+  requestSiteRebuild();
   res.status(201).json(essay);
 });
 
@@ -92,6 +94,7 @@ router.put('/:id', requireAuth, requireAuthor, async (req, res) => {
     .eq('id', req.params.id)
     .select()
     .single();
+  requestSiteRebuild();
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });

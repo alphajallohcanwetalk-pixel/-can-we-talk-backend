@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
 <script>
+  (function(){
+    var m = location.pathname.match(/^\/(essay|book)\/([0-9a-f-]{36})(?:\.html)?\/?$/i);
+    if(m) location.replace('/' + location.search + '#' + m[1].toLowerCase() + '-' + m[2]);
+  })();
+</script>
+<script>
   // Google Play build. Inside the app distributed through the Play Store,
   // Google requires its own billing for digital goods, so that build sells
   // printed books only and hides eBook, audiobook and Book Club purchases.
@@ -332,7 +338,16 @@
 
   /* ================= FOOTER ================= */
   footer{background:var(--ink); color:#e9ece6; padding:70px 0 30px;}
-  .footer-grid{display:grid; grid-template-columns:1.4fr repeat(auto-fit, minmax(150px, 1fr)); gap:40px; margin-bottom:56px;}
+  /* Brand on the left, three link columns beside it. (The earlier rule mixed
+     auto-fit with an fr column, which browsers reject outright, so the desktop
+     footer collapsed into one long column.) Phones have their own rule below. */
+  .footer-grid{display:grid; grid-template-columns:minmax(280px, 1.5fr) repeat(3, minmax(0, 1fr)); gap:48px; margin-bottom:56px; align-items:start;}
+  .footer-brand .news-form{max-width:380px;}
+  @media(min-width:701px) and (max-width:1000px){
+    .footer-grid{grid-template-columns:repeat(3, minmax(0, 1fr)); gap:36px 28px;}
+    .footer-brand{grid-column:1 / -1;}
+    .footer-brand p{max-width:520px;}
+  }
   .footer-brand h3{color:#fff; font-family:'Fraunces',serif; font-size:1.4rem;}
   .footer-brand p{color:#a9b0a3; font-size:0.88rem; margin-top:14px; max-width:280px;}
   .footer-col h4{font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:#8fbf9a; margin-bottom:16px;}
@@ -1004,6 +1019,49 @@
   .play-build #club-plans,
   .play-build [data-subscribe],
   .play-build .chapter-action.locked{display:none !important;}
+
+  /* ---------- Watermark: visible, behind the text ---------- */
+  .reader-watermark{opacity:1 !important; color:rgba(110, 88, 40, 0.11) !important; z-index:0;
+    font-size:0.74rem !important; line-height:3.6 !important; gap:0 34px; user-select:none;}
+  .reader-watermark span{white-space:nowrap;}
+  .book-page .bp-text{position:relative; z-index:1;}
+  .book-page:has(.reader-cover) .reader-watermark{display:none;}
+  @media print{ .reader-watermark{color:rgba(0,0,0,0.25) !important;} }
+
+  /* ---------- Sharing ---------- */
+  .card-actions{display:inline-flex; gap:16px; align-items:center;}
+  .share-link{cursor:pointer; color:var(--ink-soft); font-weight:600; font-size:0.84rem;}
+  .share-link:hover{color:var(--sl-green-deep);}
+  .share-book{margin-top:12px; width:100%; background:none; border:1px dashed var(--line); border-radius:6px; padding:11px;
+    font:600 0.86rem 'Inter',sans-serif; color:var(--ink-soft); cursor:pointer;}
+  .share-book:hover{border-color:var(--sl-green); color:var(--sl-green-deep);}
+  .share-sheet{position:fixed; inset:0; z-index:5200; display:flex; align-items:flex-end; justify-content:center;
+    background:rgba(12,25,15,0.45); opacity:0; pointer-events:none; transition:opacity .25s;}
+  .share-sheet.open{opacity:1; pointer-events:auto;}
+  .share-sheet .ss-inner{width:min(440px, 100%); background:var(--paper); border-radius:16px 16px 0 0;
+    padding:22px 20px calc(20px + env(safe-area-inset-bottom, 0px)); transform:translateY(30px); transition:transform .3s cubic-bezier(.2,.8,.3,1);}
+  .share-sheet.open .ss-inner{transform:none;}
+  @media(min-width:700px){ .share-sheet{align-items:center;} .share-sheet .ss-inner{border-radius:14px;} }
+  .share-sheet h3{font-size:1.1rem; margin:6px 0 14px;}
+  .ss-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;}
+  .ss-btn{display:block; text-align:center; padding:12px; border:1px solid var(--line); border-radius:8px; font-weight:600; color:var(--ink);}
+  .ss-btn.ss-wa{background:#25d366; border-color:#25d366; color:#06311a;}
+
+  .ms-count{font-weight:500; color:var(--ink-soft); font-size:0.8rem;}
+
+  /* Anything marked hidden stays hidden, whatever display a class gives it.
+     The reader's Recording button showed on essays with no recording. */
+  [hidden]{display:none !important;}
+
+  /* Reader controls wrap onto a second line on a narrow phone instead of
+     squashing a button into a column. */
+  .reader-bar .rb-controls{flex-wrap:wrap; gap:8px;}
+  .reader-bar button{white-space:nowrap; flex:0 0 auto;}
+  .reader-bar button i.glyph-minus{display:inline-block; vertical-align:middle;}
+
+  /* Room under the last line for the page number. */
+  @media(max-width:860px){ .book-page{padding-bottom:56px !important;} }
+  .book-page{padding-bottom:58px;}
 
   /* The catalogue used an inline column count, which a media query cannot
      override, so it stayed three wide on a phone. */
@@ -1876,6 +1934,7 @@
         <div class="signed-toggle"><div class="label">✒️ Add author's signature</div><div class="toggle-switch" data-sign-toggle tabindex="0" role="switch" aria-checked="false" aria-label="Add author's signature"></div></div>
         <div class="qty-row"><span style="font-size:0.85rem; color:var(--ink-soft); font-weight:600;">Quantity</span><div class="qty-control" data-qty><button data-dec aria-label="Decrease quantity"><i class="glyph-minus"></i></button><span>1</span><button data-inc aria-label="Increase quantity">+</button></div></div>
         <div class="buy-actions"><a href="#" class="btn btn-dark" data-cart-action="add">Add to Cart</a><a href="#" class="btn btn-outline" data-cart-action="buynow">Buy Now</a></div>
+        <button type="button" class="share-book" data-share="book:mrp">Share this book</button>
         <div class="buy-meta">
           <div>🚚 &nbsp; Ships worldwide from Freetown &amp; Nairobi warehouses</div>
           <div>🔒 &nbsp; Secure checkout · all major cards &amp; mobile money</div>
@@ -2002,6 +2061,7 @@
         <div class="signed-toggle"><div class="label">✒️ Add author's signature</div><div class="toggle-switch" data-sign-toggle tabindex="0" role="switch" aria-checked="false" aria-label="Add author's signature"></div></div>
         <div class="qty-row"><span style="font-size:0.85rem; color:var(--ink-soft); font-weight:600;">Quantity</span><div class="qty-control" data-qty><button data-dec aria-label="Decrease quantity"><i class="glyph-minus"></i></button><span>1</span><button data-inc aria-label="Increase quantity">+</button></div></div>
         <div class="buy-actions"><a href="#" class="btn btn-dark" data-cart-action="add">Add to Cart</a><a href="#" class="btn btn-outline" data-cart-action="buynow">Buy Now</a></div>
+        <button type="button" class="share-book" data-share="book:mono">Share this book</button>
         <div class="buy-meta">
           <div>🚚 &nbsp; Ships worldwide from Freetown &amp; Nairobi warehouses</div>
           <div>🔒 &nbsp; Secure checkout · all major cards &amp; mobile money</div>
@@ -2120,6 +2180,7 @@
         <div class="signed-toggle"><div class="label">✒️ Add author's signature</div><div class="toggle-switch" data-sign-toggle tabindex="0" role="switch" aria-checked="false" aria-label="Add author's signature"></div></div>
         <div class="qty-row"><span style="font-size:0.85rem; color:var(--ink-soft); font-weight:600;">Quantity</span><div class="qty-control" data-qty><button data-dec aria-label="Decrease quantity"><i class="glyph-minus"></i></button><span>1</span><button data-inc aria-label="Increase quantity">+</button></div></div>
         <div class="buy-actions"><a href="#" class="btn btn-dark" data-cart-action="add">Add to Cart</a><a href="#" class="btn btn-outline" data-cart-action="buynow">Buy Now</a></div>
+        <button type="button" class="share-book" data-share="book:current">Share this book</button>
       </div>
     </div>
   </section>
@@ -2359,6 +2420,7 @@
       <div class="rb-controls">
         <button id="readerRecording" hidden>&#9654; Recording</button>
         <button id="readerListen" aria-label="Listen to this page">Listen</button>
+        <button id="readerShare" aria-label="Share">Share</button>
         <button data-font-dec aria-label="Smaller text">A<i class="glyph-minus"></i></button>
         <button data-font-inc>A+</button>
         <button class="nav-link" id="readerExit" data-view="essays">Close</button>
@@ -2417,6 +2479,18 @@
       </div>
       <p class="book-hint">Swipe, scroll or use the arrow keys to turn the page. Listen reads each page as you turn to it.</p>
       <div class="read-along-hint" id="readAlongHint" role="status">Turn the page to keep listening</div>
+
+      <div class="rate-card" id="previewEnd" role="dialog" aria-label="End of the free opening">
+        <div class="rate-inner">
+          <span class="eyebrow">End of the free opening</span>
+          <h3>Enjoying it?</h3>
+          <p class="web-only" style="color:var(--ink-soft); margin-bottom:14px;">Buy the eBook to read the whole book here, or join the AJ Book Club to read every book.</p>
+          <div class="rate-actions">
+            <button type="button" class="btn btn-sm btn-outline-dark" id="previewEndClose">Close</button>
+            <button type="button" class="btn btn-sm btn-dark web-only" id="previewEndBuy">See buying options</button>
+          </div>
+        </div>
+      </div>
 
       <div class="rate-card" id="rateCard" role="dialog" aria-label="Rate what you just read">
         <div class="rate-inner">
@@ -2851,8 +2925,10 @@
                   </div>
                 </div>
                 <div class="field"><label>Description</label><textarea id="newBookDescription" style="min-height:80px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="What is this book about?"></textarea></div>
-                <div class="field"><label>eBook text</label><textarea id="newBookReaderText" style="min-height:180px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Paste the full eBook text. Separate pages or sections with a blank line."></textarea></div>
-                <div class="field"><label>Upload eBook file</label><input type="file" id="newBookReaderFile" accept=".txt,.epub,.pdf,text/plain,application/epub+zip,application/pdf"></div>
+                <div class="field"><label>Manuscript: upload the book to read online</label><input type="file" id="newBookReaderFile" accept=".docx,.txt,.epub,.pdf,text/plain,application/epub+zip,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                  <small class="field-hint">Word (.docx) works best, then EPUB, text, or PDF. The text appears below for you to check before saving. Readers must buy the eBook or join the Book Club to read it all; anyone can read the opening for free.</small></div>
+                <div class="field"><label>Manuscript text <span class="ms-count" id="manuscriptCount"></span></label><textarea id="newBookReaderText" style="min-height:180px; padding:13px 14px; border:1px solid var(--line); border-radius:5px; font-family:'Inter',sans-serif;" placeholder="Upload the manuscript above, or paste the full text here. Leave a blank line between paragraphs."></textarea>
+                  <small class="field-hint" id="manuscriptPreviewNote"></small></div>
                 <div class="field"><label>Front cover image</label><input type="file" id="newBookCover" accept="image/*"></div>
                 <div class="field"><label>Back cover image</label><input type="file" id="newBookBackCover" accept="image/*"></div>
                 <div class="field"><label>Launch / gallery photos (up to 6)</label><input type="file" id="newBookGallery" accept="image/*" multiple></div>
@@ -2864,8 +2940,8 @@
                   <div class="field"><label>Language</label><input type="text" id="newBookLanguage" placeholder="English"></div>
                   <div class="field"><label>Genre</label><input type="text" id="newBookGenre" placeholder="Nonfiction, Politics"></div>
                   <div class="field"><label>Edition</label><input type="text" id="newBookEdition" placeholder="First edition"></div>
-                  <div class="field"><label>Free sample (words)</label><input type="number" id="newBookSampleWords" min="0" step="50" placeholder="0">
-                    <div style="font-size:0.72rem; color:var(--ink-soft); margin-top:5px;">How much anyone may read before buying. 0 means none.</div>
+                  <div class="field"><label>Free opening (words)</label><input type="number" id="newBookSampleWords" min="0" step="50" placeholder="Automatic">
+                    <div style="font-size:0.72rem; color:var(--ink-soft); margin-top:5px;">Leave empty for the standard: the opening pages up to Chapter One, plus its first page. Or set your own number of words.</div>
                   </div>
                 </div>
                 <div class="field"><label>Video links (one per line)</label>
@@ -3266,6 +3342,21 @@
 </div>
 
 <!-- ============ MINI AUDIO PLAYER ============ -->
+<div class="share-sheet" id="shareSheet" role="dialog" aria-label="Share">
+  <div class="ss-inner">
+    <span class="eyebrow">Share</span>
+    <h3 id="shareTitle"></h3>
+    <div class="ss-grid">
+      <a id="shareWhatsapp" target="_blank" rel="noopener" class="ss-btn ss-wa">WhatsApp</a>
+      <a id="shareFacebook" target="_blank" rel="noopener" class="ss-btn">Facebook</a>
+      <a id="shareX" target="_blank" rel="noopener" class="ss-btn">X</a>
+      <a id="shareEmail" class="ss-btn">Email</a>
+    </div>
+    <button type="button" class="btn btn-outline-dark" id="shareCopy" style="width:100%; margin-top:12px;">Copy link</button>
+    <button type="button" class="btn btn-dark" id="shareClose" style="width:100%; margin-top:8px;">Done</button>
+  </div>
+</div>
+
 <div class="push-offer" id="pushOffer" role="dialog" aria-label="Notifications">
   <div><strong>Hear about new releases</strong><span>Get a notification when Alpha publishes a new book or essay.</span></div>
   <div class="po-actions"><button type="button" class="btn btn-sm btn-outline-dark" id="pushOfferNo">Not now</button><button type="button" class="btn btn-sm btn-dark" id="pushOfferYes">Turn on</button></div>
@@ -3895,7 +3986,7 @@
       card.className = 'essay-card';
       // Titles and excerpts are author supplied, so they are set as text rather
       // than interpolated into markup.
-      card.innerHTML = `${e.cover_image_url ? '<div class="cover-thumb"></div>' : ''}<span class="tag"></span><h3></h3><p></p><div class="meta"><span class="ey"></span><a data-open-essay="${e.id}" style="cursor:pointer;">Read More →</a></div>`;
+      card.innerHTML = `${e.cover_image_url ? '<div class="cover-thumb"></div>' : ''}<span class="tag"></span><h3></h3><p></p><div class="meta"><span class="ey"></span><span class="card-actions"><a data-share="essay:${e.id}" class="share-link" aria-label="Share">Share</a><a data-open-essay="${e.id}" style="cursor:pointer;">Read More →</a></span></div>`;
       if(e.cover_image_url){
         const thumb = card.querySelector('.cover-thumb');
         thumb.setAttribute('data-lightbox', e.cover_image_url);
@@ -4855,7 +4946,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     // Anyone who already has the book (the author, a Book Club member, or a
     // reader who bought the eBook) gets the whole book, not a sample.
     const owns = Boolean(book) && (ownerAccount || isMember || (myLibrary?.ebook_book_ids || []).includes(book.id));
-    if(!chars && !owns){ if(btn) btn.remove(); return; }
+    if(!book?.has_text){ if(btn) btn.remove(); return; }
     if(!btn){
       btn = document.createElement('a');
       btn.className = 'btn btn-outline sample-btn';
@@ -4863,7 +4954,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       btn.addEventListener('click', () => openReader(book.id));
       buyBox.querySelector('.buy-actions')?.appendChild(btn);
     }
-    btn.textContent = owns ? 'Read the book now' : 'Read a free sample';
+    btn.textContent = owns ? 'Read the book now' : 'Read the opening free';
   }
 
   const FORMAT_NOTES = {
@@ -4938,7 +5029,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
           meta: '', description: b.description || '', cover: b.cover_style || 'cover-1', cover_image_url: b.cover_image_url,
           back_cover_url: b.back_cover_url, gallery_urls: normalizeGalleryUrls(b.gallery_urls), reader_full_text: b.reader_full_text || '', formats: b.book_formats || [],
           video_urls: Array.isArray(b.video_urls) ? b.video_urls : [],
-          sample_chars: b.sample_chars || 0, created_at: b.created_at,
+          sample_chars: b.sample_chars || 0, created_at: b.created_at, has_text: Boolean(b.has_text),
           isbn: b.isbn, publisher: b.publisher, published_date: b.published_date, page_count: b.page_count, language: b.language, genre: b.genre, edition: b.edition
         };
       });
@@ -6498,7 +6589,20 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       document.getElementById('newBookSubtitle').value = b.subtitle || '';
       document.getElementById('newBookPrice').value = b.price;
       document.getElementById('newBookDescription').value = b.description || '';
-      document.getElementById('newBookReaderText').value = b.reader_full_text || '';
+      const textBox = document.getElementById('newBookReaderText');
+      textBox.value = '';
+      textBox.placeholder = 'Loading the manuscript…';
+      manuscriptLoaded = false;
+      fetch(`${API_URL}/api/books/${b.id}/manage`, { headers: authHeaders() })
+        .then(r => r.ok ? r.json() : Promise.reject(new Error('could not load')))
+        .then(full => {
+          if(editingBookId !== b.id) return;
+          textBox.value = full.reader_full_text || '';
+          manuscriptLoaded = true;
+          paintManuscriptInfo();
+        })
+        .catch(() => { if(editingBookId === b.id) textBox.placeholder = 'The manuscript could not be loaded. Saving will leave it unchanged.'; })
+        .finally(() => { if(!manuscriptLoaded) return; textBox.placeholder = 'Upload the manuscript above, or paste the full text here.'; });
       // Show the links the author originally pasted, not the embed form.
       document.getElementById('newBookVideos').value =
         (b.video_urls || []).map(v => v.source || v.url).join('\n');
@@ -6553,8 +6657,11 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     return rows;
   }
 
+  let manuscriptLoaded = false;
+
   function resetBookForm(){
     editingBookId = null;
+    manuscriptLoaded = false;
     ['newBookTitle','newBookSubtitle','newBookPrice','newBookDescription','newBookReaderText'].forEach(i => document.getElementById(i).value = '');
     document.getElementById('newBookCover').value = '';
     document.getElementById('newBookBackCover').value = '';
@@ -6572,6 +6679,8 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     document.getElementById('newBookEdition').value = '';
     document.getElementById('newBookSampleWords').value = '';
     document.getElementById('newBookVideoFile').value = '';
+    document.getElementById('manuscriptCount').textContent = '';
+    document.getElementById('manuscriptPreviewNote').textContent = '';
     document.getElementById('bookFormHeading').textContent = '+ Add New Book';
     document.getElementById('addBookBtn').textContent = 'Publish Book';
     document.getElementById('cancelBookEditBtn').style.display = 'none';
@@ -6580,37 +6689,101 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   }
   document.getElementById('cancelBookEditBtn').addEventListener('click', resetBookForm);
 
+  // Turns an uploaded manuscript into plain paragraphs separated by a blank
+  // line, which is what the reader paginates.
   async function extractEbookText(file){
     const extension = file.name.toLowerCase().split('.').pop();
-    if(extension === 'txt') return file.text();
+    const tidy = (text) => text.replace(/\r\n?/g, '\n').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+
+    if(extension === 'txt') return tidy(await file.text());
+
+    if(extension === 'docx'){
+      await loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js', 'mammoth');
+      // Converted to HTML first so headings and paragraphs keep their breaks.
+      const { value: html } = await mammoth.convertToHtml({ arrayBuffer: await file.arrayBuffer() });
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const blocks = [...doc.body.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,blockquote')]
+        .map(el => el.textContent.replace(/\s+/g, ' ').trim()).filter(Boolean);
+      return tidy(blocks.join('\n\n'));
+    }
+
     if(extension === 'epub'){
       await loadExternalScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js', 'JSZip');
       const archive = await JSZip.loadAsync(await file.arrayBuffer());
-      const names = Object.keys(archive.files).filter(name => /\.(xhtml|html?)$/i.test(name)).sort();
+      // Follow the book's own reading order (the spine), not file name order.
+      let order = [];
+      try {
+        const container = new DOMParser().parseFromString(await archive.file('META-INF/container.xml').async('text'), 'application/xml');
+        const opfPath = container.querySelector('rootfile').getAttribute('full-path');
+        const base = opfPath.includes('/') ? opfPath.slice(0, opfPath.lastIndexOf('/') + 1) : '';
+        const opf = new DOMParser().parseFromString(await archive.file(opfPath).async('text'), 'application/xml');
+        const manifest = {};
+        opf.querySelectorAll('manifest > item').forEach(i => { manifest[i.getAttribute('id')] = base + decodeURIComponent(i.getAttribute('href')); });
+        order = [...opf.querySelectorAll('spine > itemref')].map(r => manifest[r.getAttribute('idref')]).filter(Boolean);
+      } catch(e){}
+      if(!order.length) order = Object.keys(archive.files).filter(name => /\.(xhtml|html?)$/i.test(name)).sort();
       const sections = [];
-      for(const name of names){
-        const markup = await archive.files[name].async('text');
-        const document = new DOMParser().parseFromString(markup, 'text/html');
-        const text = document.body?.textContent?.replace(/\s+/g, ' ').trim();
-        if(text) sections.push(text);
+      for(const name of order){
+        const entry = archive.file(name);
+        if(!entry) continue;
+        const doc = new DOMParser().parseFromString(await entry.async('text'), 'text/html');
+        const blocks = [...doc.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,blockquote')]
+          .map(el => el.textContent.replace(/\s+/g, ' ').trim()).filter(Boolean);
+        if(blocks.length) sections.push(blocks.join('\n\n'));
       }
-      return sections.join('\n\n');
+      return tidy(sections.join('\n\n'));
     }
+
     if(extension === 'pdf'){
       await loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', 'pdfjsLib');
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
       const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-      const pages = [];
+      const paragraphs = [];
+      let current = '';
       for(let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++){
         const page = await pdf.getPage(pageNumber);
         const content = await page.getTextContent();
-        const text = content.items.map(item => item.str).join(' ').replace(/\s+/g, ' ').trim();
-        if(text) pages.push(text);
+        // Rebuild lines from their positions, then paragraphs from the gaps
+        // between lines. A page break in the middle of a sentence is joined up.
+        const lines = [];
+        let line = null;
+        content.items.forEach(item => {
+          const y = Math.round(item.transform[5]);
+          const h = Math.abs(item.transform[3]) || 10;
+          if(!line || Math.abs(line.y - y) > h * 0.5){ line = { y, h, text: '' }; lines.push(line); }
+          line.text += (line.text && !line.text.endsWith(' ') && !item.str.startsWith(' ') ? ' ' : '') + item.str;
+        });
+        lines.forEach((l, i) => {
+          const text = l.text.replace(/\s+/g, ' ').trim();
+          if(!text || /^\d{1,4}$/.test(text)) return;   // page numbers
+          const gap = i > 0 ? lines[i - 1].y - l.y : 0;
+          const newParagraph = i > 0 && gap > l.h * 1.7;
+          if(newParagraph && current){ paragraphs.push(current); current = ''; }
+          current = current ? (current.endsWith('-') ? current.slice(0, -1) + text : current + ' ' + text) : text;
+        });
+        // A page that ends on a full sentence ends its paragraph too.
+        if(current && /[.!?]["'\u201D\u2019)]*$/.test(current)){ paragraphs.push(current); current = ''; }
       }
-      return pages.join('\n\n');
+      if(current) paragraphs.push(current);
+      return tidy(paragraphs.join('\n\n'));
     }
-    throw new Error('Please choose a .txt, .epub, or .pdf file.');
+    throw new Error('Please choose a Word (.docx), EPUB, text or PDF file.');
   }
+
+  // Word count, and where the free opening will stop, so the author can see
+  // exactly what readers get before buying.
+  function paintManuscriptInfo(){
+    const text = document.getElementById('newBookReaderText').value;
+    const words = (text.match(/\S+/g) || []).length;
+    document.getElementById('manuscriptCount').textContent = words ? `(${words.toLocaleString()} words)` : '';
+    const note = document.getElementById('manuscriptPreviewNote');
+    if(!words){ note.textContent = ''; return; }
+    const m = [...text.matchAll(/^[ \t]*chapter[ \t]+(?:1|one|i)\b[^\n]*$/gim)];
+    note.textContent = m.length
+      ? `Free opening: everything up to "${m[m.length - 1][0].trim().slice(0, 60)}", plus its first page.`
+      : 'No "Chapter One" heading found, so the free opening will be the first page of the text.';
+  }
+  document.getElementById('newBookReaderText').addEventListener('input', () => { manuscriptLoaded = true; paintManuscriptInfo(); });
 
   const loadedExternalScripts = {};
   function loadExternalScript(src, globalName){
@@ -6629,12 +6802,24 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   document.getElementById('newBookReaderFile').addEventListener('change', async (event) => {
     const file = event.target.files[0];
     if(!file) return;
-    if(file.size > 25 * 1024 * 1024){ alert('eBook files must be 25 MB or smaller.'); event.target.value = ''; return; }
+    if(file.size > 25 * 1024 * 1024){ alert('Manuscript files must be 25 MB or smaller.'); event.target.value = ''; return; }
+    const box = document.getElementById('newBookReaderText');
+    const before = box.placeholder;
+    box.placeholder = 'Reading the manuscript…';
+    box.disabled = true;
     try {
-      document.getElementById('newBookReaderText').value = await extractEbookText(file);
+      const text = await extractEbookText(file);
+      if(!text.trim()) throw new Error('No text was found. If it is a scanned PDF, upload the Word file instead.');
+      box.value = text;
+      manuscriptLoaded = true;
+      paintManuscriptInfo();
+      showAdminToast('Manuscript loaded. Check it, then save the book.');
     } catch(error) {
-      alert('Could not read this eBook: ' + error.message);
+      alert('Could not read this manuscript: ' + error.message);
       event.target.value = '';
+    } finally {
+      box.disabled = false;
+      box.placeholder = before;
     }
   });
 
@@ -6685,12 +6870,15 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         edition: document.getElementById('newBookEdition').value.trim(),
         sample_chars: (() => {
           const words = parseInt(document.getElementById('newBookSampleWords').value, 10);
-          return Number.isInteger(words) && words > 0 ? Math.min(words * 6, 200000) : 0;
+          return Number.isInteger(words) && words > 0 ? Math.min(words * 6, 200000) : 0;   // 0: automatic
         })(),
       };
 
       if(editingBookId){
-        const body = { title, subtitle, description, reader_full_text, price, video_urls, ...meta };
+        const body = { title, subtitle, description, price, video_urls, ...meta };
+        // Only send the manuscript when it was loaded or replaced; otherwise
+        // the saved one is left exactly as it is.
+        if(manuscriptLoaded) body.reader_full_text = reader_full_text;
         if(cover_image_url) body.cover_image_url = cover_image_url;
         if(back_cover_url) body.back_cover_url = back_cover_url;
         if(gallery_urls) body.gallery_urls = gallery_urls;
@@ -7700,6 +7888,55 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     } catch(e){ box.textContent = ''; }
   }
 
+  // ================= SHARING =================
+  // Every essay and book has its own link. Shared to WhatsApp it shows the
+  // title and cover, and opens straight onto that essay or book.
+  const SITE_URL = 'https://canwetalkvoice.com';
+  const shareUrl = (kind, id) => `${SITE_URL}/${kind}/${id}.html`;
+
+  function shareThis(kind, id, title, text){
+    const url = shareUrl(kind, id);
+    const message = `${title}${kind === 'essay' ? ', an essay by Alpha Amadu Jalloh' : ', by Alpha Amadu Jalloh'}`;
+    if(navigator.share){
+      navigator.share({ title, text: message, url }).catch(() => {});
+      return;
+    }
+    const sheet = document.getElementById('shareSheet');
+    document.getElementById('shareTitle').textContent = title;
+    const enc = encodeURIComponent;
+    document.getElementById('shareWhatsapp').href = `https://wa.me/?text=${enc(message + '\n' + url)}`;
+    document.getElementById('shareFacebook').href = `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`;
+    document.getElementById('shareX').href = `https://twitter.com/intent/tweet?text=${enc(message)}&url=${enc(url)}`;
+    document.getElementById('shareEmail').href = `mailto:?subject=${enc(title)}&body=${enc(message + '\n\n' + url)}`;
+    const copy = document.getElementById('shareCopy');
+    copy.textContent = 'Copy link';
+    copy.onclick = async () => {
+      try { await navigator.clipboard.writeText(url); copy.textContent = 'Link copied'; }
+      catch(e){ prompt('Copy this link:', url); }
+    };
+    sheet.classList.add('open');
+  }
+  document.getElementById('shareClose')?.addEventListener('click', () => document.getElementById('shareSheet').classList.remove('open'));
+  document.getElementById('shareSheet')?.addEventListener('click', e => { if(e.target.id === 'shareSheet') e.currentTarget.classList.remove('open'); });
+
+  // Any element with data-share="essay:<id>" or data-share="book:<id>".
+  document.body.addEventListener('click', e => {
+    const el = e.target.closest('[data-share]');
+    if(!el) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const [kind, key] = el.dataset.share.split(':');
+    const id = key === 'mrp' ? mrpBookId : key === 'mono' ? monoBookId : key === 'current' ? currentGenericBookId : key;
+    if(!id) return;
+    const title = kind === 'essay' ? (essays.find(x => x.id === id) || {}).title : (books.find(x => x.id === id) || {}).title;
+    shareThis(kind, id, title || 'Can We Talk?');
+  });
+
+  document.getElementById('readerShare')?.addEventListener('click', () => {
+    const t = readerState.target;
+    if(t) shareThis(t.type, t.id, readerState.title || 'Can We Talk?');
+  });
+
   // ================= AJ BOOK CLUB =================
   let isMember = false;
   let memberPlan = null;
@@ -7753,10 +7990,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
 
   async function openReader(bookKey){
     showView('reader');
-    if(!currentSession){
-      openAuth();
-      return;
-    }
+    // Signed out readers get the free opening; the server decides how much.
     // Accepts either a flagship key or a real book id, so a "Read a sample"
     // button on any book page can open the reader.
     const bookId = bookKey === 'mrp' ? mrpBookId
@@ -7764,7 +7998,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
                  : bookKey;
     try {
       const res = await fetch(`${API_URL}/api/bookclub/read/${bookId}`, { headers: authHeaders() });
-      if(!res.ok) throw new Error(res.status === 403 ? 'Book Club membership required.' : 'Reader unavailable.');
+      if(!res.ok) throw new Error(res.status === 403 ? 'Buy the eBook or join the Book Club to read this book.' : res.status === 404 ? 'This book is not available to read online yet.' : 'The reader is not available right now. Please try again.');
       const book = await res.json();
       document.getElementById('readerBookTitle').textContent = book.title;
       const exit = document.getElementById('readerExit');
@@ -7784,9 +8018,9 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       const banner = document.getElementById('sampleBanner');
       if(banner){
         if(book.is_sample){
-          const pct = book.total_chars ? Math.round((book.sample_chars / book.total_chars) * 100) : null;
-          document.getElementById('sampleBannerText').textContent =
-            pct ? `You are reading a free sample, about ${pct}% of the book.` : 'You are reading a free sample.';
+          document.getElementById('sampleBannerText').textContent = PLAY_BUILD
+            ? 'You are reading the opening of the book, free.'
+            : 'You are reading the opening of the book, free. Buy the eBook or join the Book Club to read on.';
           banner.style.display = '';
         } else {
           banner.style.display = 'none';
@@ -7874,11 +8108,16 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   }
 
   function buildWatermark(){
-    const tag = currentUser ? `${currentUser.name} · ${currentUser.email}` : 'AJ Book Club Member';
-    const markup = Array(40).fill(tag).join(' &nbsp;&nbsp; ');
+    const who = currentUser ? `${currentUser.name} · ${currentUser.email}` : 'Free preview';
+    const tag = `${who} · canwetalkvoice.com`;
     ['readerWatermarkL', 'readerWatermarkR'].forEach(id => {
       const wm = document.getElementById(id);
-      if(wm) wm.innerHTML = markup;
+      if(!wm) return;
+      wm.replaceChildren(...Array.from({ length: 28 }, () => {
+        const span = document.createElement('span');
+        span.textContent = tag;
+        return span;
+      }));
     });
   }
 
@@ -7949,7 +8188,9 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       readerState.lastSpoken = i;
       if(readAlong){ document.getElementById('readAlongHint')?.classList.remove('show'); readCurrentPage(); }
     }
-    if(total && i + per >= total) maybeAskForRating();
+    if(total && i + per >= total){
+      if(readerState.isSample) showPreviewEnd(); else maybeAskForRating();
+    }
   }
 
   let flipping = false;
@@ -8081,6 +8322,19 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   // ------------------------------------------------------------------ rating
   // At the last page, ask once what the reader thought. One tap is enough; a
   // written note is optional.
+  function showPreviewEnd(){
+    const card = document.getElementById('previewEnd');
+    if(!card || readerState.previewShown) return;
+    readerState.previewShown = true;
+    setTimeout(() => card.classList.add('open'), 700);
+  }
+  document.getElementById('previewEndClose')?.addEventListener('click', () => document.getElementById('previewEnd').classList.remove('open'));
+  document.getElementById('previewEndBuy')?.addEventListener('click', () => {
+    document.getElementById('previewEnd').classList.remove('open');
+    const t = readerState.target;
+    if(t && t.type === 'book') openBook(t.id); else showView('books-catalog');
+  });
+
   function ratedKey(){ return readerState.target ? `cwt.rated.${readerState.target.type}.${readerState.target.id}` : null; }
   function maybeAskForRating(){
     const key = ratedKey();

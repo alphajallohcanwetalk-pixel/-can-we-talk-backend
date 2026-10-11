@@ -2,6 +2,7 @@ import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
 import { announce } from '../lib/push.js';
+import { requestSiteRebuild } from '../lib/redeploy.js';
 import { normalizeVideoList, cleanTextFields, stripDashes } from '../lib/validate.js';
 
 const router = express.Router();
@@ -31,7 +32,12 @@ router.get('/', async (req, res) => {
     .eq('is_active', true)
     .order('created_at', { ascending: false }));
   if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
+  // Which books can be read online. Asked for separately so the manuscripts
+  // themselves are never part of this public list.
+  const { data: withText } = await supabaseAdmin
+    .from('books').select('id').not('reader_full_text', 'is', null).neq('reader_full_text', '');
+  const readable = new Set((withText || []).map((b) => b.id));
+  res.json(data.map((b) => ({ ...b, has_text: readable.has(b.id) })));
 });
 
 // GET /api/books/:id: single book detail
@@ -93,6 +99,7 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
     }
   }
   announce({ title: 'New book from Alpha Amadu Jalloh', body: book.title, url: `/#book-${book.id}`, image: book.cover_image_url || null });
+  requestSiteRebuild();
   res.status(201).json(book);
 });
 
@@ -183,6 +190,7 @@ router.put('/:id', requireAuth, requireAuthor, async (req, res) => {
     if (savePriceError) return res.status(500).json({ error: savePriceError.message });
   }
 
+  requestSiteRebuild();
   res.json(data);
 });
 

@@ -74,6 +74,10 @@ app.use('/api/orders/checkout', rateLimit({ windowMs: 15 * 60 * 1000, limit: 10,
 // registered BEFORE express.json() and only for this specific path.
 app.use('/api/webhooks', express.raw({ type: 'application/json' }), webhookRoutes);
 
+// A full book manuscript runs to several hundred kilobytes, so the book
+// routes take up to 5 MB. Everything else keeps the tight 100 KB limit. The
+// first parser to run marks the body as read and the second skips it.
+app.use('/api/books', express.json({ limit: '5mb' }));
 app.use(express.json({ limit: '100kb' }));
 
 app.use('/api/auth', authRoutes);

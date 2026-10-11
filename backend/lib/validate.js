@@ -22,17 +22,22 @@ export function stripDashes(value) {
   if (typeof value !== 'string' || !HAS_DASH.test(value)) return value;
   return value
     // A range between two numbers reads better as "to".
-    .replace(/(\d)\s*[\u2012\u2013\u2014\u2015\u2212\u2010\u2011]\s*(\d)/g, '$1 to $2')
+    .replace(/(\d)[ \t]*[\u2012\u2013\u2014\u2015\u2212\u2010\u2011][ \t]*(\d)/g, '$1 to $2')
     // U+2010 and U+2011 are true hyphens: they join one word to another
     // ("non-breaking"), so a comma would be wrong. Use a space.
     .replace(/(\w)[\u2010\u2011](\w)/g, '$1 $2')
     // Everything else is a dash separating clauses, where a comma is right.
-    .replace(/\s*[\u2012\u2013\u2014\u2015\u2212\u2010\u2011]\s*/g, ', ')
+    // Only spaces and tabs around it are absorbed, never line breaks, so a
+    // book or essay keeps its paragraphs. (Absorbing \s here once collapsed a
+    // whole manuscript into a single paragraph.)
+    .replace(/[ \t]*[\u2012\u2013\u2014\u2015\u2212\u2010\u2011][ \t]*/g, ', ')
     // Tidy up the punctuation that substitution can leave behind.
-    .replace(/\s+,/g, ',')
-    .replace(/,\s*,+/g, ',')
-    .replace(/,\s*([.!?;:])/g, '$1')
-    .replace(/\s{2,}/g, ' ')
+    .replace(/[ \t]+,/g, ',')
+    .replace(/,[ \t]*,+/g, ',')
+    .replace(/,[ \t]*([.!?;:])/g, '$1')
+    // A dash that ended a line leaves a trailing comma there; drop it.
+    .replace(/,[ \t]*(?=\r?\n)/g, '')
+    .replace(/[ \t]{2,}/g, ' ')
     .trim();
 }
 
