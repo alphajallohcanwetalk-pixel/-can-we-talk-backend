@@ -23,6 +23,16 @@
       if(sessionStorage.getItem('cwt.play') === '1') document.documentElement.classList.add('play-build');
     } catch(e){}
   })();
+  // The download offer is shown during a person's first visit only. After
+  // that it lives in the footer, out of the way.
+  (function(){
+    try {
+      var seen = localStorage.getItem('cwt_install_offered') === '1';
+      var firstSession = sessionStorage.getItem('cwt.installFirstSession') === '1';
+      if(!seen){ localStorage.setItem('cwt_install_offered', '1'); sessionStorage.setItem('cwt.installFirstSession', '1'); }
+      else if(!firstSession) document.documentElement.classList.add('install-seen');
+    } catch(e){}
+  })();
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1063,6 +1073,11 @@
   @media(max-width:860px){ .book-page{padding-bottom:56px !important;} }
   .book-page{padding-bottom:58px;}
 
+  /* Download offer: first visit only, then just the footer link. */
+  .install-seen .install-first-visit,
+  .install-seen #installBanner{display:none !important;}
+  .footer-install{cursor:pointer;}
+
   /* The catalogue used an inline column count, which a media query cannot
      override, so it stayed three wide on a phone. */
   .catalog-grid{grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));}
@@ -1706,7 +1721,7 @@
     <a class="nav-link" data-view="contact">Contact</a>
     <a class="nav-link staff-only" data-view="admin">Dashboard</a>
     <a class="nav-link mm-primary" data-view="books-catalog">Shop Books</a>
-    <a data-install-app>Get the App</a>
+    <a data-install-app class="install-first-visit">Get the App</a>
     <a data-push-toggle>🔔 Notify me of new releases</a>
     <a id="signInBtnMobile">Sign In / Sign Up</a>
   </div>
@@ -1748,7 +1763,7 @@
       <h1>Can We Talk?</h1>
       <div class="subtitle">(The Misfit Voice)</div>
       <p class="tagline">Some questions are too important to remain unasked. Books, essays, conversations and reflections on leadership, justice, Africa, society and the people who live with the consequences of power.</p>
-      <div class="hero-install-row">
+      <div class="hero-install-row install-first-visit">
         <button class="btn btn-install" data-install-app>
           <img src="icons/icon-192-v2.png" alt="" width="36" height="36" decoding="async">
           <span class="bi-text">Download the App<span class="bi-sub">Free, installs in seconds</span></span>
@@ -1795,7 +1810,7 @@
     </div>
   </section>
 
-  <section class="install-band" id="getTheApp">
+  <section class="install-band install-first-visit" id="getTheApp">
     <div class="wrap">
       <div class="install-copy">
         <span class="eyebrow">Read Anywhere</span>
@@ -3396,6 +3411,7 @@
         <a class="nav-link" data-view="about">About Alpha</a>
         <a class="nav-link" data-view="books-catalog">Books</a>
         <a class="nav-link" data-view="essays">Essays</a>
+        <a data-install-app class="footer-install" href="#">Get the App</a>
       </div>
       <div class="footer-col">
         <h4>Connect</h4>
