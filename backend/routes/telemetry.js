@@ -1,4 +1,5 @@
 import express from 'express';
+import * as Sentry from '@sentry/node';
 import { logAppError } from '../lib/errorLog.js';
 
 const router = express.Router();
@@ -18,6 +19,24 @@ const router = express.Router();
 const MAX_MESSAGE = 1000;
 const MAX_STACK = 4000;
 const MAX_PATH = 300;
+
+// Browser errors are also forwarded to Sentry (when SENTRY_DSN is set), capped per hour so an open
+// endpoint can never use up the Sentry quota.
+const SENTRY_BROWSER_LIMIT = 100;
+let sentryWindowStart = Date.now();
+let sentrySent = 0;
+function forwardToSentry(message, stack, path, context) {
+  if (!process.env.SENTRY_DSN) return;
+  if (Date.now() - sentryWindowStart > 3600_000) { sentryWindowStart = Date.now(); sentrySent = 0; }
+  if (sentrySent >= SENTRY_BROWSER_LIMIT) return;
+  sentrySent += 1;
+  Sentry.withScope((scope) => {
+    scope.setTag('source', 'browser');
+    if (path) scope.setTag('page', path);
+    scope.setContext('browser_error', { ...context, stack });
+    Sentry.captureMessage(message, 'error');
+  });
+}
 
 const clip = (value, limit) =>
   typeof value === 'string' && value.trim() ? value.trim().slice(0, limit) : null;
@@ -46,6 +65,8 @@ router.post('/client-error', async (req, res) => {
     source: 'client',
     context
   });
+
+  forwardToSentry(message, clip(req.body?.stack, MAX_STACK), clip(req.body?.path, MAX_PATH), context);
 
   // 204: nothing to say, and nothing for an attacker to measure.
   res.status(204).send();
