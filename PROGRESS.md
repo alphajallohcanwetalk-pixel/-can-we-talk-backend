@@ -160,7 +160,9 @@ Lighthouse before: mobile performance 34, desktop 61 (FCP 6.5 s, 7.6 MB, TBT 2 s
 - Images from Supabase Storage go through `sized(url, width)`, which uses the render endpoint
   (resized, WebP when the browser accepts it). Book covers went from 5.4 MB and 1.6 MB to about
   100 KB. Use `sized()` for every new place that shows a Storage image.
-- Google Fonts load without blocking the first paint; supabase.js is preloaded.
+- Fonts are served from the site (`frontend/fonts`, latin only, copied by the Pages workflow);
+  Inter and Fraunces are preloaded. supabase.js is preloaded. To change fonts, download new woff2
+  files there and update the @font-face rules at the top of the stylesheet.
 - Reveal animations no longer animate `filter: blur` and the sticky header has no backdrop blur
   (both cost a lot on phones; opacity and movement are unchanged). The install arrow nudges 3 times.
 - Menu links have real `href="#view"` addresses (crawlable); footer headings are h3; B&A credit

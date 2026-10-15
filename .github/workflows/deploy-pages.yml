@@ -35,6 +35,8 @@ jobs:
           cp frontend/manifest.webmanifest dist/manifest.webmanifest
           cp frontend/sw.js dist/sw.js
           cp -r frontend/icons dist/icons
+          # Fonts are served from the site itself (faster than Google Fonts).
+          cp -r frontend/fonts dist/fonts
           # Standalone legal pages. These must work without JavaScript so a
           # Play reviewer always reaches them.
           cp frontend/privacy.html dist/privacy.html
