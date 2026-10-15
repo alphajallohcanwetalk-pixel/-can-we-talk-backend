@@ -4,7 +4,8 @@ What is next, what is waiting on someone, and ideas for later. Tick items off (o
 Back to the [BRAIN](BRAIN.md) · [LOG](LOG.md)
 
 ## Now and next (from the B&A owner area, 16 October 2026)
-- [ ] Owner decision: make the repository private. On a free GitHub account that switches GitHub Pages off (the website would go offline), so first either upgrade the GitHub account alphajallohcanwetalk-pixel to Pro, or move the website to a host that serves private repositories (for example Cloudflare Pages, which needs a DNS change for canwetalkvoice.com).
+- Decided 16 Oct 2026: the website stays on GitHub Pages, so the repository stays public (GitHub Pages on a free account needs it). The Serv cPanel plan (cpanel.canwetalkvoice.com) is not used for the website.
+- [ ] **Before the Serv hosting plan ends in December 2026:** the domain's DNS (nameservers ns1 to ns3.serv.com.au) and the mailboxes (mail.canwetalkvoice.com) live on that plan. Either renew it, or before it ends: move DNS to a free DNS host (for example Cloudflare) with the same records (GitHub Pages A records 185.199.108.153 to 111.153, www CNAME alphajallohcanwetalk-pixel.github.io, the Resend `send` records, any verification records) and move the mailboxes to a free mail host (for example Zoho Mail). The domain itself is paid until 3 September 2027 (registrar Synergy Wholesale, bought through Serv).
 - [ ] Speed, next step: split the dashboard and reader code out of the 500 KB page so phones stop blocking on load.
 - [ ] Tidy the first visit privacy notice (very tall on phones, its I agree button looks like plain text).
 
