@@ -165,6 +165,8 @@ Lighthouse before: mobile performance 34, desktop 61 (FCP 6.5 s, 7.6 MB, TBT 2 s
   files there and update the @font-face rules at the top of the stylesheet.
 - Reveal animations no longer animate `filter: blur` and the sticky header has no backdrop blur
   (both cost a lot on phones; opacity and movement are unchanged). The install arrow nudges 3 times.
+- Book links point to the share pages (`/book/<id>`), essay "Read" links to `/essay/<id>`, sign in
+  links to `#account`; their click handlers call `preventDefault()` and open in the page as before.
 - Menu links have real `href="#view"` addresses (crawlable); footer headings are h3; B&A credit
   button label matches its text; small text contrast raised.
 - Measured with the real site and data: 8.5 MB down to about 1.1 MB on a phone, one page load.

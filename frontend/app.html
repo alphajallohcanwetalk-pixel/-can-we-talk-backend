@@ -897,7 +897,7 @@
   .release-card .rc-cover.has-photo .rc-fallback{display:none;}
   .release-card .rc-kind{position:absolute; top:10px; left:10px; background:rgba(255,255,255,0.92); color:var(--sl-green-deep);
     font:700 0.62rem 'IBM Plex Mono',monospace; letter-spacing:0.1em; text-transform:uppercase; padding:4px 8px; border-radius:20px;}
-  .release-card h4{font-size:0.95rem; margin-top:12px; line-height:1.3;}
+  .release-card h3, .release-card h4{font-family:inherit; font-weight:700; font-size:0.95rem; margin-top:12px; line-height:1.3;}
   .release-card small{color:var(--ink-soft); font-size:0.76rem;}
 
   /* Essay cards on the home page, now with their cover. */
@@ -1987,7 +1987,7 @@
   <section class="detail comments-section" id="mrp-comments">
     <div class="wrap">
       <div class="section-head"><span class="eyebrow">Reader Comments</span><h2>Join the conversation</h2><p>Rate the book and share your thoughts, visible to every future reader.</p></div>
-      <div id="mrp-signin-prompt" class="signin-prompt">Please <a data-open-auth>sign in or create an account</a> to rate this book and leave a comment.</div>
+      <div id="mrp-signin-prompt" class="signin-prompt">Please <a href="#account" data-open-auth>sign in or create an account</a> to rate this book and leave a comment.</div>
       <form class="comment-form" id="mrp-comment-form" style="display:none;">
         <div>
           <label style="font-size:0.82rem; font-weight:600; color:var(--ink-soft);">Your rating</label>
@@ -2114,7 +2114,7 @@
   <section class="detail comments-section" id="mono-comments">
     <div class="wrap">
       <div class="section-head"><span class="eyebrow">Reader Comments</span><h2>Join the conversation</h2><p>Rate the book and share your thoughts, visible to every future reader.</p></div>
-      <div id="mono-signin-prompt" class="signin-prompt">Please <a data-open-auth>sign in or create an account</a> to rate this book and leave a comment.</div>
+      <div id="mono-signin-prompt" class="signin-prompt">Please <a href="#account" data-open-auth>sign in or create an account</a> to rate this book and leave a comment.</div>
       <form class="comment-form" id="mono-comment-form" style="display:none;">
         <div>
           <label style="font-size:0.82rem; font-weight:600; color:var(--ink-soft);">Your rating</label>
@@ -2213,7 +2213,7 @@
   <section class="detail comments-section" id="gb-comments">
     <div class="wrap">
       <div class="section-head"><span class="eyebrow">Reader Comments</span><h2>Join the conversation</h2></div>
-      <div id="gb-signin-prompt" class="signin-prompt">Please <a data-open-auth>sign in or create an account</a> to rate this book and leave a comment.</div>
+      <div id="gb-signin-prompt" class="signin-prompt">Please <a href="#account" data-open-auth>sign in or create an account</a> to rate this book and leave a comment.</div>
       <form class="comment-form" id="gb-comment-form" style="display:none;">
         <div><label style="font-size:0.82rem; font-weight:600; color:var(--ink-soft);">Your rating</label>
           <div class="rate-input" data-rate-input><span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5">★</span></div>
@@ -3804,12 +3804,12 @@
     box.replaceChildren(...latest.map(e => {
       const card = document.createElement('article');
       card.className = 'writing-card';
-      card.innerHTML = `${e.cover_image_url ? '<div class="wc-cover"></div>' : ''}<span class="tag"></span><h3></h3><p></p><a class="read-more">Read <span>&rarr;</span></a>`;
+      card.innerHTML = `${e.cover_image_url ? '<div class="wc-cover"></div>' : ''}<span class="tag"></span><h3></h3><p></p><a class="read-more" href="/essay/${e.id}">Read <span>&rarr;</span></a>`;
       if(e.cover_image_url) lazyLoadCover(card.querySelector('.wc-cover'), e.cover_image_url);
       card.querySelector('.tag').textContent = e.cat || '';
       card.querySelector('h3').textContent = e.title || '';
       card.querySelector('p').textContent = e.excerpt || '';
-      card.querySelector('.read-more').addEventListener('click', () => openEssay(e.id));
+      card.querySelector('.read-more').addEventListener('click', (ev) => { ev.preventDefault(); openEssay(e.id); });
       return card;
     }));
   }
@@ -3831,10 +3831,10 @@
       const card = document.createElement('button');
       card.type = 'button';
       card.className = 'release-card';
-      card.innerHTML = '<div class="rc-cover"><span class="rc-kind"></span><span class="rc-fallback"></span></div><h4></h4><small></small>';
+      card.innerHTML = '<div class="rc-cover"><span class="rc-kind"></span><span class="rc-fallback"></span></div><h3></h3><small></small>';
       card.querySelector('.rc-kind').textContent = item.kind;
       card.querySelector('.rc-fallback').textContent = item.title;
-      card.querySelector('h4').textContent = item.title;
+      card.querySelector('h3').textContent = item.title;
       card.querySelector('small').textContent = item.sub;
       if(item.cover) lazyLoadCover(card.querySelector('.rc-cover'), item.cover);
       card.addEventListener('click', () => item.kind === 'Book' ? openBook(item.id) : openEssay(item.id));
@@ -5154,14 +5154,14 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         <div class="book-body">
           <p>${b.description}</p>
           <div class="book-actions">
-            <a class="btn btn-sm btn-dark" data-open-book="${b.id}">View Book</a>
+            <a href="/book/${b.id}" class="btn btn-sm btn-dark" data-open-book="${b.id}">View Book</a>
           </div>
         </div>`;
       if(b.cover_image_url) applyCoverImage(card.querySelector('.book-cover'), b.cover_image_url);
       grid.appendChild(card);
     });
     grid.querySelectorAll('[data-open-book]').forEach(el => {
-      el.addEventListener('click', () => openBook(el.dataset.openBook));
+      el.addEventListener('click', (ev) => { ev.preventDefault(); openBook(el.dataset.openBook); });
     });
   }
 
@@ -5182,15 +5182,15 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
           <div class="book-meta">${b.meta || 'New release'}</div>
           <p>${b.description}</p>
           <div class="book-actions">
-            <a class="btn btn-sm btn-dark" data-open-book="${b.id}">Buy the Book</a>
-            <a class="btn btn-sm btn-outline-dark" data-open-book="${b.id}">Order a Signed Copy</a>
+            <a href="/book/${b.id}" class="btn btn-sm btn-dark" data-open-book="${b.id}">Buy the Book</a>
+            <a href="/book/${b.id}" class="btn btn-sm btn-outline-dark" data-open-book="${b.id}">Order a Signed Copy</a>
           </div>
         </div>`;
       if(b.cover_image_url) applyCoverImage(card.querySelector('.book-cover'), b.cover_image_url);
       grid.appendChild(card);
     });
     grid.querySelectorAll('[data-open-book]').forEach(el => {
-      el.addEventListener('click', () => openBook(el.dataset.openBook));
+      el.addEventListener('click', (ev) => { ev.preventDefault(); openBook(el.dataset.openBook); });
     });
   }
 
@@ -5215,7 +5215,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         <div class="cc-body">
           <h3></h3>
           <p></p>
-          <a data-open-book="${b.id}">View Book →</a>
+          <a href="/book/${b.id}" data-open-book="${b.id}">View Book →</a>
         </div>`;
       // textContent, not innerHTML: titles and descriptions are author supplied.
       card.querySelector('h3').textContent = b.title;
@@ -5236,7 +5236,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       box.appendChild(card);
     });
     box.querySelectorAll('[data-open-book]').forEach(el => {
-      el.addEventListener('click', () => openBook(el.dataset.openBook));
+      el.addEventListener('click', (ev) => { ev.preventDefault(); openBook(el.dataset.openBook); });
     });
   }
 
