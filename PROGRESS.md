@@ -150,6 +150,23 @@ All test content is gone, including the book called "repositor".
 
 ---
 
+## 15 October 2026: speed (B&A Developers)
+
+Lighthouse before: mobile performance 34, desktop 61 (FCP 6.5 s, 7.6 MB, TBT 2 s).
+
+- First visits loaded the site twice: the new service worker claimed the page and the
+  `controllerchange` handler reloaded it, which also cancelled the data requests ("Failed to
+  fetch" errors). It now reloads only when an older worker is replaced.
+- Images from Supabase Storage go through `sized(url, width)`, which uses the render endpoint
+  (resized, WebP when the browser accepts it). Book covers went from 5.4 MB and 1.6 MB to about
+  100 KB. Use `sized()` for every new place that shows a Storage image.
+- Google Fonts load without blocking the first paint; supabase.js is preloaded.
+- Reveal animations no longer animate `filter: blur` and the sticky header has no backdrop blur
+  (both cost a lot on phones; opacity and movement are unchanged). The install arrow nudges 3 times.
+- Menu links have real `href="#view"` addresses (crawlable); footer headings are h3; B&A credit
+  button label matches its text; small text contrast raised.
+- Measured with the real site and data: 8.5 MB down to about 1.1 MB on a phone, one page load.
+
 ## Conventions that must not regress
 
 **No dashes anywhere in published copy.** No em dash, en dash, figure dash,

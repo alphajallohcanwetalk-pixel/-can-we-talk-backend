@@ -58,7 +58,10 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@600&display=swap" rel="stylesheet"></noscript>
+<link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js">
 <style>
   :root{
     --sl-green-deep:#0c3d22; --sl-green:#12622f; --sl-green-bright:#1eb53a;
@@ -95,7 +98,7 @@
   .btn-outline:hover{background:var(--ink); color:#fff;}
 
   /* ---------- Nav ---------- */
-  header.site-nav{position:sticky; top:0; z-index:200; background:rgba(250,248,242,0.94); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  header.site-nav{position:sticky; top:0; z-index:200; background:rgba(250,248,242,0.98); border-bottom:1px solid var(--line);}
   .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:16px 28px; max-width:1180px; margin:0 auto;}
   .brand{font-family:'Fraunces',serif; font-weight:700; font-size:1.05rem; display:flex; flex-direction:column; line-height:1.15;}
   .brand small{font-family:'IBM Plex Mono',monospace; font-weight:400; font-size:0.62rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--sl-green); margin-top:2px;}
@@ -360,7 +363,7 @@
   }
   .footer-brand h3{color:#fff; font-family:'Fraunces',serif; font-size:1.4rem;}
   .footer-brand p{color:#a9b0a3; font-size:0.88rem; margin-top:14px; max-width:280px;}
-  .footer-col h4{font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:#8fbf9a; margin-bottom:16px;}
+  .footer-col h3, .footer-col h4{font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:#8fbf9a; margin-bottom:16px;}
   .footer-col a{display:block; color:#cfd3c9; font-size:0.9rem; margin-bottom:11px; transition:color .2s;}
   .footer-col a:hover{color:var(--sl-green-bright);}
   .footer-bottom{display:flex; justify-content:space-between; align-items:center; padding-top:26px; border-top:1px solid rgba(255,255,255,0.1); font-size:0.78rem; color:#8b9285; flex-wrap:wrap; gap:12px;}
@@ -1103,7 +1106,7 @@
 
     /* Link columns read better as a two column block than as one long list. */
     .footer-col{display:grid; grid-template-columns:1fr 1fr; gap:4px 16px;}
-    .footer-col h4{grid-column:1 / -1; margin-bottom:8px;}
+    .footer-col h3, .footer-col h4{grid-column:1 / -1; margin-bottom:8px;}
     .footer-col a{margin-bottom:7px; font-size:0.86rem;}
 
     /* The bottom row stacked and given room to breathe, plus space below for
@@ -1453,11 +1456,9 @@
     --glide: cubic-bezier(.16,.84,.44,1);
   }
 
-  [data-reveal]{will-change:opacity, transform, filter;}
   html.reveal-ready [data-reveal]{
     opacity:0;
-    filter:blur(7px);
-    transition:opacity .62s var(--glide), transform .72s var(--spring), filter .62s var(--glide);
+    transition:opacity .62s var(--glide), transform .72s var(--spring);
     transition-delay:var(--reveal-delay, 0ms);}
   html.reveal-ready [data-reveal="up"]{transform:translate3d(0, 30px, 0) scale(.985);}
   html.reveal-ready [data-reveal="fade"]{transform:scale(.99);}
@@ -1465,17 +1466,17 @@
   html.reveal-ready [data-reveal="left"]{transform:translate3d(-30px, 0, 0) scale(.99);}
   html.reveal-ready [data-reveal="right"]{transform:translate3d(30px, 0, 0) scale(.99);}
 
-  html.reveal-ready [data-reveal].is-in{opacity:1; transform:none; filter:blur(0);}
+  html.reveal-ready [data-reveal].is-in{opacity:1; transform:none;}
 
   /* Leaving is quicker and softer than arriving, so scrolling back does not
      feel like the page is fighting you. */
   html.reveal-ready [data-reveal].is-out{
-    transition:opacity .34s var(--glide), transform .34s var(--glide), filter .34s var(--glide);}
+    transition:opacity .34s var(--glide), transform .34s var(--glide);}
 
   html.reveal-ready [data-reveal-stagger] > *{
-    opacity:0; transform:translate3d(0, 22px, 0) scale(.985); filter:blur(5px);
-    transition:opacity .55s var(--glide), transform .65s var(--spring), filter .55s var(--glide);}
-  html.reveal-ready [data-reveal-stagger].is-in > *{opacity:1; transform:none; filter:blur(0);}
+    opacity:0; transform:translate3d(0, 22px, 0) scale(.985);
+    transition:opacity .55s var(--glide), transform .65s var(--spring);}
+  html.reveal-ready [data-reveal-stagger].is-in > *{opacity:1; transform:none;}
 
   .hero-content{will-change:transform;}
 
@@ -1554,8 +1555,8 @@
   .btn-install:hover{background:#25cc44; transform:translateY(-3px); box-shadow:0 18px 42px rgba(30,181,58,0.5);}
   .btn-install:active{transform:translateY(0) scale(0.98);}
   .btn-install .bi-text{display:block; text-align:left;}
-  .btn-install .bi-sub{display:block; font-size:0.7rem; font-weight:600; opacity:0.78; letter-spacing:0.02em;}
-  .btn-install .bi-arrow{flex:0 0 auto; margin-left:4px; animation:dlNudge 2.4s var(--ease-out) infinite;}
+  .btn-install .bi-sub{display:block; font-size:0.7rem; font-weight:600; opacity:0.95; letter-spacing:0.02em;}
+  .btn-install .bi-arrow{flex:0 0 auto; margin-left:4px; animation:dlNudge 2.4s var(--ease-out) 3;}
   @keyframes dlNudge{0%,72%,100%{transform:translateY(0);} 82%{transform:translateY(3px);}}
   .hero-install-row{display:flex; margin-bottom:18px;}
   @media(max-width:700px){
@@ -1688,39 +1689,39 @@
     <div class="nav-left">
       <button class="icon-btn nav-ctrl" id="navBack" aria-label="Go back" title="Back" style="display:none;">&#8592;</button>
       <button class="icon-btn nav-ctrl" id="navReload" aria-label="Reload" title="Reload">&#8635;</button>
-      <a class="brand nav-link" data-view="home">CAN WE TALK?<small>The Misfit Voice</small></a>
+      <a href="#home" class="brand nav-link" data-view="home">CAN WE TALK?<small>The Misfit Voice</small></a>
     </div>
     <nav class="links">
-      <a class="nav-link" data-view="home">Home</a>
-      <a class="nav-link" data-view="books-catalog">Books</a>
-      <a class="nav-link" data-view="essays">Essays</a>
-      <a class="nav-link" data-view="audio">Listen</a>
-      <a class="nav-link" data-view="bookclub">Book Club</a>
-      <a class="nav-link" data-view="about">About</a>
-      <a class="nav-link" data-view="contact">Contact</a>
+      <a href="#home" class="nav-link" data-view="home">Home</a>
+      <a href="#books-catalog" class="nav-link" data-view="books-catalog">Books</a>
+      <a href="#essays" class="nav-link" data-view="essays">Essays</a>
+      <a href="#audio" class="nav-link" data-view="audio">Listen</a>
+      <a href="#bookclub" class="nav-link" data-view="bookclub">Book Club</a>
+      <a href="#about" class="nav-link" data-view="about">About</a>
+      <a href="#contact" class="nav-link" data-view="contact">Contact</a>
     </nav>
     <div id="authArea">
       <a class="nav-cta" id="signInBtn">Sign In</a>
     </div>
-    <a class="nav-dash nav-link" data-view="admin" id="navDash" title="Open your dashboard">Dashboard</a>
+    <a href="#admin" class="nav-dash nav-link" data-view="admin" id="navDash" title="Open your dashboard">Dashboard</a>
     <button class="icon-btn" id="searchBtn" aria-label="Search the site">🔍</button>
     <button class="icon-btn" id="cartBtn" aria-label="View cart"><span>🛒</span><span class="cart-badge" id="cartBadge" style="display:none;">0</span></button>
-    <a class="nav-cta nav-link" data-view="book-mrp" style="margin-left:10px;">Shop Books</a>
+    <a href="#book-mrp" class="nav-cta nav-link" data-view="book-mrp" style="margin-left:10px;">Shop Books</a>
     <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
   </div>
   <div class="mobile-menu" id="mobileMenu">
-    <a class="nav-link" data-view="home">Home</a>
-    <a class="nav-link" data-view="books-catalog">Books</a>
-    <a class="nav-link" data-view="essays">Essays</a>
-    <a class="nav-link" data-view="audio">Listen: audiobooks and audio essays</a>
-    <a class="nav-link" data-view="bookclub">AJ Book Club</a>
-    <a class="nav-link" data-view="events">Events</a>
-    <a class="nav-link" data-view="gallery">Gallery</a>
-    <a class="nav-link" data-view="speaking">Speaking</a>
-    <a class="nav-link" data-view="about">About Alpha</a>
-    <a class="nav-link" data-view="contact">Contact</a>
-    <a class="nav-link staff-only" data-view="admin">Dashboard</a>
-    <a class="nav-link mm-primary" data-view="books-catalog">Shop Books</a>
+    <a href="#home" class="nav-link" data-view="home">Home</a>
+    <a href="#books-catalog" class="nav-link" data-view="books-catalog">Books</a>
+    <a href="#essays" class="nav-link" data-view="essays">Essays</a>
+    <a href="#audio" class="nav-link" data-view="audio">Listen: audiobooks and audio essays</a>
+    <a href="#bookclub" class="nav-link" data-view="bookclub">AJ Book Club</a>
+    <a href="#events" class="nav-link" data-view="events">Events</a>
+    <a href="#gallery" class="nav-link" data-view="gallery">Gallery</a>
+    <a href="#speaking" class="nav-link" data-view="speaking">Speaking</a>
+    <a href="#about" class="nav-link" data-view="about">About Alpha</a>
+    <a href="#contact" class="nav-link" data-view="contact">Contact</a>
+    <a href="#admin" class="nav-link staff-only" data-view="admin">Dashboard</a>
+    <a href="#books-catalog" class="nav-link mm-primary" data-view="books-catalog">Shop Books</a>
     <a data-install-app class="install-first-visit">Get the App</a>
     <a data-push-toggle>🔔 Notify me of new releases</a>
     <a id="signInBtnMobile">Sign In / Sign Up</a>
@@ -1776,9 +1777,9 @@
         </button>
       </div>
       <div class="hero-ctas">
-        <a class="btn btn-primary nav-link" data-view="book-mrp">Explore My Books</a>
-        <a class="btn btn-ghost nav-link" data-view="essays">Read My Essays</a>
-        <a class="btn btn-ghost nav-link" data-view="misfit">Enter The Misfit Voice</a>
+        <a href="#book-mrp" class="btn btn-primary nav-link" data-view="book-mrp">Explore My Books</a>
+        <a href="#essays" class="btn btn-ghost nav-link" data-view="essays">Read My Essays</a>
+        <a href="#home" class="btn btn-ghost nav-link" data-view="misfit">Enter The Misfit Voice</a>
       </div>
       <div class="hero-name">ALPHA AMADU JALLOH</div>
       <div class="hero-role">Author · Columnist · Human Rights Advocate · Peacebuilder · Public Commentator</div>
@@ -1805,7 +1806,7 @@
         <span class="eyebrow">About the Author</span>
         <h3>Alpha Amadu Jalloh</h3>
         <p id="home-author-bio">Author, columnist, human rights advocate and peacebuilder from Sierra Leone.</p>
-        <a class="btn btn-sm btn-outline-dark nav-link" data-view="about">Read his story</a>
+        <a href="#about" class="btn btn-sm btn-outline-dark nav-link" data-view="about">Read his story</a>
       </div>
     </div>
   </section>
@@ -1818,7 +1819,7 @@
         <p>Add the app to your home screen for a full screen reading experience, faster loading and offline access to pages you have already opened. No app store, no download size, no account needed to install.</p>
         <div class="install-actions">
           <button class="btn btn-primary" data-install-app>Install the App</button>
-          <a class="btn btn-ghost nav-link" data-view="books-catalog">Browse Books First</a>
+          <a href="#books-catalog" class="btn btn-ghost nav-link" data-view="books-catalog">Browse Books First</a>
         </div>
       </div>
       <div class="install-mark">
@@ -1862,7 +1863,7 @@
         <p>Where Alpha has been, what he has written, and what the media are saying.</p>
       </div>
       <div class="gal-grid" id="homeNewsGrid"></div>
-      <a class="btn btn-outline-dark nav-link" data-view="gallery" style="margin-top:26px;">See everything</a>
+      <a href="#gallery" class="btn btn-outline-dark nav-link" data-view="gallery" style="margin-top:26px;">See everything</a>
     </div>
   </section>
 
@@ -1881,7 +1882,7 @@
         <span class="chip">The Misfit Essays</span>
       </div>
       <div style="margin-top:30px;">
-        <a class="btn btn-primary nav-link" data-view="essays">Open the Essay Library →</a>
+        <a href="#essays" class="btn btn-primary nav-link" data-view="essays">Open the Essay Library →</a>
       </div>
     </div>
   </section>
@@ -1915,7 +1916,7 @@
 <!-- ============ BOOK: MR PRESIDENT VIEW ============ -->
 <div class="view" id="view-book-mrp">
   <div class="wrap breadcrumb">
-    <a class="nav-link" data-view="home">Home</a><span>/</span><a class="nav-link" data-view="books-catalog">Books</a><span>/</span>Mr. President, Can We Talk?
+    <a href="#home" class="nav-link" data-view="home">Home</a><span>/</span><a href="#books-catalog" class="nav-link" data-view="books-catalog">Books</a><span>/</span>Mr. President, Can We Talk?
   </div>
   <section class="book-hero">
     <div class="wrap hero-layout">
@@ -2028,7 +2029,7 @@
         <span class="eyebrow">About the Author</span>
         <h3>Alpha Amadu Jalloh</h3>
         <p id="mrp-author-bio">Author, columnist, human rights advocate and peacebuilder from Sierra Leone.</p>
-        <a class="btn btn-sm btn-outline-dark nav-link" data-view="about">Read his story</a>
+        <a href="#about" class="btn btn-sm btn-outline-dark nav-link" data-view="about">Read his story</a>
       </div>
     </div>
   </section>
@@ -2044,7 +2045,7 @@
 <!-- ============ BOOK: MONOPOLY VIEW ============ -->
 <div class="view" id="view-book-mono">
   <div class="wrap breadcrumb">
-    <a class="nav-link" data-view="home">Home</a><span>/</span><a class="nav-link" data-view="books-catalog">Books</a><span>/</span>Monopoly of Happiness
+    <a href="#home" class="nav-link" data-view="home">Home</a><span>/</span><a href="#books-catalog" class="nav-link" data-view="books-catalog">Books</a><span>/</span>Monopoly of Happiness
   </div>
   <section class="book-hero">
     <div class="wrap hero-layout">
@@ -2063,7 +2064,7 @@
         <div class="subtitle">Unveiling Sierra Leone's Social Imbalance</div>
         <div class="stars" id="mono-rating-display"><span class="icons">☆☆☆☆☆</span><span class="count">No ratings yet</span></div>
         <p class="lede">An earlier, foundational work examining inequality and the social imbalances that determine who enjoys opportunity, influence, recognition and prosperity, and who remains outside the circles where privilege is concentrated.</p>
-        <div class="launch-strip">An important earlier work. Read alongside <a class="nav-link" data-view="book-mrp" style="color:var(--sl-blue-deep); font-weight:600;">Mr. President, Can We Talk?</a> for the fuller picture of his thinking.</div>
+        <div class="launch-strip">An important earlier work. Read alongside <a href="#book-mrp" class="nav-link" data-view="book-mrp" style="color:var(--sl-blue-deep); font-weight:600;">Mr. President, Can We Talk?</a> for the fuller picture of his thinking.</div>
         <div class="info-tabs"><a href="#mono-description">Description</a><a href="#mono-audiobook">Audiobook</a><a href="#mono-comments">Comments</a><a href="#mono-gallery">Gallery</a><a href="#mono-press">Media Coverage</a></div>
       </div>
       <div class="buy-box" data-book-id="mono" data-book-title="Monopoly of Happiness" data-cover="c2">
@@ -2154,7 +2155,7 @@
         <span class="eyebrow">About the Author</span>
         <h3>Alpha Amadu Jalloh</h3>
         <p id="mono-author-bio">Author, columnist, human rights advocate and peacebuilder from Sierra Leone.</p>
-        <a class="btn btn-sm btn-outline-dark nav-link" data-view="about">Read his story</a>
+        <a href="#about" class="btn btn-sm btn-outline-dark nav-link" data-view="about">Read his story</a>
       </div>
     </div>
   </section>
@@ -2169,7 +2170,7 @@
 
 <!-- ============ GENERIC BOOK VIEW (for author-added books) ============ -->
 <div class="view" id="view-book-generic">
-  <div class="wrap breadcrumb"><a class="nav-link" data-view="home">Home</a><span>/</span><a class="nav-link" data-view="books-catalog">Books</a><span>/</span><span id="gb-crumb">Book</span></div>
+  <div class="wrap breadcrumb"><a href="#home" class="nav-link" data-view="home">Home</a><span>/</span><a href="#books-catalog" class="nav-link" data-view="books-catalog">Books</a><span>/</span><span id="gb-crumb">Book</span></div>
   <section class="book-hero">
     <div class="wrap hero-layout">
       <div class="cover-frame">
@@ -2334,8 +2335,8 @@
     <div class="wrap">
       <h2>Question Power. Question Society. Question Yourself.</h2>
       <div class="btns">
-        <a class="btn btn-dark nav-link" data-view="book-mrp">Explore the Books</a>
-        <a class="btn btn-outline-dark nav-link" data-view="essays">Read the Essays</a>
+        <a href="#book-mrp" class="btn btn-dark nav-link" data-view="book-mrp">Explore the Books</a>
+        <a href="#essays" class="btn btn-outline-dark nav-link" data-view="essays">Read the Essays</a>
       </div>
     </div>
   </section>
@@ -2446,7 +2447,7 @@
       <span class="eyebrow">Members Only</span>
       <h2 style="margin-top:14px;">Join the AJ Book Club to read this online</h2>
       <p style="color:var(--ink-soft); margin-top:12px;">Online reading is a book club member benefit.</p>
-      <a class="btn btn-dark nav-link web-only" data-view="bookclub" style="margin-top:22px;">See Membership Plans</a>
+      <a href="#bookclub" class="btn btn-dark nav-link web-only" data-view="bookclub" style="margin-top:22px;">See Membership Plans</a>
     </div>
 
     <div id="reader-content" style="display:none;">
@@ -2477,7 +2478,7 @@
 
       <div class="sample-banner" id="sampleBanner" style="display:none;">
         <span id="sampleBannerText">You are reading a free sample.</span>
-        <a class="btn btn-sm btn-dark nav-link" data-view="books-catalog"><span class="web-only">Buy the full book</span><span class="play-only">See the printed book</span></a>
+        <a href="#books-catalog" class="btn btn-sm btn-dark nav-link" data-view="books-catalog"><span class="web-only">Buy the full book</span><span class="play-only">See the printed book</span></a>
       </div>
 
       <div class="book-progress">
@@ -2546,14 +2547,14 @@
     <div class="wrap">
       <div id="cart-empty-msg" class="cart-empty" style="display:none;">
         <p>Your cart is empty.</p>
-        <a class="btn btn-dark nav-link" data-view="book-mrp" style="margin-top:18px;">Browse Books</a>
+        <a href="#book-mrp" class="btn btn-dark nav-link" data-view="book-mrp" style="margin-top:18px;">Browse Books</a>
       </div>
       <div id="cart-items"></div>
       <div class="cart-summary" id="cart-summary" style="display:none;">
         <div class="cart-summary-row"><span>Subtotal</span><span id="cart-subtotal">$0.00</span></div>
         <div class="cart-summary-row"><span>Shipping</span><span>Calculated at checkout</span></div>
         <div class="cart-summary-row total"><span>Estimated Total</span><span id="cart-total">$0.00</span></div>
-        <a class="btn btn-dark nav-link" data-view="checkout" style="width:100%; margin-top:18px; text-align:center;">Proceed to Checkout</a>
+        <a href="#checkout" class="btn btn-dark nav-link" data-view="checkout" style="width:100%; margin-top:18px; text-align:center;">Proceed to Checkout</a>
       </div>
     </div>
   </section>
@@ -2590,7 +2591,7 @@
       <div style="font-size:3rem;">✅</div>
       <h1 style="margin-top:10px;">Thank you for your order</h1>
       <p style="margin:16px auto 0;">Order <strong id="orderNumber">#0000</strong> confirmed. A receipt has been sent to <span id="orderEmail">your email</span>.</p>
-      <a class="btn btn-dark nav-link" data-view="home" style="margin-top:26px; display:inline-block;">Continue Browsing</a>
+      <a href="#home" class="btn btn-dark nav-link" data-view="home" style="margin-top:26px; display:inline-block;">Continue Browsing</a>
     </div>
   </section>
 </div>
@@ -2604,12 +2605,12 @@
       <div class="event-card" id="eventTbaCard">
         <div class="event-date"><span class="day">TBA</span><span class="mon">2026</span></div>
         <div class="event-info"><span class="event-tag upcoming">Upcoming</span><h3>Freetown Reader Conversation</h3><p>A public discussion on Mr. President, Can We Talk? Location and date to be announced.</p></div>
-        <a class="btn btn-sm btn-outline-dark nav-link" data-view="contact">Get Notified</a>
+        <a href="#contact" class="btn btn-sm btn-outline-dark nav-link" data-view="contact">Get Notified</a>
       </div>
       <div class="event-card">
         <div class="event-date"><span class="day">07</span><span class="mon">Aug 2026</span></div>
         <div class="event-info"><span class="event-tag past">Past</span><h3>Nairobi Book Launch</h3><p>Official launch of Mr. President, Can We Talk?, officiated by Professor P. L. O. Lumumba.</p></div>
-        <a class="btn btn-sm btn-outline-dark nav-link" data-view="book-mrp">View Book</a>
+        <a href="#book-mrp" class="btn btn-sm btn-outline-dark nav-link" data-view="book-mrp">View Book</a>
       </div>
     </div>
   </section>
@@ -2667,7 +2668,7 @@
         <div class="topic-chip">Inequality in Africa</div>
         <div class="topic-chip">Civic Courage &amp; Youth</div>
       </div>
-      <a class="btn btn-dark nav-link" data-view="contact">Request a Booking →</a>
+      <a href="#contact" class="btn btn-dark nav-link" data-view="contact">Request a Booking →</a>
     </div>
   </section>
 </div>
@@ -2698,7 +2699,7 @@
 
 <!-- ============ ESSAY DETAIL VIEW ============ -->
 <div class="view" id="view-essay-detail">
-  <div class="wrap breadcrumb"><a class="nav-link" data-view="home">Home</a><span>/</span><a class="nav-link" data-view="essays">Essays</a><span>/</span><span id="essay-crumb">Essay</span></div>
+  <div class="wrap breadcrumb"><a href="#home" class="nav-link" data-view="home">Home</a><span>/</span><a href="#essays" class="nav-link" data-view="essays">Essays</a><span>/</span><span id="essay-crumb">Essay</span></div>
   <section class="page-hero">
     <div class="wrap" style="max-width:720px;">
       <div id="essay-detail-cover" style="display:none; width:100%; aspect-ratio:21/9; border-radius:6px; background-size:cover; background-position:center; margin-bottom:24px;"></div>
@@ -2715,14 +2716,14 @@
         <span id="essayPageIndicator" style="font-family:'IBM Plex Mono',monospace; font-size:0.8rem; color:var(--ink-soft);">Page 1 of 1</span>
         <button class="btn btn-outline-dark" id="essayPageNext">Next →</button>
       </div>
-      <a class="btn btn-outline-dark nav-link" data-view="essays" style="margin-top:36px; display:inline-block;">← Back to Essay Library</a>
+      <a href="#essays" class="btn btn-outline-dark nav-link" data-view="essays" style="margin-top:36px; display:inline-block;">← Back to Essay Library</a>
     </div>
   </section>
 </div>
 
 <!-- ============ ACCOUNT VIEW ============ -->
 <div class="view" id="view-account">
-  <div class="wrap breadcrumb"><a class="nav-link" data-view="home">Home</a><span>/</span><span>Your account</span></div>
+  <div class="wrap breadcrumb"><a href="#home" class="nav-link" data-view="home">Home</a><span>/</span><span>Your account</span></div>
   <section class="page-hero">
     <div class="wrap"><span class="eyebrow">Your Account</span><h1>Account settings</h1>
       <p>Your details, your security, and your orders.</p></div>
@@ -2760,7 +2761,7 @@
           Add a code from an authenticator app on top of your password.
         </p>
         <div id="acctMfaStatus" class="an-list" style="margin-bottom:14px;"></div>
-        <a class="btn btn-sm btn-outline-dark nav-link" data-view="admin" id="acctMfaLink">Manage in Security settings</a>
+        <a href="#admin" class="btn btn-sm btn-outline-dark nav-link" data-view="admin" id="acctMfaLink">Manage in Security settings</a>
       </div>
 
       <div class="account-card">
@@ -2814,7 +2815,7 @@
       <div id="admin-dashboard" style="display:none;">
         <div class="dash-header">
           <div class="dh-who">
-            <a class="btn btn-sm btn-outline-dark nav-link dh-back" data-view="home">View the site</a>
+            <a href="#home" class="btn btn-sm btn-outline-dark nav-link dh-back" data-view="home">View the site</a>
             <div class="dh-avatar" id="dashAvatar"></div>
             <div>
               <h2 id="dashName">Welcome back</h2>
@@ -3406,36 +3407,36 @@
         <div id="footerSocialLinks" style="display:flex; gap:14px; margin-top:18px; font-family:'IBM Plex Mono',monospace; font-size:0.75rem; letter-spacing:0.05em; text-transform:uppercase;"></div>
       </div>
       <div class="footer-col">
-        <h4>Explore</h4>
-        <a class="nav-link" data-view="home">Home</a>
-        <a class="nav-link" data-view="about">About Alpha</a>
-        <a class="nav-link" data-view="books-catalog">Books</a>
-        <a class="nav-link" data-view="essays">Essays</a>
+        <h3>Explore</h3>
+        <a href="#home" class="nav-link" data-view="home">Home</a>
+        <a href="#about" class="nav-link" data-view="about">About Alpha</a>
+        <a href="#books-catalog" class="nav-link" data-view="books-catalog">Books</a>
+        <a href="#essays" class="nav-link" data-view="essays">Essays</a>
         <a data-install-app class="footer-install" href="#">Get the App</a>
       </div>
       <div class="footer-col">
-        <h4>Connect</h4>
-        <a class="nav-link" data-view="events">Events</a>
-        <a class="nav-link" data-view="contact">Media &amp; Press</a>
-        <a class="nav-link" data-view="videos">Videos</a>
-        <a class="nav-link" data-view="gallery">Gallery</a>
-        <a class="nav-link" data-view="speaking">Speaking</a>
+        <h3>Connect</h3>
+        <a href="#events" class="nav-link" data-view="events">Events</a>
+        <a href="#contact" class="nav-link" data-view="contact">Media &amp; Press</a>
+        <a href="#videos" class="nav-link" data-view="videos">Videos</a>
+        <a href="#gallery" class="nav-link" data-view="gallery">Gallery</a>
+        <a href="#speaking" class="nav-link" data-view="speaking">Speaking</a>
       </div>
       <div class="footer-col">
-        <h4>Shop</h4>
-        <a class="nav-link" data-view="book-mrp">Mr. President, Can We Talk?</a>
-        <a class="nav-link" data-view="book-mono">Monopoly of Happiness</a>
-        <a class="nav-link" data-view="book-mrp">Signed Copies</a>
-        <a class="nav-link" data-view="contact">Contact</a>
+        <h3>Shop</h3>
+        <a href="#book-mrp" class="nav-link" data-view="book-mrp">Mr. President, Can We Talk?</a>
+        <a href="#book-mono" class="nav-link" data-view="book-mono">Monopoly of Happiness</a>
+        <a href="#book-mrp" class="nav-link" data-view="book-mrp">Signed Copies</a>
+        <a href="#contact" class="nav-link" data-view="contact">Contact</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 Alpha Amadu Jalloh. All rights reserved. · <a class="nav-link" data-view="privacy" style="text-decoration:underline; color:#8b9285;">Privacy</a> · <a class="nav-link" data-view="terms" style="text-decoration:underline; color:#8b9285;">Terms</a></span>
+      <span>© 2026 Alpha Amadu Jalloh. All rights reserved. · <a href="#privacy" class="nav-link" data-view="privacy" style="text-decoration:underline; color:#8b9285;">Privacy</a> · <a href="#terms" class="nav-link" data-view="terms" style="text-decoration:underline; color:#8b9285;">Terms</a></span>
       <span class="built-by">
         <img src="icons/bna-developers-icon.png" alt="" width="22" height="22" loading="lazy" decoding="async">
         Website built by
         <button type="button" class="bna-link" id="bnaOpen"
-                aria-label="Contact B and A Developers"><strong>B&amp;A&nbsp;Developers</strong></button>
+                aria-label="B&amp;A Developers: contact the website builders"><strong>B&amp;A&nbsp;Developers</strong></button>
         <a href="tel:+254794698660" aria-label="Call on 0794 698 660">0794&nbsp;698&nbsp;660</a>
       </span>
       <span>Sierra Leone 🇸🇱 · Question Power. Question Society. Question Yourself.</span>
@@ -3468,7 +3469,7 @@
 <div class="modal-overlay" id="bnaModal" role="dialog" aria-label="B and A Developers">
   <div class="modal-box bna-box">
     <button class="modal-close" id="bnaClose" aria-label="Close">&times;</button>
-    <img src="icons/bna-developers-logo.png" alt="B&amp;A Developers" class="bna-logo">
+    <img src="icons/bna-developers-logo.png" alt="B&amp;A Developers" class="bna-logo" loading="lazy" decoding="async">
     <p class="bna-tag">Smart apps for real businesses</p>
     <div class="bna-rows">
       <a class="bna-row" href="mailto:b.and.a.developers@gmail.com?subject=Website%20enquiry">
@@ -3512,7 +3513,7 @@
       <span>We keep your account details to run your orders and your reading, and nothing else.
       We show no adverts and run no tracking. See the
       <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and
-      <a class="nav-link" data-view="terms" data-consent-close>Terms</a>.</span>
+      <a href="#terms" class="nav-link" data-view="terms" data-consent-close>Terms</a>.</span>
     </div>
     <div class="cb-actions">
       <button class="btn btn-sm btn-dark" id="consentAccept">I agree</button>
@@ -3555,6 +3556,15 @@
   const PLAY_BUILD = document.documentElement.classList.contains('play-build');
 
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Images in Supabase Storage are served resized (and as WebP where the browser takes it) through
+  // the render endpoint. Phones were downloading 5 MB camera originals for a 300 pixel cover.
+  // Anything that is not a public Storage object is returned unchanged.
+  function sized(url, width){
+    if(!url || typeof url !== 'string' || url.indexOf('/storage/v1/object/public/') === -1) return url;
+    const w = Math.round(width * Math.min(window.devicePixelRatio || 1, 2));
+    return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') + (url.includes('?') ? '&' : '?') + 'width=' + w + '&quality=72&resize=contain';
+  }
   let currentSession = null; // holds the Supabase session (access_token etc.) once signed in
   let cart = []; // shopping cart, declared early since the Stripe-redirect check below needs it immediately on page load
 
@@ -3673,7 +3683,7 @@
   // ---------- Image lightbox: click anything with data-lightbox to view full size ----------
   const lightboxOverlay = document.getElementById('lightboxOverlay');
   const lightboxImg = document.getElementById('lightboxImg');
-  function openLightbox(url){ lightboxImg.src = url; lightboxOverlay.classList.add('open'); }
+  function openLightbox(url){ lightboxImg.src = sized(url, 1100); lightboxOverlay.classList.add('open'); }
   function closeLightbox(){ lightboxOverlay.classList.remove('open'); lightboxImg.src = ''; }
   document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
   lightboxOverlay.addEventListener('click', e => { if(e.target === lightboxOverlay) closeLightbox(); });
@@ -3972,7 +3982,7 @@
     document.getElementById('essay-detail-title').textContent = e.title;
     document.getElementById('essay-detail-year').textContent = e.year;
     const coverEl = document.getElementById('essay-detail-cover');
-    if(e.cover_image_url){ coverEl.style.display = 'block'; coverEl.style.backgroundImage = `url('${e.cover_image_url}')`; coverEl.setAttribute('data-lightbox', e.cover_image_url); }
+    if(e.cover_image_url){ coverEl.style.display = 'block'; coverEl.style.backgroundImage = `url('${sized(e.cover_image_url, 900)}')`; coverEl.setAttribute('data-lightbox', e.cover_image_url); }
     else { coverEl.style.display = 'none'; coverEl.removeAttribute('data-lightbox'); }
 
     // Read it in the book reader, so an essay gets the same spread, page turns,
@@ -4757,8 +4767,9 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       return;
     }
 
+    const shown = sized(url, 480);
     const show = () => {
-      el.style.backgroundImage = `url('${url}')`;
+      el.style.backgroundImage = `url('${shown}')`;
       el.style.backgroundSize = 'cover';
       el.style.backgroundPosition = 'center';
       el.classList.add('has-photo', 'is-loaded');
@@ -4776,7 +4787,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       el.classList.remove('img-skeleton');
       el.classList.add('is-loaded');
     });
-    img.src = url;
+    img.src = shown;
   }
 
   // Warm the connection to Supabase Storage as soon as a cover URL is known, so
@@ -4798,7 +4809,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     if(thumbRow && book?.back_cover_url){
       const backThumb = thumbRow.querySelector('.thumb');
       if(backThumb){
-        backThumb.style.backgroundImage = `url('${book.back_cover_url}')`; backThumb.style.backgroundSize = 'cover'; backThumb.style.backgroundPosition = 'center'; backThumb.textContent = '';
+        backThumb.style.backgroundImage = `url('${sized(book.back_cover_url, 200)}')`; backThumb.style.backgroundSize = 'cover'; backThumb.style.backgroundPosition = 'center'; backThumb.textContent = '';
         backThumb.setAttribute('data-lightbox', book.back_cover_url);
       }
     }
@@ -5207,7 +5218,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         img.decoding = 'async';
         img.addEventListener('load', () => { img.classList.add('loaded'); coverEl.classList.add('is-loaded'); });
         img.addEventListener('error', () => coverEl.classList.add('is-loaded'));
-        img.src = b.cover_image_url;
+        img.src = sized(b.cover_image_url, 400);
         coverEl.appendChild(img);
       } else {
         coverEl.classList.add('is-loaded');
@@ -7584,7 +7595,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         start.className = 'gal-video-start';
         start.setAttribute('aria-label', 'Play video');
         start.textContent = '▶';
-        if(item.image_url) start.style.backgroundImage = `url('${item.image_url}')`;
+        if(item.image_url) start.style.backgroundImage = `url('${sized(item.image_url, 800)}')`;
         start.addEventListener('click', () => {
           const frame = document.createElement('iframe');
           frame.src = item.video_url + (item.video_url.includes('?') ? '&' : '?') + 'autoplay=1';
@@ -7600,12 +7611,12 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         video.controls = true;
         video.preload = 'metadata';
         video.playsInline = true;
-        if(item.image_url) video.poster = item.image_url;
+        if(item.image_url) video.poster = sized(item.image_url, 800);
         box.appendChild(video);
       }
     } else if(item.image_url){
       const img = document.createElement('img');
-      img.src = item.image_url;
+      img.src = sized(item.image_url, 700);
       img.alt = item.title;
       img.loading = 'lazy';
       img.decoding = 'async';
@@ -7706,7 +7717,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         thumb.type = 'button';
         thumb.className = 'event-thumb';
         thumb.setAttribute('aria-label', 'Open photo or video');
-        if(e.image_url) thumb.style.backgroundImage = `url('${e.image_url}')`;
+        if(e.image_url) thumb.style.backgroundImage = `url('${sized(e.image_url, 240)}')`;
         else thumb.textContent = '▶';
         thumb.addEventListener('click', () => {
           if(e.video_url){ galleryFilter = 'event'; showView('gallery'); document.querySelectorAll('[data-gal]').forEach(b => b.classList.toggle('active', b.dataset.gal === 'event')); renderGallery(); }
@@ -8145,7 +8156,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       if(text && typeof text === 'object' && text.cover !== undefined){
         const cover = document.createElement('div');
         cover.className = 'reader-cover' + (text.cover ? '' : ' no-image');
-        if(text.cover) cover.style.backgroundImage = `url('${text.cover}')`;
+        if(text.cover) cover.style.backgroundImage = `url('${sized(text.cover, 700)}')`;
         const label = document.createElement('div');
         label.className = 'rc-label';
         label.innerHTML = '<span class="rc-author">Alpha Amadu Jalloh</span><strong></strong>';
@@ -8639,6 +8650,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   // the join feathered, so it still reads as one picture.
   function fitAvatar(el, url){
     if(!el || !url) return;
+    url = sized(url, 320);
     el.style.backgroundImage = `url('${url}')`;
     el.style.backgroundRepeat = 'no-repeat';
     el.style.backgroundSize = 'cover';
@@ -8707,7 +8719,9 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       if(!url){ strip.style.display = 'none'; return; }
       strip.style.display = '';
       const img = document.createElement('img');
-      img.src = url;
+      img.src = sized(url, 360);
+      img.width = 360;
+      img.height = 450;
       img.alt = 'Alpha Amadu Jalloh';
       img.loading = 'lazy';
       img.decoding = 'async';
@@ -8760,7 +8774,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         const portrait = document.getElementById('aboutPortrait');
         let img = portrait.querySelector('img');
         if(!img){ img = document.createElement('img'); img.alt = 'Alpha Amadu Jalloh'; img.decoding = 'async'; portrait.appendChild(img); }
-        img.src = data.author_photo_url;
+        img.src = sized(data.author_photo_url, 520);
         portrait.classList.add('has-img');
         portrait.setAttribute('data-lightbox', data.author_photo_url);
         const hint = portrait.querySelector('span');
@@ -8984,8 +8998,11 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       navigator.serviceWorker.register('sw.js').catch(err => console.warn('Service worker registration failed:', err));
     });
     let refreshing = false;
+    // Reload only when an older worker is replaced by a new version. On a first visit there is no
+    // controller yet; reloading then loaded the whole site twice and cancelled its data requests.
+    const hadController = Boolean(navigator.serviceWorker.controller);
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if(refreshing) return;
+      if(refreshing || !hadController) return;
       refreshing = true;
       location.reload();
     });
