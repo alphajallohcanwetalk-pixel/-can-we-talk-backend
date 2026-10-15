@@ -170,6 +170,11 @@ Lighthouse before: mobile performance 34, desktop 61 (FCP 6.5 s, 7.6 MB, TBT 2 s
 - Menu links have real `href="#view"` addresses (crawlable); footer headings are h3; B&A credit
   button label matches its text; small text contrast raised.
 - Measured with the real site and data: 8.5 MB down to about 1.1 MB on a phone, one page load.
+- Lighthouse after (live, this laptop, two runs each): mobile performance 74 to 79, desktop 81 to 90;
+  accessibility, best practices and SEO 100 on both. Page weight 656 KB on mobile.
+- What is left for speed: the page is one 500 KB file whose script runs in full on load (sometimes
+  about 0.5 s of blocking on a slow phone), and GitHub Pages caches files for only 10 minutes. Splitting
+  the dashboard and reader code into files loaded on demand would be the next step.
 
 ## Conventions that must not regress
 
