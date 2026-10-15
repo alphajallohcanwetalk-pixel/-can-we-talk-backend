@@ -5128,7 +5128,9 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       card.querySelector('h4').textContent = b.title;
       card.querySelector('p').textContent = b.subtitle || '';
       if(b.cover_image_url) lazyLoadCover(card.querySelector('.club-book-cover'), b.cover_image_url);
-      card.querySelector('a').addEventListener('click', () => openReader(b.id));
+      const read = card.querySelector('a');
+      read.href = '/book/' + b.id;
+      read.addEventListener('click', (ev) => { ev.preventDefault(); openReader(b.id); });
       return card;
     }));
   }
