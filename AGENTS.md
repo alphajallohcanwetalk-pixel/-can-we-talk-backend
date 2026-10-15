@@ -1,3 +1,7 @@
+# Start here
+
+Read [docs/BRAIN.md](docs/BRAIN.md) first: it says what this project is, where it lives and how it goes live, and links [docs/ROADMAP.md](docs/ROADMAP.md) (what is next), [docs/LOG.md](docs/LOG.md) (what was done) and every notes file. Before you stop, add a dated entry at the top of docs/LOG.md, update docs/ROADMAP.md, then commit and push. Never commit secrets.
+
 # Notes for AI assistants (Copilot, Cursor, Codex and others)
 
 Also read CLAUDE.md in this folder.
