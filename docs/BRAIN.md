@@ -26,6 +26,7 @@ Author website and reading app for Alpha Amadu Jalloh (canwetalkvoice.com) with 
 | [OPERATIONS.md](../OPERATIONS.md) | Running it |
 | [README.md](../README.md) | Overview |
 | [README.md](README.md) | Docs index |
+| [DNS_MOVE.md](DNS_MOVE.md) | Keep the domain online without the Serv hosting plan (DNS to Cloudflare) |
 
 ## How every session works
 1. Read this file, then [ROADMAP.md](ROADMAP.md) (what is next) and the top of [LOG.md](LOG.md) (where the last session stopped).

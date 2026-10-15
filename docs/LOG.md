@@ -5,6 +5,7 @@ Back to the [BRAIN](BRAIN.md) · [ROADMAP](ROADMAP.md)
 
 ## 16 October 2026
 - Added BRAIN.md (project hub), LOG.md (this file) and ROADMAP.md, and linked them from CLAUDE.md and AGENTS.md.
+- Website stays on GitHub Pages (owner decision). Prepared the move of the domain's DNS from Serv to Cloudflare so the site stays online when the Serv plan ends in December: docs/DNS_MOVE.md and docs/dns/canwetalkvoice.com.zone (copied from the live records). The B&A owner area now checks the site daily and sends renewal reminders.
 
 ## Earlier work (rebuilt from the git history on 16 October 2026)
 

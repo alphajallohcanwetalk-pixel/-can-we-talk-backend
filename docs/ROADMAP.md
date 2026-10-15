@@ -5,7 +5,7 @@ Back to the [BRAIN](BRAIN.md) · [LOG](LOG.md)
 
 ## Now and next (from the B&A owner area, 16 October 2026)
 - Decided 16 Oct 2026: the website stays on GitHub Pages, so the repository stays public (GitHub Pages on a free account needs it). The Serv cPanel plan (cpanel.canwetalkvoice.com) is not used for the website.
-- [ ] **Before the Serv hosting plan ends in December 2026:** the domain's DNS (nameservers ns1 to ns3.serv.com.au) and the mailboxes (mail.canwetalkvoice.com) live on that plan. Either renew it, or before it ends: move DNS to a free DNS host (for example Cloudflare) with the same records (GitHub Pages A records 185.199.108.153 to 111.153, www CNAME alphajallohcanwetalk-pixel.github.io, the Resend `send` records, any verification records) and move the mailboxes to a free mail host (for example Zoho Mail). The domain itself is paid until 3 September 2027 (registrar Synergy Wholesale, bought through Serv).
+- [ ] **Before the Serv hosting plan ends in December 2026:** move the domain's DNS to Cloudflare (free) so the website stays online without the plan. Ready to do: [DNS_MOVE.md](DNS_MOVE.md) and the import file [dns/canwetalkvoice.com.zone](dns/canwetalkvoice.com.zone). Needs the Serv client area login (to change nameservers) and a Cloudflare account. Also move the mailboxes (for example Zoho Mail) or they stop with the plan. Domain paid until 3 September 2027.
 - [ ] Speed, next step: split the dashboard and reader code out of the 500 KB page so phones stop blocking on load.
 - [ ] Tidy the first visit privacy notice (very tall on phones, its I agree button looks like plain text).
 

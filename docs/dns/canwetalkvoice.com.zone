@@ -1,0 +1,28 @@
+; canwetalkvoice.com DNS records for import into Cloudflare (DNS > Records > Import and Export > Import).
+; Copied from the live public DNS on 16 Oct 2026. Website = GitHub Pages; outgoing app email = Resend.
+; Import with "proxied" switched OFF for every record (GitHub Pages issues its own HTTPS certificate).
+$ORIGIN canwetalkvoice.com.
+$TTL 3600
+
+; Website on GitHub Pages
+@                    IN A      185.199.108.153
+@                    IN A      185.199.109.153
+@                    IN A      185.199.110.153
+@                    IN A      185.199.111.153
+www                  IN CNAME  alphajallohcanwetalk-pixel.github.io.
+
+; App email sent by Resend (send.canwetalkvoice.com)
+send                 IN MX 10  feedback-smtp.eu-west-1.amazonses.com.
+send                 IN TXT    "v=spf1 include:amazonses.com ~all"
+resend._domainkey    IN TXT    "p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDvT7eaDr5LXh7rbsCzHEJssv6v4nNIMVAk5ePReh8PIQhSViJlt4SpCzYNbiTJt1kZrmJau54iNZnDi8FFe25RQASK9auC8vqxSR4C/BPHXji6Xx8N/RzbDciUNlUUMqDdzALWVKkrMicBWXyJzGdmKED/VfjQuNDASfklv42ybwIDAQAB"
+_dmarc               IN TXT    "v=DMARC1; p=none;"
+
+; Mailboxes on the Serv cPanel plan (server 27.50.84.57). Keep ONLY while that plan is active.
+; When the plan ends, replace these with the new mail host's records (for example Zoho Mail).
+@                    IN MX 0   mail.canwetalkvoice.com.
+@                    IN TXT    "v=spf1 +a +mx +ip4:27.50.84.57 include:relay.mailchannels.net ~all"
+mail                 IN A      27.50.84.57
+webmail              IN A      27.50.84.57
+autodiscover         IN A      27.50.84.57
+autoconfig           IN A      27.50.84.57
+default._domainkey   IN TXT    "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwybeiA45b1a7yepNw92Qhu4Z0WmSbgIF+aoec9ntEuUAFa/mCGDLNt1jG9IYVwmL9hL+9FNq4ucA+jkC5BX8OHT/35xsdsHla+1rd50J1QJaNRaWo5ZTfUbEakQ+zJ+9w1qG9NfTYpSKevlhfPE2honNBBGjUck5xJNLmPrlbTa/WSn2BfjpKQip6XE6kC9Ic2ipgpXISAZlzH4cfhrSd7CdA7v8SvLHUgtk7aGlI6ztwM2iVHCk9HV4SJyEfCuzNxstJgJlFHJ3CEMYmej4ofczduvaL/VWcErP3dG4rigi6Wk/8O9YcOiOo4zkhpeD8T3+2DMfXxXofVITOzoffQIDAQAB"
