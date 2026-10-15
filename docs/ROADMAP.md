@@ -4,6 +4,7 @@ What is next, what is waiting on someone, and ideas for later. Tick items off (o
 Back to the [BRAIN](BRAIN.md) · [LOG](LOG.md)
 
 ## Now and next (from the B&A owner area, 16 October 2026)
+- [ ] Owner decision: make the repository private. On a free GitHub account that switches GitHub Pages off (the website would go offline), so first either upgrade the GitHub account alphajallohcanwetalk-pixel to Pro, or move the website to a host that serves private repositories (for example Cloudflare Pages, which needs a DNS change for canwetalkvoice.com).
 - [ ] Speed, next step: split the dashboard and reader code out of the 500 KB page so phones stop blocking on load.
 - [ ] Tidy the first visit privacy notice (very tall on phones, its I agree button looks like plain text).
 
