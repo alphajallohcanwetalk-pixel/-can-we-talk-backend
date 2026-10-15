@@ -1732,8 +1732,8 @@
     <a href="#contact" class="nav-link" data-view="contact">Contact</a>
     <a href="#admin" class="nav-link staff-only" data-view="admin">Dashboard</a>
     <a href="#books-catalog" class="nav-link mm-primary" data-view="books-catalog">Shop Books</a>
-    <a data-install-app class="install-first-visit">Get the App</a>
-    <a data-push-toggle>🔔 Notify me of new releases</a>
+    <a href="#install" data-install-app class="install-first-visit">Get the App</a>
+    <a href="#notifications" data-push-toggle>🔔 Notify me of new releases</a>
     <a id="signInBtnMobile">Sign In / Sign Up</a>
   </div>
 </header>
@@ -3422,7 +3422,7 @@
         <a href="#about" class="nav-link" data-view="about">About Alpha</a>
         <a href="#books-catalog" class="nav-link" data-view="books-catalog">Books</a>
         <a href="#essays" class="nav-link" data-view="essays">Essays</a>
-        <a data-install-app class="footer-install" href="#">Get the App</a>
+        <a data-install-app class="footer-install" href="#install">Get the App</a>
       </div>
       <div class="footer-col">
         <h3>Connect</h3>
@@ -4022,7 +4022,7 @@
       card.className = 'essay-card';
       // Titles and excerpts are author supplied, so they are set as text rather
       // than interpolated into markup.
-      card.innerHTML = `${e.cover_image_url ? '<div class="cover-thumb"></div>' : ''}<span class="tag"></span><h3></h3><p></p><div class="meta"><span class="ey"></span><span class="card-actions"><a data-share="essay:${e.id}" class="share-link" aria-label="Share">Share</a><a data-open-essay="${e.id}" style="cursor:pointer;">Read More →</a></span></div>`;
+      card.innerHTML = `${e.cover_image_url ? '<div class="cover-thumb"></div>' : ''}<span class="tag"></span><h3></h3><p></p><div class="meta"><span class="ey"></span><span class="card-actions"><a href="/essay/${e.id}" data-share="essay:${e.id}" class="share-link" aria-label="Share">Share</a><a href="/essay/${e.id}" data-open-essay="${e.id}" style="cursor:pointer;">Read More →</a></span></div>`;
       if(e.cover_image_url){
         const thumb = card.querySelector('.cover-thumb');
         thumb.setAttribute('data-lightbox', e.cover_image_url);
@@ -4035,7 +4035,7 @@
       grid.appendChild(card);
     });
     grid.querySelectorAll('[data-open-essay]').forEach(el => {
-      el.addEventListener('click', () => openEssay(el.dataset.openEssay));
+      el.addEventListener('click', (ev) => { ev.preventDefault(); openEssay(el.dataset.openEssay); });
     });
     resultCount.textContent = libraryEmpty ? 'None yet' : `${filtered.length} essay${filtered.length === 1 ? '' : 's'}`;
   }
@@ -7891,7 +7891,8 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     } catch(e){}
     paintPushButtons();
   }
-  document.querySelectorAll('[data-push-toggle]').forEach(b => b.addEventListener('click', async () => {
+  document.querySelectorAll('[data-push-toggle]').forEach(b => b.addEventListener('click', async (ev) => {
+    ev.preventDefault();
     if(await pushIsOn()) { if(confirm('Turn off notifications for new releases?')) disablePush(); }
     else enablePush();
   }));
