@@ -696,6 +696,8 @@
   /* Each view enters differently, so moving between them reads as moving
      somewhere rather than the same page reloading. */
   #view-home.active{animation:viewUp .55s cubic-bezier(.16,.84,.44,1);}
+  /* No entrance animation for the first view; showView() adds .view-switched on the first move. */
+  html:not(.view-switched) .view.active{animation:none !important;}
   #view-books-catalog.active, #view-book-mrp.active,
   #view-book-mono.active, #view-book-generic.active{animation:viewSlide .5s cubic-bezier(.16,.84,.44,1);}
   #view-essays.active, #view-essay-detail.active{animation:viewFade .55s ease;}
@@ -1503,9 +1505,9 @@
   ::-webkit-scrollbar-corner{background:transparent;}
 
   /* A thin line across the top showing how far through the page you are. */
-  #scrollProgress{position:fixed; top:0; left:0; height:3px; width:0; z-index:300;
+  #scrollProgress{position:fixed; top:0; left:0; height:3px; width:100%; z-index:300;
     background:linear-gradient(90deg, var(--sl-green-bright), var(--gold), var(--sl-blue));
-    transition:width .08s linear; pointer-events:none;}
+    transform:scaleX(0); transform-origin:0 50%; transition:transform .08s linear; pointer-events:none;}
 
   @media (prefers-reduced-motion: reduce){
     #scrollProgress{display:none;}
@@ -1573,14 +1575,14 @@
     .hero-install-row{justify-content:stretch;}
     .btn-install{width:100%; justify-content:center;}
   }
-  /* A slow pulse the first time it is seen, so the eye lands on it. */
+  /* A slow pulse the first time it is seen, so the eye lands on it. The ring fades in and out (opacity only),
+     so the phone's graphics chip does the work and the page never repaints for it. */
+  .btn-install::after{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    box-shadow:0 0 0 10px rgba(30,181,58,0.16); opacity:0;}
   @media (prefers-reduced-motion: no-preference){
-    .btn-install{animation:installPulse 2.8s ease-in-out 1.2s 3;}
+    .btn-install::after{animation:installPulse 2.8s ease-in-out 1.2s 3;}
   }
-  @keyframes installPulse{
-    0%,100%{box-shadow:0 12px 34px rgba(30,181,58,0.42);}
-    50%{box-shadow:0 12px 34px rgba(30,181,58,0.42), 0 0 0 10px rgba(30,181,58,0.16);}
-  }
+  @keyframes installPulse{0%,100%{opacity:0;} 50%{opacity:1;}}
 
   /* ---------- Back and reload controls ---------- */
   .nav-ctrl{font-size:1.05rem; line-height:1; transition:transform .18s, background .18s;}
@@ -1756,7 +1758,7 @@
         <defs>
           <filter id="wave" x="-20%" y="-20%" width="140%" height="140%">
             <feTurbulence type="fractalNoise" baseFrequency="0.008 0.028" numOctaves="2" seed="7" result="noise">
-              <animate attributeName="baseFrequency" dur="14s" values="0.008 0.028;0.012 0.022;0.008 0.028" repeatCount="indefinite"/>
+              <animate id="flagWave" attributeName="baseFrequency" dur="14s" values="0.008 0.028;0.012 0.022;0.008 0.028" begin="indefinite" repeatCount="indefinite"/>
             </feTurbulence>
             <feDisplacementMap in="SourceGraphic" in2="noise" scale="55" xChannelSelector="R" yChannelSelector="G"/>
           </filter>
@@ -3592,6 +3594,7 @@
   let currentViewName = 'home';
 
   function showView(name, opts = {}){
+    document.documentElement.classList.add('view-switched');
     views.forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
     document.querySelectorAll('nav.links a').forEach(a => a.classList.toggle('active', a.dataset.view === name));
     document.getElementById('mobileMenu').classList.remove('open');
@@ -5808,7 +5811,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     let ticking = false;
     const update = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
-      bar.style.width = max > 0 ? ((window.scrollY / max) * 100) + '%' : '0%';
+      bar.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
       ticking = false;
     };
     window.addEventListener('scroll', () => {
@@ -5818,6 +5821,30 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     }, { passive: true });
     window.addEventListener('resize', update);
     update();
+  })();
+
+  // The flag waves only where it is cheap: larger screens, after load, while the hero is on screen.
+  // On phones the SVG filter cost a third of the processor for as long as the page was open.
+  (function flagWave(){
+    const wave = document.getElementById('flagWave');
+    const svg = wave && wave.ownerSVGElement;
+    if(!svg || typeof wave.beginElement !== 'function') return;
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const big = window.matchMedia('(min-width: 901px)');
+    let started = false;
+    const start = () => {
+      if(started || !big.matches) return;
+      started = true;
+      wave.beginElement();
+      if('IntersectionObserver' in window){
+        new IntersectionObserver((entries) => {
+          entries.forEach((e) => e.isIntersecting ? svg.unpauseAnimations() : svg.pauseAnimations());
+        }).observe(svg);
+      }
+    };
+    const later = () => setTimeout(start, 1500);
+    if(document.readyState === 'complete') later(); else window.addEventListener('load', later);
+    big.addEventListener?.('change', start);
   })();
 
   // A slow drift on the hero as the page scrolls. Transform only, so it never
@@ -8710,7 +8737,17 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         el.style.backgroundColor = '#e9e6e1';
       }
     };
-    img.src = url;
+    // Only do the canvas work when the photo is about to be seen (the footer is far down the page).
+    if('IntersectionObserver' in window){
+      const io = new IntersectionObserver((entries) => {
+        if(!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        img.src = url;
+      }, { rootMargin: '400px' });
+      io.observe(el);
+    } else {
+      img.src = url;
+    }
   }
 
   function applyAuthorPhoto(url, bio){

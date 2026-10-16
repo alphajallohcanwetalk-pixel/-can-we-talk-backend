@@ -3,6 +3,22 @@
 What was done, newest first. Every session adds one dated entry at the top: what changed, why, and where it stopped.
 Back to the [BRAIN](BRAIN.md) · [ROADMAP](ROADMAP.md)
 
+## 16 October 2026 (night): phone speed
+- Found why phones stayed busy: the Download the App button pulsed by animating its shadow, which repainted it on
+  every frame from 1.2 s to 9.6 s (the whole time Google measures), and the waving flag is an SVG filter redrawn on
+  every frame by the main processor. After loading, a simulated slow phone's main thread was busy 73% of the time.
+- Fixes in frontend/app.html: the pulse is now an opacity ring (done by the graphics chip); the flag waves only on
+  screens wider than 900 px, starts 1.5 s after load and pauses while off screen (phones show it still); the first
+  screen no longer fades in from transparent (other views still animate: showView adds html.view-switched); the
+  reading progress bar scales instead of changing width (no layout while scrolling); the author photo's canvas blur
+  runs only when the photo is about to scroll into view.
+- Measured on this laptop (4x slower CPU, same live API): main thread work in the first 8 s went from 10.4 s to
+  5.6 s; idle time busy from 73% to 4%; rendering time per load from about 0.6 to 1.3 s down to about 0.25 to 0.4 s.
+  No console errors; desktop flag still waves; page transitions still animate.
+- Left: the main script is one block of about 450 to 550 ms on a slow phone (Google counts most of it as blocking);
+  splitting the dashboard and reader code out of the page is still the next step. Google PageSpeed quota was used up
+  for the day, so the official score should be re-checked tomorrow.
+
 ## 16 October 2026
 - Added BRAIN.md (project hub), LOG.md (this file) and ROADMAP.md, and linked them from CLAUDE.md and AGENTS.md.
 - Website stays on GitHub Pages (owner decision). Prepared the move of the domain's DNS from Serv to Cloudflare so the site stays online when the Serv plan ends in December: docs/DNS_MOVE.md and docs/dns/canwetalkvoice.com.zone (copied from the live records). The B&A owner area now checks the site daily and sends renewal reminders.

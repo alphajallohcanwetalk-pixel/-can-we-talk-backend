@@ -176,6 +176,15 @@ Lighthouse before: mobile performance 34, desktop 61 (FCP 6.5 s, 7.6 MB, TBT 2 s
   about 0.5 s of blocking on a slow phone), and GitHub Pages caches files for only 10 minutes. Splitting
   the dashboard and reader code into files loaded on demand would be the next step.
 
+## 16 October 2026: phone speed, part two (B&A Developers)
+
+- Do not animate box-shadow, width, filters or SVG filters on anything visible during page load: they repaint on the
+  main thread every frame. Animate opacity and transform only.
+- The hero flag (`#flagWave`) starts with `begin="indefinite"` and is started from script on screens wider than
+  900 px after load, paused while off screen. Phones keep it still.
+- The first view never animates in; `showView()` adds `html.view-switched`, after which views animate as before.
+- Main thread work in the first 8 s on a 4x slower CPU: 10.4 s before, 5.6 s after; idle busy 73% to 4%.
+
 ## Conventions that must not regress
 
 **No dashes anywhere in published copy.** No em dash, en dash, figure dash,
