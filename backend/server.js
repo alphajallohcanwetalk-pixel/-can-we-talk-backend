@@ -27,6 +27,7 @@ import pushRoutes from './routes/push.js';
 import narrationRoutes from './routes/narration.js';
 import webhookRoutes from './routes/webhooks.js';
 import { logAppError } from './lib/errorLog.js';
+import { changes, trackChanges } from './lib/changes.js';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -66,6 +67,10 @@ app.use(cors({ origin: (origin, callback) => {
 	return callback(null, false);
 } }));
 
+// What changed last (gallery, books, essays, settings). Open pages ask every 25 seconds, so it sits
+// before the general limit: many phones can share one address on a mobile network.
+app.get('/api/changes', (req, res) => { res.set('Cache-Control', 'no-store'); res.json(changes()); });
+
 const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: 'draft-8', legacyHeaders: false });
 app.use('/api', apiLimiter);
 app.use('/api/auth/welcome', rateLimit({ windowMs: 60 * 60 * 1000, limit: 5, standardHeaders: 'draft-8', legacyHeaders: false }));
@@ -82,14 +87,14 @@ app.use('/api/books', express.json({ limit: '5mb' }));
 app.use(express.json({ limit: '100kb' }));
 
 app.use('/api/auth', authRoutes);
-app.use('/api/books', bookRoutes);
-app.use('/api/essays', essayRoutes);
+app.use('/api/books', trackChanges('books'), bookRoutes);
+app.use('/api/essays', trackChanges('essays'), essayRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/bookclub', bookclubRoutes);
 app.use('/api/audiobook', audiobookRoutes);
 app.use('/api/media', mediaRoutes);
-app.use('/api/settings', settingsRoutes);
+app.use('/api/settings', trackChanges('settings'), settingsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/dev', devRoutes);
 app.use('/api/reading', readingRoutes);
@@ -100,7 +105,7 @@ app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/telemetry', rateLimit({ windowMs: 60 * 1000, limit: 20, standardHeaders: 'draft-8', legacyHeaders: false }), telemetryRoutes);
 app.use('/api/shipping', shippingRoutes);
 app.use('/api/contact', rateLimit({ windowMs: 60 * 60 * 1000, limit: 8, standardHeaders: 'draft-8', legacyHeaders: false, skip: (req) => req.method !== 'POST' || req.path !== '/' }), contactRoutes);
-app.use('/api/gallery', galleryRoutes);
+app.use('/api/gallery', trackChanges('gallery'), galleryRoutes);
 app.use('/api/narration', narrationRoutes);
 app.use('/api/push', rateLimit({ windowMs: 60 * 1000, limit: 30, standardHeaders: 'draft-8', legacyHeaders: false }), pushRoutes);
 

@@ -19,6 +19,26 @@ const COLUMNS = `${OLD_COLUMNS},book_id,essay_id,pages,in_slideshow`;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const NEW_FIELDS = ['book_id', 'essay_id', 'pages', 'in_slideshow'];
 
+// Files in our own Storage that an item uses: the photo or video picture, the pages, the video.
+const STORAGE_RE = /\/storage\/v1\/object\/public\/(covers|media)\/(gallery(?:-video)?\/[^?#]+)$/;
+function filesOf(item) {
+  return [item?.image_url, item?.video_url, ...(Array.isArray(item?.pages) ? item.pages : [])]
+    .map((u) => String(u || '').match(STORAGE_RE)).filter(Boolean)
+    .map((m) => ({ bucket: m[1], path: decodeURIComponent(m[2]) }));
+}
+// Deletes files nothing in the gallery uses any more, so a deleted or replaced picture is gone
+// everywhere, Storage included. Runs after the answer is sent; a failure only leaves a spare file.
+async function removeUnused(files) {
+  if (!files.length) return;
+  const { data, error } = await supabaseAdmin.from('gallery_items').select('image_url,video_url,pages');
+  if (error) return;
+  const used = new Set((data || []).flatMap((r) => filesOf(r).map((f) => `${f.bucket}/${f.path}`)));
+  const byBucket = {};
+  for (const f of files) if (!used.has(`${f.bucket}/${f.path}`)) (byBucket[f.bucket] ||= new Set()).add(f.path);
+  await Promise.all(Object.entries(byBucket).map(([bucket, paths]) => supabaseAdmin.storage.from(bucket).remove([...paths])));
+}
+const cleanUp = (files) => { removeUnused(files).catch((e) => console.warn('Gallery file clean up:', e.message)); };
+
 const urlOrNull = (v) => (isSafeHttpUrl(v) ? String(v).trim() : null);
 const isMissingColumn = (error) => /book_id|essay_id|pages|in_slideshow|column .* does not exist|schema cache/i.test(error?.message || '');
 const isOldConstraint = (error) => /gallery_items_(title|media_type)_check|null value in column "title"/i.test(error?.message || '');
@@ -87,7 +107,9 @@ router.get('/', async (req, res) => {
   if (error && isMissingColumn(error)) ({ data, error } = await build(OLD_COLUMNS));
   // Before migration 014 the table does not exist: an empty gallery rather than an error page.
   if (error) return res.json([]);
-  res.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=300');
+  // Always checked with the server (a cheap 304 when nothing changed), so an edit or a deletion
+  // shows at once rather than after a cached copy runs out.
+  res.set('Cache-Control', 'no-cache');
   res.json(data);
 });
 
@@ -105,15 +127,21 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
 router.put('/:id', requireAuth, requireAuthor, async (req, res) => {
   const { item, error: invalid } = readItem(req.body || {});
   if (invalid) return res.status(400).json({ error: invalid });
+  const { data: before } = await supabaseAdmin.from('gallery_items').select('*').eq('id', req.params.id).maybeSingle();
   const { data, error } = await write((row) => supabaseAdmin.from('gallery_items').update(row).eq('id', req.params.id).select('*').single(), item);
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
+  // A replaced photo, page, video or picture: delete the old file.
+  const kept = new Set(filesOf(data).map((f) => `${f.bucket}/${f.path}`));
+  cleanUp(filesOf(before).filter((f) => !kept.has(`${f.bucket}/${f.path}`)));
 });
 
 router.delete('/:id', requireAuth, requireAuthor, async (req, res) => {
+  const { data: before } = await supabaseAdmin.from('gallery_items').select('*').eq('id', req.params.id).maybeSingle();
   const { error } = await supabaseAdmin.from('gallery_items').delete().eq('id', req.params.id);
   if (error) return res.status(500).json({ error: error.message });
   res.status(204).send();
+  cleanUp(filesOf(before));
 });
 
 export default router;
