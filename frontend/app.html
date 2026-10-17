@@ -1537,6 +1537,9 @@
   .reader-watermark span{white-space:nowrap;}
   .book-page .bp-text{position:relative; z-index:1;}
   .book-page:has(.reader-cover) .reader-watermark{display:none;}
+  /* The cover page: the picture fills the whole first page (a later rule had squeezed it to nothing). */
+  .book-page .bp-text:has(.reader-cover){position:absolute; inset:0; z-index:2;}
+  .reader-cover{background-color:var(--sl-green-deep); background-size:cover; background-position:center; background-repeat:no-repeat; display:flex; align-items:flex-end;}
   @media print{ .reader-watermark{color:rgba(0,0,0,0.25) !important;} }
 
   /* ---------- Sharing ---------- */
@@ -4424,7 +4427,16 @@
   lightboxOverlay.addEventListener('click', e => { if(e.target === lightboxOverlay) closeLightbox(); });
   document.body.addEventListener('click', e => {
     const el = e.target.closest('[data-lightbox]');
-    if(el) openLightbox(el.dataset.lightbox);
+    if(!el) return;
+    // In a list (essay or book cards), the picture opens the essay or book it belongs to, not a
+    // zoomed photo. Zoom stays for pictures on a book's own page and in galleries.
+    const card = el.closest('article.essay-card, article.book-card, [data-open-book], [data-open-essay]');
+    if(card){
+      const opener = card.matches('[data-open-book], [data-open-essay]') ? null : card.querySelector('[data-open-book], [data-open-essay]');
+      if(opener){ e.preventDefault(); opener.click(); }
+      return;
+    }
+    openLightbox(el.dataset.lightbox);
   });
 
   // Stripe redirects back here after payment. Stripe tells the server a moment
@@ -4760,7 +4772,6 @@
       card.innerHTML = `${e.cover_image_url ? '<div class="cover-thumb"></div>' : ''}<span class="tag"></span><h3></h3><p></p><div class="meta"><span class="ey"></span><span class="card-actions"><a href="/essay/${e.id}" data-share="essay:${e.id}" class="share-link" aria-label="Share">Share</a><a href="/essay/${e.id}" data-open-essay="${e.id}" style="cursor:pointer;">Read More →</a></span></div>`;
       if(e.cover_image_url){
         const thumb = card.querySelector('.cover-thumb');
-        thumb.setAttribute('data-lightbox', e.cover_image_url);
         lazyLoadCover(thumb, e.cover_image_url);
       }
       card.querySelector('.tag').textContent = e.cat || '';
@@ -4770,7 +4781,15 @@
       grid.appendChild(card);
     });
     grid.querySelectorAll('[data-open-essay]').forEach(el => {
-      el.addEventListener('click', (ev) => { ev.preventDefault(); openEssay(el.dataset.openEssay); });
+      el.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); openEssay(el.dataset.openEssay); });
+    });
+    // Tapping anywhere on the card (its picture, title or summary) opens the essay too.
+    grid.querySelectorAll('article.essay-card').forEach(card => {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', (ev) => {
+        if(ev.target.closest('a, button, [data-share]')) return;
+        card.querySelector('[data-open-essay]')?.click();
+      });
     });
     resultCount.textContent = !essaysLoaded ? '' : libraryEmpty ? 'None yet' : `${filtered.length} essay${filtered.length === 1 ? '' : 's'}`;
   }
@@ -10442,27 +10461,25 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       const dx = e.changedTouches[0].clientX - x0;
       const dy = e.changedTouches[0].clientY - y0;
       // Horizontal intent only, so vertical scrolling still works.
+      // A sideways swipe turns the page; scrolling up and down only scrolls.
       if(Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.6){
         animateTurn(dx < 0 ? 'fwd' : 'bwd');
-      } else if(Math.abs(dy) > 70 && Math.abs(dy) > Math.abs(dx) * 1.6 && spreadInView()){
-        // Scrolling up past a page that is fully on screen turns to the next
-        // one, the way people expect to move on from a page on a phone.
-        animateTurn(dy < 0 ? 'fwd' : 'bwd');
       }
       x0 = y0 = null;
     }, { passive: true });
 
-    // Mouse wheel and trackpad: scrolling over the open book turns the page.
+    // A sideways trackpad swipe turns the page. The mouse wheel and scrolling up or down never do:
+    // readers scroll the page, and pages turned by themselves.
     let wheelLock = 0;
     let wheelSum = 0;
     stage.addEventListener('wheel', e => {
-      if(!spreadInView() || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
-      const goingFwd = e.deltaY > 0;
+      if(Math.abs(e.deltaX) < 30 || Math.abs(e.deltaX) < Math.abs(e.deltaY) * 2) return;
+      const goingFwd = e.deltaX > 0;
       const atEdge = goingFwd ? readerState.page + pagesPerSpread() >= readerState.pages.length : readerState.page <= 0;
       if(atEdge) return;     // let the page scroll normally at either end
       e.preventDefault();
       if(Date.now() < wheelLock) return;
-      wheelSum += e.deltaY;
+      wheelSum += e.deltaX;
       if(Math.abs(wheelSum) < 60) return;
       wheelSum = 0;
       wheelLock = Date.now() + 750;
@@ -10553,9 +10570,9 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       return;
     }
     // Page turning from the keyboard.
-    if(e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' '){
+    if(e.key === 'ArrowRight'){
       e.preventDefault(); animateTurn('fwd');
-    } else if(e.key === 'ArrowLeft' || e.key === 'PageUp'){
+    } else if(e.key === 'ArrowLeft'){
       e.preventDefault(); animateTurn('bwd');
     }
   });
