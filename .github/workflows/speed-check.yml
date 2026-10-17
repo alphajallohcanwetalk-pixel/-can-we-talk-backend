@@ -1,0 +1,48 @@
+name: Speed check
+
+# Lighthouse (the engine behind PageSpeed Insights) on the live site, phone and desktop, three runs
+# each, after every code deploy. Scores show as notes on the run (Actions tab). It never blocks a deploy.
+on:
+  workflow_run:
+    workflows: ["Deploy frontend to GitHub Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    # Skip the two hourly rebuilds; only check after a real change.
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event != 'schedule')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run Lighthouse
+        run: |
+          sleep 60   # let the new version reach the Pages CDN
+          for form in mobile desktop; do
+            for n in 1 2 3; do
+              flags=""; [ "$form" = desktop ] && flags="--preset=desktop"
+              npx -y lighthouse@12.8.2 "https://canwetalkvoice.com/?speed=$n" $flags --quiet \
+                --output=json --output-path="lh-$form-$n.json" \
+                --chrome-flags="--headless=new --no-sandbox" \
+                --only-categories=performance,accessibility,best-practices,seo || true
+            done
+          done
+      - name: Report
+        run: |
+          node -e "
+          const fs = require('fs');
+          for (const form of ['mobile', 'desktop']) {
+            for (let n = 1; n <= 3; n++) {
+              const f = 'lh-' + form + '-' + n + '.json';
+              if (!fs.existsSync(f)) { console.log('::warning title=' + form + ' run ' + n + '::no result'); continue; }
+              const r = JSON.parse(fs.readFileSync(f, 'utf8')), a = r.audits;
+              const scores = Object.values(r.categories).map((c) => c.title + ' ' + Math.round(c.score * 100)).join(', ');
+              const m = ['first-contentful-paint', 'largest-contentful-paint', 'speed-index', 'total-blocking-time', 'cumulative-layout-shift'].map((k) => a[k].title.replace(/ /g, '') + ' ' + a[k].displayValue).join(', ');
+              console.log('::notice title=' + form + ' run ' + n + '::' + scores + ' | ' + m);
+            }
+          }"
