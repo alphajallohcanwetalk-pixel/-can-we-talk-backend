@@ -260,7 +260,7 @@ one check allowed to fail; it is optional.
 - Supabase's database host is **IPv6 only** and the project has no IPv4 pooler.
   If your network has no IPv6 route you cannot connect with `psql` or `pg`. Use
   the REST API with the service role key, or the SQL editor in the dashboard.
-- The site is one file, `frontend/app.html`. There is no build step.
+- The site is edited as one file, `frontend/app.html`. Publishing (`scripts/split-app.mjs`, run by the Pages workflow) moves its main script, `<script data-main>`, into a cached `app-<hash>.js` and loads it and the sign in library (`frontend/vendor/supabase-js-2.118.0.js`, kept on the site) with defer from the head. Keep the `data-main` attribute on that script.
 - Pagination in the reader measures against the real page element, so the
   reader view must be visible before `paginateText` runs.
 - `showView` pushes browser history. Without it the Android back gesture closes

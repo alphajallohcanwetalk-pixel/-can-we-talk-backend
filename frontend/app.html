@@ -3752,8 +3752,10 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script>
+<!-- The sign in library is kept on the site (pinned version, no extra server to reach). The publishing
+     step (scripts/split-app.mjs) moves the main script below into its own cached file and loads both with defer. -->
+<script src="vendor/supabase-js-2.118.0.js"></script>
+<script data-main>
   // ================= CONFIG: fill these in =================
   const SUPABASE_URL = "https://ppojnjgzrolzjmtblgwf.supabase.co";        // e.g. https://abcdefgh.supabase.co
   const SUPABASE_ANON_KEY = "sb_publishable_slVay-YwkZRin-oGiUDGYQ_aoROXBsx";
@@ -9550,10 +9552,12 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       if(!url){ strip.style.display = 'none'; return; }
       strip.style.display = '';
       const img = document.createElement('img');
-      img.src = sized(url, 360);
-      img.alt = 'Alpha Amadu Jalloh';
+      // loading must be set before src, or the photo downloads at once even when far below the screen.
       img.loading = 'lazy';
       img.decoding = 'async';
+      img.width = 360; img.height = 360;
+      img.alt = 'Alpha Amadu Jalloh';
+      img.src = sized(url, 360);
       portrait.replaceChildren(img);
       portrait.classList.add('has-img');
       if(bioEl && bio) bioEl.textContent = bio;
@@ -9608,7 +9612,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       if(data.author_photo_url){
         const portrait = document.getElementById('aboutPortrait');
         let img = portrait.querySelector('img');
-        if(!img){ img = document.createElement('img'); img.alt = 'Alpha Amadu Jalloh'; img.decoding = 'async'; portrait.appendChild(img); }
+        if(!img){ img = document.createElement('img'); img.alt = 'Alpha Amadu Jalloh'; img.loading = 'lazy'; img.decoding = 'async'; img.width = 520; img.height = 520; portrait.appendChild(img); }
         img.src = sized(data.author_photo_url, 520);
         portrait.classList.add('has-img');
         portrait.setAttribute('data-lightbox', data.author_photo_url);

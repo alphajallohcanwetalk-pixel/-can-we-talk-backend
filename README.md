@@ -19,7 +19,7 @@ Two folders:
 
 ## Deployment status
 
-- GitHub Pages publishes `frontend/app.html` through `.github/workflows/deploy-pages.yml`.
+- GitHub Pages publishes `frontend/app.html` through `.github/workflows/deploy-pages.yml`, which runs `scripts/split-app.mjs` to move the main script into its own cached file.
 - Render runs the backend with root directory `backend`, build command `npm install`,
   and start command `npm start`.
 - Backend health check: https://can-we-talk-backend.onrender.com/api/health

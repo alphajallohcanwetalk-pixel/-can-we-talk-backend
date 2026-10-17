@@ -9,7 +9,7 @@
  *    with the cached shell as the offline fallback.
  */
 
-const VERSION = 'cwt-v4';
+const VERSION = 'cwt-v5';
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 // Photos are kept across versions (their URLs never change), up to IMAGE_LIMIT files.
@@ -24,6 +24,7 @@ const SHELL_ASSETS = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
+  '/vendor/supabase-js-2.118.0.js',
   '/icons/icon-192-v2.png',
   '/icons/icon-512-v2.png',
   '/icons/icon-maskable-512-v2.png',
@@ -124,7 +125,13 @@ self.addEventListener('fetch', (event) => {
           // Opaque responses have status 0; they are still usable from cache.
           if (response && (response.ok || response.type === 'opaque')) {
             const copy = response.clone();
-            caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
+            caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy).then(() => {
+              // The main script is named after its content (app-<hash>.js); keep only the newest.
+              if (!/^\/app-[0-9a-f]+\.js$/.test(url.pathname)) return;
+              return cache.keys().then((keys) => Promise.all(keys
+                .filter((k) => { const p = new URL(k.url).pathname; return /^\/app-[0-9a-f]+\.js$/.test(p) && p !== url.pathname; })
+                .map((k) => cache.delete(k))));
+            })).catch(() => {});
           }
           return response;
         })
