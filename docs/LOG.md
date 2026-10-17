@@ -3,6 +3,13 @@
 What was done, newest first. Every session adds one dated entry at the top: what changed, why, and where it stopped.
 Back to the [BRAIN](BRAIN.md) · [ROADMAP](ROADMAP.md)
 
+## 17 October 2026
+- **Contact form fixed.** It used to show "thank you" and keep nothing (a speaking request to Alpha was lost). Now POST /api/contact saves the message (table contact_messages, migration 015), emails Alpha (ADMIN_EMAIL, Reply goes to the sender) and notifies his devices. Dashboard: new Messages tab with unread badge and banner, mark read, replied or new, reply by email, delete. The Speaking page pre selects "Speaking engagement".
+- **Gallery v2.** Photos, videos and documents (newspaper articles, letters with several pages). Upload by drag and drop or tap, several files at once, photos shrunk before upload; everything optional (related book or essay, title, note, section, date, outlet, link, slideshow). Public: random photo slideshow, filters, masonry tiles, a full screen viewer (swipe, zoom, keyboard, the phone back button closes it), and on every book page a "Book gallery, articles and newspapers" section with quick buttons near the top; essays show their linked items too. The server works before and after migration 015.
+- **Loading.** Books, essays, gallery and settings load with retries, and the last good copy is kept on the device and shown at once, so the site never says "no essays published" while loading or after a passing failure; it retries by itself. Service worker v4 keeps every public photo once seen (shown offline), up to 250.
+- B&A credit email corrected to bandadevelopers2026@gmail.com.
+- **Needs the owner:** run backend/migrations/015_messages_and_gallery_v2.sql in the Supabase SQL editor (messages are emailed meanwhile, but only kept for the dashboard after it).
+
 ## 16 October 2026 (night): phone speed
 - Found why phones stayed busy: the Download the App button pulsed by animating its shadow, which repainted it on
   every frame from 1.2 s to 9.6 s (the whole time Google measures), and the waving flag is an SVG filter redrawn on
