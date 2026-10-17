@@ -4,6 +4,9 @@ What is next, what is waiting on someone, and ideas for later. Tick items off (o
 Back to the [BRAIN](BRAIN.md) · [LOG](LOG.md)
 
 ## Now and next (from the B&A owner area, 16 October 2026)
+- [x] Password reset works again (17 October 2026; tested end to end on the live site).
+- [x] PageSpeed passes on phone and desktop (17 October 2026). Watch the `Speed check` run in GitHub Actions after each deploy; phone Performance should stay at 90 or above.
+- [ ] Optional: a B&A site checker (crawler) for every client site, with reports in the owner area. Not started; waiting for the owner's go ahead.
 - [ ] **Run migration 015** (backend/migrations/015_messages_and_gallery_v2.sql) in the Supabase SQL editor: keeps contact messages for the dashboard and turns on the new gallery fields (documents, book and essay links, optional titles, slideshow choice). Then change the uploaded newspaper to 'Newspaper or letter' in the dashboard gallery list.
 - [ ] Confirm which inbox Alpha reads: contact messages go to ADMIN_EMAIL (alpha.jalloh@canwetalkvoice.com), a mailbox on the Serv plan that ends in December.
 - Decided 16 Oct 2026: the website stays on GitHub Pages, so the repository stays public (GitHub Pages on a free account needs it). The Serv cPanel plan (cpanel.canwetalkvoice.com) is not used for the website.
