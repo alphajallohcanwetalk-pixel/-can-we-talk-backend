@@ -9553,7 +9553,6 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       // loading must be set before src, or the photo downloads at once even when far below the screen.
       img.loading = 'lazy';
       img.decoding = 'async';
-      img.width = 360; img.height = 360;
       img.alt = 'Alpha Amadu Jalloh';
       img.src = sized(url, 360);
       portrait.replaceChildren(img);
@@ -9610,7 +9609,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       if(data.author_photo_url){
         const portrait = document.getElementById('aboutPortrait');
         let img = portrait.querySelector('img');
-        if(!img){ img = document.createElement('img'); img.alt = 'Alpha Amadu Jalloh'; img.loading = 'lazy'; img.decoding = 'async'; img.width = 520; img.height = 520; portrait.appendChild(img); }
+        if(!img){ img = document.createElement('img'); img.alt = 'Alpha Amadu Jalloh'; img.loading = 'lazy'; img.decoding = 'async'; portrait.appendChild(img); }
         img.src = sized(data.author_photo_url, 520);
         portrait.classList.add('has-img');
         portrait.setAttribute('data-lightbox', data.author_photo_url);

@@ -17,12 +17,14 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event != 'schedule')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
       - name: Run Lighthouse
         run: |
           sleep 60   # let the new version reach the Pages CDN
+          # One unscored warm up: the first run on a fresh machine is slowed by the npx download.
+          npx -y lighthouse@12.8.2 https://canwetalkvoice.com/ --quiet --output=json --output-path=/dev/null --chrome-flags="--headless=new --no-sandbox" --only-categories=performance || true
           for form in mobile desktop; do
             for n in 1 2 3; do
               flags=""; [ "$form" = desktop ] && flags="--preset=desktop"
