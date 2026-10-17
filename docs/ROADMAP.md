@@ -5,7 +5,7 @@ Back to the [BRAIN](BRAIN.md) · [LOG](LOG.md)
 
 ## Now and next (from the B&A owner area, 16 October 2026)
 - [ ] Owner: create a Supabase personal access token (supabase.com/dashboard/account/tokens) and add it on Render as SUPABASE_ACCESS_TOKEN. Then in the dashboard, Developer tab, Sign in and email settings, press "Send them through Resend" so confirmation and reset emails are not limited to a few an hour.
-- [ ] Owner: replace the starter Privacy and Terms text (it says it is a template) with reviewed wording.
+- [ ] Owner, when convenient: have the Terms and the short in-site Privacy summary reviewed (the template notes are no longer shown to visitors).
 - [x] Password reset works again (17 October 2026; tested end to end on the live site).
 - [x] PageSpeed passes on phone and desktop (17 October 2026). Watch the `Speed check` run in GitHub Actions after each deploy; phone Performance should stay at 90 or above.
 - [ ] Optional: a B&A site checker (crawler) for every client site, with reports in the owner area. Not started; waiting for the owner's go ahead.
