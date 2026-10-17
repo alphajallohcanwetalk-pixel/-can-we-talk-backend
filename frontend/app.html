@@ -1555,6 +1555,8 @@
   #consentBanner{position:fixed; left:0; right:0; bottom:0; z-index:5500; display:none;
     background:var(--sl-green-deep); color:#fff; box-shadow:0 -10px 40px rgba(0,0,0,0.3);}
   #consentBanner.show{display:block; animation:cbUp .45s var(--ease-out);}
+  /* The sign in window (also used for the password reset link) must never sit under the banner. */
+  body.auth-open #consentBanner.show{display:none;}
   @keyframes cbUp{from{transform:translateY(100%);} to{transform:none;}}
   .cb-inner{max-width:1100px; margin:0 auto; padding:18px 22px; display:flex; gap:20px;
     align-items:center; justify-content:space-between; flex-wrap:wrap;}
@@ -3758,6 +3760,22 @@
   const API_URL = "https://can-we-talk-backend.onrender.com";
   const PLAY_BUILD = document.documentElement.classList.contains('play-build');
 
+  // A reset link comes back as "#password-reset#access_token=...&type=recovery": our marker, then
+  // Supabase's part. The client reads everything after the first "#", so it never found the token
+  // and saving the new password failed as "expired". Keep only Supabase's part, before the client starts.
+  const AUTH_RETURN = (() => {
+    const h = location.hash || '';
+    const i = h.indexOf('#', 1);
+    if(i > 0 && /access_token=|error_description=/.test(h.slice(i))){
+      history.replaceState(null, '', location.pathname + location.search + h.slice(i));
+    }
+    const p = new URLSearchParams((location.hash || '').slice(1));
+    return {
+      recovery: p.get('type') === 'recovery' || h.startsWith('#password-reset'),
+      error: p.get('error_description') || ''
+    };
+  })();
+
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // Images in Supabase Storage are served resized (and as WebP where the browser takes it) through
@@ -4333,8 +4351,8 @@
   let currentUser = null; // {name, email}
   const authModal = document.getElementById('authModal');
 
-  function openAuth(){ authModal.classList.add('open'); }
-  function closeAuth(){ authModal.classList.remove('open'); }
+  function openAuth(){ authModal.classList.add('open'); document.body.classList.add('auth-open'); }
+  function closeAuth(){ authModal.classList.remove('open'); document.body.classList.remove('auth-open'); }
   document.getElementById('signInBtn').addEventListener('click', openAuth);
   document.getElementById('signInBtnMobile').addEventListener('click', openAuth);
   document.getElementById('modalClose').addEventListener('click', closeAuth);
@@ -4399,7 +4417,8 @@
       showView('account');
       loadAccountView();
     });
-    closeAuth();
+    // A reset link signs the reader in too; keep the "choose a new password" form open until they finish.
+    if(!document.getElementById('panel-reset').classList.contains('active')) closeAuth();
     document.body.classList.add('signed-in');
     updateCommentGates();
     checkBookClubStatus();
@@ -4679,6 +4698,17 @@
   // ---------- Set a new password after following the emailed link ----------
   document.getElementById('panel-reset').addEventListener('submit', async e => {
     e.preventDefault();
+    const resetForm = document.getElementById('panel-reset');
+    // After saving, the button reads "Continue" and just closes the window.
+    if(resetForm.dataset.done){
+      delete resetForm.dataset.done;
+      resetForm.querySelectorAll('.field').forEach(f => { f.style.display = ''; });
+      document.getElementById('resetSubmit').textContent = 'Save new password';
+      setMsg('resetOk', null, false);
+      showPanel('signin');
+      closeAuth();
+      return;
+    }
     const pw = document.getElementById('resetPassword').value;
     const pw2 = document.getElementById('resetPassword2').value;
     if(pw.length < MIN_PASSWORD){
@@ -4700,6 +4730,9 @@
       setMsg('resetOk', null, true);
       document.getElementById('resetPassword').value = '';
       document.getElementById('resetPassword2').value = '';
+      resetForm.dataset.done = '1';
+      resetForm.querySelectorAll('.field').forEach(f => { f.style.display = 'none'; });
+      inPasswordRecovery = false;
       const user = data.user;
       if(user){
         const { data: sessionData } = await sb.auth.getSession();
@@ -4711,6 +4744,7 @@
       // the back button or a shared link.
       if(location.hash) history.replaceState(null, '', location.pathname + location.search);
     });
+    if(resetForm.dataset.done) document.getElementById('resetSubmit').textContent = 'Continue';
   });
 
   // Supabase parses the recovery token out of the URL and fires this event. The
@@ -4730,9 +4764,16 @@
   // Belt and braces: if the event was missed (it can fire before this script
   // runs), fall back to the hash the reset link carries.
   function checkRecoveryHash(){
-    const hash = location.hash || '';
     if(inPasswordRecovery) return;
-    if(hash.includes('type=recovery') || hash.startsWith('#password-reset')){
+    // An old or already used link: ask for a new one rather than showing a form that cannot save.
+    if(AUTH_RETURN.recovery && AUTH_RETURN.error){
+      openAuth();
+      showPanel('forgot');
+      setMsg('forgotError', 'That reset link has expired or was already used. Enter your email to get a new one.', true);
+      history.replaceState(null, '', location.pathname + location.search);
+      return;
+    }
+    if(AUTH_RETURN.recovery){
       inPasswordRecovery = true;
       openAuth();
       showPanel('reset');
