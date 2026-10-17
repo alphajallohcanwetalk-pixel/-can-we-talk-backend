@@ -292,27 +292,44 @@
   /* ---------- Loading signals ----------
      A thin bar under the header while anything is being fetched, a pill when it takes long or the
      device is offline, and a ring in the flag colours on media that is buffering. */
-  .net-bar{position:absolute; left:0; right:0; bottom:-4px; height:4px; overflow:hidden; opacity:0; pointer-events:none; transition:opacity .3s ease; z-index:1;}
+  /* While anything loads, a fine ink line writes itself under the header, led by a small gold nib. */
+  .net-bar{position:absolute; left:0; right:0; bottom:-2px; height:2px; overflow:visible; opacity:0; pointer-events:none; transition:opacity .4s ease; z-index:1;}
   .net-bar.on{opacity:1;}
-  .net-bar::before{content:''; position:absolute; top:0; bottom:0; left:0; width:42%; border-radius:3px;
-    background:linear-gradient(90deg, transparent, var(--sl-green-bright) 30%, #7cc4ff 62%, var(--sl-blue) 85%, transparent);
-    animation:netSlide 1.1s cubic-bezier(.45,.05,.35,.95) infinite;}
-  @keyframes netSlide{from{transform:translateX(-100%);} to{transform:translateX(240%);}}
+  .net-bar::before{content:''; position:absolute; inset:0; border-radius:2px; background:var(--sl-green-deep); opacity:.55; transform-origin:left center; transform:scaleX(0); animation:netInk 1.9s cubic-bezier(.45,.05,.35,.95) infinite;}
+  .net-bar::after{content:''; position:absolute; left:-3px; top:-3px; width:7px; height:7px; border-radius:0 50% 50% 50%; background:#c9a24a; box-shadow:0 0 0 1px rgba(255,255,255,0.7); animation:netNib 1.9s cubic-bezier(.45,.05,.35,.95) infinite;}
+  @keyframes netInk{0%{transform:scaleX(0); opacity:.55;} 78%{transform:scaleX(1); opacity:.55;} 100%{transform:scaleX(1); opacity:0;}}
+  @keyframes netNib{0%{transform:translateX(0) rotate(45deg); opacity:1;} 78%{transform:translateX(100vw) rotate(45deg); opacity:1;} 79%, 100%{transform:translateX(100vw) rotate(45deg); opacity:0;}}
+  /* The pen mending the line: slow connection, offline (the pen waits), back online (mended), and
+     anything still loading in the page. */
   .net-pill{position:fixed; left:50%; top:calc(env(safe-area-inset-top, 0px) + 78px); z-index:650; display:flex; align-items:center; gap:10px;
-    max-width:calc(100vw - 32px); padding:9px 16px 9px 12px; border-radius:999px; background:rgba(12,61,34,0.95); color:#fff;
-    font-size:0.84rem; font-weight:600; box-shadow:0 12px 30px rgba(0,0,0,0.25); opacity:0; pointer-events:none;
+    max-width:calc(100vw - 32px); padding:7px 16px 7px 10px; border-radius:999px; background:rgba(250,248,242,0.97); color:var(--sl-green-deep);
+    border:1px solid var(--line); font-size:0.84rem; font-weight:600; box-shadow:0 10px 26px rgba(12,61,34,0.14); opacity:0; pointer-events:none;
     transform:translate(-50%, -10px); transition:opacity .3s ease, transform .3s ease;}
   .net-pill.on{opacity:1; transform:translate(-50%, 0);}
-  .net-pill.still .cwt-ring{display:none;}
-  .cwt-ring{display:inline-block; flex:none; width:46px; height:46px; border-radius:50%;
-    background:conic-gradient(from 0deg, var(--sl-green-bright) 0 30%, transparent 0 36%, #fff 0 64%, transparent 0 70%, var(--sl-blue) 0 94%, transparent 0);
-    -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
-    mask:radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
-    animation:ringSpin .85s linear infinite; filter:drop-shadow(0 1px 3px rgba(0,0,0,0.35));}
-  .cwt-ring.sm{width:16px; height:16px; -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px)); mask:radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));}
-  @keyframes ringSpin{to{transform:rotate(360deg);}}
+  .pen-loader{display:block; flex:none; width:120px; height:40px; overflow:visible; color:var(--sl-green-deep);}
+  .pen-loader.sm{width:60px; height:20px;}
+  .pen-loader.light{color:#e8f3ea;}
+  .pen-loader .pl-line{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; opacity:.5;}
+  .pen-loader .pl-stitch{fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:100; stroke-dashoffset:100; animation:plInk 2.6s linear infinite;}
+  .pen-loader .pl-pen{animation:plPen 2.6s linear infinite;}
+  .pen-loader .pl-nib, .pen-loader .pl-band{fill:#c9a24a;}
+  .pen-loader .pl-body{fill:#1d2b22;}
+  .pen-loader.light .pl-body{fill:#f4efe2;}
+  @keyframes plInk{0%{stroke-dashoffset:100; opacity:1;} 70%{stroke-dashoffset:0; opacity:1;} 86%{stroke-dashoffset:0; opacity:1;} 100%{stroke-dashoffset:0; opacity:0;}}
+  @keyframes plPen{
+    0%{transform:translate(44px, 24px);} 10.6%{transform:translate(50px, 16px);} 26.9%{transform:translate(56px, 30px);}
+    43.1%{transform:translate(62px, 16px);} 59.4%{transform:translate(68px, 30px);} 70%{transform:translate(76px, 24px);}
+    86%{transform:translate(76px, 24px);} 93%{transform:translate(60px, 12px);} 100%{transform:translate(44px, 24px);}}
+  @keyframes plRest{0%, 100%{transform:translate(44px, 24px);} 50%{transform:translate(44px, 19px);}}
+  .net-pill.still .pl-stitch{animation:none; stroke-dashoffset:100;}
+  .net-pill.still .pl-pen{animation:plRest 1.6s ease-in-out infinite;}
+  .net-pill.mended .pl-stitch{animation:none; stroke-dashoffset:0;}
+  .net-pill.mended .pl-pen{animation:none; transform:translate(76px, 24px);}
   .media-wait{position:absolute; inset:0; display:grid; place-items:center; background:rgba(8,17,11,0.28); opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:3;}
   .is-buffering > .media-wait{opacity:1;}
+  .is-buffering .gx-play{opacity:0;}
+  .media-wait .pen-loader{box-sizing:content-box; padding:8px 12px; border-radius:999px; background:rgba(8,17,11,0.6);}
+  .media-wait .pen-loader{width:96px; height:32px; filter:drop-shadow(0 1px 3px rgba(0,0,0,0.5));}
   .gx-thumb.img-skeleton:not(.is-loaded) img{opacity:0;}
   .gx-thumb img{transition:opacity .45s ease, transform .6s var(--glide, ease);}
 
@@ -332,11 +349,12 @@
   .book-video.has-wait{position:relative;}
   .gxv-media{position:relative; width:100%; max-width:960px; margin:auto 0;}
   .gxv-media video{display:block; width:100%; max-height:78vh; background:#000; border-radius:8px;}
-  .gx-viewer .gxv-wait{position:absolute; left:50%; top:50%; margin:-23px 0 0 -23px; z-index:4; opacity:0; transition:opacity .25s; pointer-events:none;}
+  .gx-viewer .gxv-wait{position:absolute; left:50%; top:50%; margin:-20px 0 0 -60px; z-index:4; opacity:0; transition:opacity .25s; pointer-events:none;}
   .gx-viewer.is-loading .gxv-wait{opacity:1;}
   @media (prefers-reduced-motion: reduce){
-    .net-bar::before{animation:none; width:100%; opacity:.7;}
-    .cwt-ring{animation-duration:2.4s;}
+    .net-bar::before{animation:none; transform:none;}
+    .net-bar::after{animation:none; display:none;}
+    .pen-loader .pl-stitch, .pen-loader .pl-pen{animation-duration:6s;}
   }
 
   /* ================= ESSAY LIBRARY VIEW ================= */
@@ -472,6 +490,8 @@
   .sr-body{min-width:0; display:flex; flex-direction:column;}
   .search-result-item .srt{overflow-wrap:anywhere;}
   .search-result-item .src{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .found-flash{animation:foundFlash 1.8s ease;}
+  @keyframes foundFlash{0%, 40%{background:#fdeca6; box-shadow:0 0 0 6px #fdeca6;} 100%{background:transparent; box-shadow:0 0 0 6px transparent;}}
   .search-result-item mark{background:#fdeca6; color:inherit; border-radius:2px; padding:0 1px;}
   .sr-empty{padding:16px 8px 8px; color:var(--ink-soft); font-size:0.92rem;}
   .sr-chips, .hs-chips{display:flex; flex-wrap:wrap; gap:8px;}
@@ -511,7 +531,63 @@
     body.signed-in .mm-auth{display:none;}
     .mm-search{display:flex; align-items:center; gap:8px; width:calc(100% - 40px); margin:14px 20px 6px; padding:12px 16px; border:1px solid var(--line); border-radius:999px; background:var(--paper); font:inherit; font-size:0.92rem; color:var(--ink-soft); text-align:left; cursor:text;}
   }
-  @media(min-width:901px){ .mm-auth, .mm-search{display:none;} }
+  @media(min-width:901px){ .mm-auth, .mm-search, .mm-user{display:none !important;} }
+  .mm-user{display:none; padding:18px 20px; background:var(--paper-dim); border-bottom:1px solid var(--line);}
+  body.signed-in .mm-user{display:block;}
+  .mm-user p{margin:0 0 12px; font-size:0.9rem; color:var(--ink-soft);}
+  .mm-user p strong{color:var(--sl-green-deep);}
+  .mm-user div{display:flex; gap:10px;}
+  .mm-user .btn{flex:1;}
+  /* The account menu under the reader's name or initials. */
+  .acct-menu{position:fixed; z-index:660; min-width:250px; max-width:calc(100vw - 24px); padding:8px; border-radius:12px; background:var(--paper);
+    border:1px solid var(--line); box-shadow:0 18px 44px rgba(12,25,15,0.2); display:flex; flex-direction:column; gap:2px;
+    animation:amIn .18s ease;}
+  .acct-menu[hidden]{display:none;}
+  @keyframes amIn{from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:none;}}
+  .am-head{display:flex; align-items:center; gap:12px; padding:10px 10px 12px; margin-bottom:4px; border-bottom:1px solid var(--line);}
+  .am-avatar{flex:none; width:38px; height:38px; border-radius:50%; display:grid; place-items:center; background:var(--sl-green-bright); color:#0b2b13; font-weight:800; font-size:0.85rem;}
+  .am-who{display:flex; flex-direction:column; min-width:0;}
+  .am-who strong{font-size:0.92rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .am-email{font-size:0.78rem; color:var(--ink-soft); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .acct-menu button{display:flex; align-items:center; gap:10px; width:100%; min-height:42px; padding:9px 12px; border:0; border-radius:8px; background:none; font:inherit; font-size:0.9rem; color:var(--ink); text-align:left; cursor:pointer;}
+  .acct-menu button:hover, .acct-menu button:focus-visible{background:var(--paper-dim); outline:none;}
+  .acct-menu .am-out{margin-top:4px; border-top:1px solid var(--line); border-radius:0 0 8px 8px; color:#b3261e;}
+  body:not(.is-staff) .acct-menu .staff-only{display:none;}
+  body.is-staff .acct-menu .staff-only{display:flex;}
+  .nav-user{border-radius:999px; padding:4px 10px 4px 4px; transition:background .2s;}
+  .nav-user:hover{background:var(--paper-dim);}
+  .nav-user::after{content:'▾'; font-size:0.7rem; color:var(--ink-soft);}
+  /* The pill stays on one line where it fits. */
+  .net-pill{width:max-content;}
+  /* Phone header: the name of the site stays whole next to the back arrow and Sign in. */
+  @media(max-width:900px){
+    .nav-acct .na-ico{display:none;}
+    .nav-inner{gap:6px;}
+  }
+  @media(max-width:430px){
+    header.site-nav .nav-inner{gap:4px; padding-left:12px; padding-right:12px;}
+    header.site-nav .nav-inner > .icon-btn{padding:5px;}
+    header.site-nav .menu-btn{padding:6px 2px 6px 6px;}
+    header.site-nav .nav-left{gap:6px;}
+  }
+  @media(max-width:405px){
+    header.site-nav .brand{font-size:0.86rem;}
+    header.site-nav #navBack{width:32px; height:32px; font-size:1rem;}
+    header.site-nav .nav-acct:not(.is-user){padding:6px 10px; font-size:0.74rem;}
+  }
+  /* The smallest phones: an empty cart's icon steps aside (it comes back once something is added). */
+  @media(max-width:350px){
+    header.site-nav:has(#cartBadge[style*="none"]) #cartBtn{display:none;}
+  }
+  @media(max-width:370px){
+    header.site-nav .brand{font-size:0.8rem;}
+    header.site-nav .nav-left{gap:3px;}
+  }
+  @media(max-width:395px){
+    header.site-nav .nav-acct .na-ico{display:inline;}
+    header.site-nav .nav-acct .na-txt{display:none;}
+    header.site-nav .nav-acct:not(.is-user){padding:6px 9px;}
+  }
   .search-box .sb-head input::-webkit-search-cancel-button{-webkit-appearance:none; display:none;}
   /* Header labels never wrap; on mid size screens search is an icon and the extra shop button goes
      (Books is in the menu), so everything stays on one line. */
@@ -529,7 +605,6 @@
     nav.links{gap:14px; font-size:0.84rem;}
     #navReload{display:none;}
   }
-  @media(max-width:370px){ .nav-acct .na-txt{display:none;} .nav-acct{padding:6px 10px;} }
 
   /* ---------- Cart ---------- */
   .cart-item{display:flex; gap:16px; align-items:center; padding:18px 0; border-bottom:1px solid var(--line);}
@@ -541,7 +616,33 @@
   .cart-item-info .cim{font-size:0.78rem; color:var(--ink-soft); margin-top:3px;}
   .cart-item-price{font-weight:600; font-family:'Fraunces',serif;}
   .cart-remove{font-size:0.78rem; color:#b3261e; cursor:pointer; margin-left:16px;}
-  .cart-empty{text-align:center; padding:70px 0; color:var(--ink-soft);}
+  .cart-empty{text-align:center; padding:40px 0 30px; color:var(--ink-soft);}
+  .cart-empty h2, .guest-card h1{font-family:'Fraunces',serif; color:var(--ink); font-size:clamp(1.4rem, 4vw, 1.9rem); margin:14px 0 8px;}
+  .pen-still{width:150px; height:50px; margin:0 auto;}
+  .pen-still .pl-stitch{animation:none; stroke-dashoffset:0;}
+  .pen-still .pl-pen{animation:none;}
+  .cart-suggest{display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:16px; max-width:760px; margin:26px auto 24px;}
+  .cs-card{display:flex; flex-direction:column; gap:6px; padding:0; border:0; background:none; text-align:left; cursor:pointer; font:inherit; color:var(--ink);}
+  .cs-cover{display:block; aspect-ratio:2/3; overflow:hidden; border-radius:6px; background:var(--paper-dim); box-shadow:0 10px 24px rgba(12,25,15,0.18); transition:transform .3s;}
+  .cs-cover img{width:100%; height:100%; object-fit:cover;}
+  .cs-card:hover .cs-cover{transform:translateY(-4px);}
+  .cs-title{font-weight:600; font-size:0.88rem; line-height:1.3;}
+  .cs-price{font-size:0.8rem; color:var(--sl-green);}
+  .cart-empty-actions, .guest-actions{display:flex; flex-wrap:wrap; gap:12px; justify-content:center;}
+  section.detail[hidden]{display:none !important;}
+  .acct-guest{padding:10px 0 80px;}
+  #panel-checkemail{text-align:center;}
+  #panel-checkemail .pen-still{margin:4px auto 10px;}
+  #panel-checkemail .btn{width:100%; margin-top:6px;}
+  .ce-links{display:flex; flex-direction:column; align-items:center; gap:2px; margin-top:12px;}
+  .ce-links .link-btn{text-align:center; width:auto;}
+  body.signed-in .acct-guest{display:none;}
+  body:not(.signed-in) #view-account > section:not(.acct-guest){display:none;}
+  .guest-card{max-width:560px; margin:0 auto; text-align:center; padding:38px 26px; border:1px solid var(--line); border-radius:14px; background:var(--paper); box-shadow:0 20px 50px rgba(12,61,34,0.08);}
+  .guest-card > p{color:var(--ink-soft); margin-bottom:20px;}
+  .guest-perks{list-style:none; padding:0; margin:26px 0 14px; display:flex; flex-direction:column; gap:10px; text-align:left;}
+  .guest-perks li{display:flex; gap:10px; align-items:flex-start; font-size:0.92rem; color:var(--ink-soft);}
+  .link-btn{border:0; background:none; color:var(--sl-green); font:inherit; font-size:0.88rem; text-decoration:underline; cursor:pointer; min-height:32px;}
   .cart-summary{max-width:360px; margin-left:auto; margin-top:30px; border:1px solid var(--line); border-radius:6px; padding:24px; background:var(--paper-dim);}
   .cart-summary-row{display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:10px;}
   .cart-summary-row.total{font-weight:700; font-size:1.05rem; border-top:1px solid var(--line); padding-top:12px; margin-top:12px;}
@@ -567,7 +668,20 @@
   .full-gallery-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:14px;}
   .full-gallery-grid .gallery-item{aspect-ratio:1;}
   .speaking-topics{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:20px; margin:36px 0;}
-  .topic-chip{padding:20px; border:1px solid var(--line); border-radius:6px; border-top:3px solid var(--sl-green-bright); font-size:0.9rem; font-weight:600;}
+  .topic-chip{padding:22px; border:1px solid var(--line); border-radius:8px; border-top:3px solid var(--sl-green-bright); background:var(--paper); transition:transform .25s, box-shadow .25s;}
+  .topic-chip:hover{transform:translateY(-3px); box-shadow:0 14px 30px rgba(12,61,34,0.1);}
+  .topic-chip h3{font-size:1rem; margin:8px 0 6px;}
+  .topic-chip p{font-size:0.88rem; color:var(--ink-soft); margin:0;}
+  .tc-ico{font-size:1.5rem;}
+  .speak-formats{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 30px;}
+  .speak-formats span{padding:7px 14px; border-radius:999px; background:var(--paper-dim); font-size:0.84rem; color:var(--sl-green-deep); font-weight:600;}
+  .speak-steps{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px; margin:0 0 30px;}
+  .speak-steps > div{position:relative; padding:18px 18px 18px 60px;}
+  .speak-steps b{position:absolute; left:14px; top:16px; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:var(--sl-green-deep); color:#fff;}
+  .speak-steps h3{font-size:0.98rem; margin:0 0 4px;}
+  .speak-steps p{font-size:0.86rem; color:var(--ink-soft); margin:0;}
+  .speak-show{margin-top:44px;}
+  .speak-show .eyebrow{display:block; margin-bottom:14px;}
   .legal-body{max-width:760px; padding:20px 0 90px;}
   .legal-body h2{font-size:1.3rem; margin-top:34px; margin-bottom:12px;}
   .legal-body p{color:var(--ink-soft); margin-bottom:14px; font-size:0.94rem;}
@@ -2041,7 +2155,14 @@
 <body>
 
 <!-- ============ NAV (persistent across all views) ============ -->
-<div class="net-pill" id="netPill" role="status" aria-live="polite"><span class="cwt-ring sm" aria-hidden="true"></span><span class="np-text"></span></div>
+<div class="acct-menu" id="acctMenu" role="menu" aria-label="Your account" hidden>
+  <div class="am-head"><span class="am-avatar" aria-hidden="true"></span><span class="am-who"><strong class="am-name"></strong><span class="am-email"></span></span></div>
+  <button type="button" role="menuitem" data-am="account"><span aria-hidden="true">👤</span> Your account and library</button>
+  <button type="button" role="menuitem" data-am="bookclub"><span aria-hidden="true">📚</span> Book Club</button>
+  <button type="button" role="menuitem" data-am="dashboard" class="staff-only"><span aria-hidden="true">🛠️</span> Dashboard</button>
+  <button type="button" role="menuitem" data-am="signout" class="am-out"><span aria-hidden="true">↩</span> Sign out</button>
+</div>
+<div class="net-pill" id="netPill" role="status" aria-live="polite"><svg class="pen-loader sm" viewBox="0 0 120 40" aria-hidden="true" focusable="false"><path class="pl-line" d="M6 25 C16 19 26 31 38 24 L44 24"/><path class="pl-line" d="M76 24 L82 24 C94 17 104 31 114 25"/><polyline class="pl-stitch" pathLength="100" points="44,24 50,16 56,30 62,16 68,30 76,24"/><g class="pl-pen"><g transform="rotate(35)"><path class="pl-nib" d="M0 0 L-2.4 -7 Q0 -8.4 2.4 -7 Z"/><rect class="pl-body" x="-2.7" y="-26" width="5.4" height="19" rx="1.8"/><rect class="pl-band" x="-2.7" y="-11" width="5.4" height="2"/></g></g></svg><span class="np-text"></span></div>
 <header class="site-nav">
   <div class="net-bar" id="netBar" aria-hidden="true"></div>
   <div class="nav-inner">
@@ -2073,6 +2194,10 @@
     <div class="mm-auth">
       <p>Sign in to keep your library, join the Book Club and hear about new releases.</p>
       <div><button type="button" class="btn btn-dark btn-sm" data-auth-open="signin">Sign in</button><button type="button" class="btn btn-outline-dark btn-sm" data-auth-open="signup">Create account</button></div>
+    </div>
+    <div class="mm-user">
+      <p>Signed in as <strong class="mm-user-name"></strong></p>
+      <div><button type="button" class="btn btn-dark btn-sm" data-am="account">Your account</button><button type="button" class="btn btn-outline-dark btn-sm" data-am="signout">Sign out</button></div>
     </div>
     <button type="button" class="mm-search" data-open-search><span aria-hidden="true">🔍</span> Search books, essays, news, help…</button>
     <a href="#home" class="nav-link" data-view="home">Home</a>
@@ -2397,7 +2522,7 @@
 
   <section class="detail" id="mrp-press">
     <div class="wrap"><div class="section-head"><span class="eyebrow">Media Coverage</span><h2>In the press</h2></div>
-      <div id="mrp-press-list"><p style="color:var(--ink-soft); font-size:0.9rem;">No media coverage added yet.</p></div>
+      <div id="mrp-press-list"></div>
     </div>
   </section>
 
@@ -2523,7 +2648,7 @@
 
   <section class="detail" id="mono-press">
     <div class="wrap"><div class="section-head"><span class="eyebrow">Media Coverage</span><h2>In the press</h2></div>
-      <div id="mono-press-list"><p style="color:var(--ink-soft); font-size:0.9rem;">No media coverage added yet.</p></div>
+      <div id="mono-press-list"></div>
     </div>
   </section>
 
@@ -2927,8 +3052,14 @@
   <section style="padding:0 0 90px;">
     <div class="wrap">
       <div id="cart-empty-msg" class="cart-empty" style="display:none;">
-        <p>Your cart is empty.</p>
-        <a href="#book-mrp" class="btn btn-dark nav-link" data-view="book-mrp" style="margin-top:18px;">Browse Books</a>
+        <svg class="pen-loader pen-still" viewBox="0 0 120 40" aria-hidden="true" focusable="false"><path class="pl-line" d="M6 25 C16 19 26 31 38 24 L44 24"/><path class="pl-line" d="M76 24 L82 24 C94 17 104 31 114 25"/><polyline class="pl-stitch" pathLength="100" points="44,24 50,16 56,30 62,16 68,30 76,24"/><g class="pl-pen" transform="translate(76 24)"><g transform="rotate(35)"><path class="pl-nib" d="M0 0 L-2.4 -7 Q0 -8.4 2.4 -7 Z"/><rect class="pl-body" x="-2.7" y="-26" width="5.4" height="19" rx="1.8"/><rect class="pl-band" x="-2.7" y="-11" width="5.4" height="2"/></g></g></svg>
+        <h2>Your cart is waiting for a story</h2>
+        <p>Pick a book below, or browse the whole shelf.</p>
+        <div class="cart-suggest" id="cartSuggest"></div>
+        <div class="cart-empty-actions">
+          <a href="#books-catalog" class="btn btn-dark nav-link" data-view="books-catalog">Browse all books</a>
+          <a href="#audio" class="btn btn-outline-dark nav-link" data-view="audio">Listen to free audio essays</a>
+        </div>
       </div>
       <div id="cart-items"></div>
       <div class="cart-summary" id="cart-summary" style="display:none;">
@@ -3054,11 +3185,23 @@
   <section style="padding:0 0 90px;">
     <div class="wrap">
       <div class="speaking-topics">
-        <div class="topic-chip">Leadership &amp; Accountability</div>
-        <div class="topic-chip">Inequality in Africa</div>
-        <div class="topic-chip">Civic Courage &amp; Youth</div>
+        <div class="topic-chip"><span class="tc-ico" aria-hidden="true">⚖️</span><h3>Leadership &amp; Accountability</h3><p>What citizens are owed by those in power, and how to ask for it without fear.</p></div>
+        <div class="topic-chip"><span class="tc-ico" aria-hidden="true">🌍</span><h3>Inequality in Africa</h3><p>Why opportunity stays with the few, and what ordinary people can do about it.</p></div>
+        <div class="topic-chip"><span class="tc-ico" aria-hidden="true">✊</span><h3>Civic Courage &amp; Youth</h3><p>Helping young people find their voice, and use it in public life.</p></div>
+      </div>
+      <div class="speak-formats" aria-label="Formats">
+        <span>Keynotes</span><span>Panels</span><span>University lectures</span><span>Book conversations</span><span>Interviews and podcasts</span>
+      </div>
+      <div class="speak-steps">
+        <div><b>1</b><h3>Send a request</h3><p>Tell us the event, the date, the audience and the place.</p></div>
+        <div><b>2</b><h3>We reply by email</h3><p>Alpha's team answers with availability and any questions.</p></div>
+        <div><b>3</b><h3>Confirm the details</h3><p>Topic, format and travel are agreed, and the date is held.</p></div>
       </div>
       <a href="#contact" class="btn btn-dark nav-link" data-view="contact">Request a Booking →</a>
+      <div class="speak-show" id="speakShow" hidden>
+        <span class="eyebrow">Where Alpha has spoken</span>
+        <div class="speak-show-box"></div>
+      </div>
     </div>
   </section>
 </div>
@@ -3115,6 +3258,22 @@
 <!-- ============ ACCOUNT VIEW ============ -->
 <div class="view" id="view-account">
   <div class="wrap breadcrumb"><a href="#home" class="nav-link" data-view="home">Home</a><span>/</span><span>Your account</span></div>
+  <section class="acct-guest">
+    <div class="wrap">
+      <div class="guest-card">
+        <svg class="pen-loader pen-still" viewBox="0 0 120 40" aria-hidden="true" focusable="false"><path class="pl-line" d="M6 25 C16 19 26 31 38 24 L44 24"/><path class="pl-line" d="M76 24 L82 24 C94 17 104 31 114 25"/><polyline class="pl-stitch" pathLength="100" points="44,24 50,16 56,30 62,16 68,30 76,24"/><g class="pl-pen" transform="translate(76 24)"><g transform="rotate(35)"><path class="pl-nib" d="M0 0 L-2.4 -7 Q0 -8.4 2.4 -7 Z"/><rect class="pl-body" x="-2.7" y="-26" width="5.4" height="19" rx="1.8"/><rect class="pl-band" x="-2.7" y="-11" width="5.4" height="2"/></g></g></svg>
+        <h1>Sign in to see your account</h1>
+        <p>Your books, orders, Book Club membership and settings live here.</p>
+        <div class="guest-actions"><button type="button" class="btn btn-dark" data-auth-open="signin">Sign in</button><button type="button" class="btn btn-outline-dark" data-auth-open="signup">Create a free account</button></div>
+        <ul class="guest-perks">
+          <li><span aria-hidden="true">📚</span> Read and listen to the books you own, on any device</li>
+          <li><span aria-hidden="true">🗨️</span> Rate books and join the conversation in the comments</li>
+          <li><span aria-hidden="true">🔔</span> Hear first about new books and essays</li>
+        </ul>
+        <button type="button" class="link-btn" data-auth-open="forgot">Forgot your password?</button>
+      </div>
+    </div>
+  </section>
   <section class="page-hero">
     <div class="wrap"><span class="eyebrow">Your Account</span><h1>Account settings</h1>
       <p>Your details, your security, and your orders.</p></div>
@@ -3713,6 +3872,20 @@
       <button class="btn btn-dark" id="signupSubmit" type="submit">Create Account</button>
     </form>
 
+    <!-- After signing up: confirm the email -->
+    <div class="modal-panel" id="panel-checkemail">
+      <svg class="pen-loader pen-still" viewBox="0 0 120 40" aria-hidden="true" focusable="false"><path class="pl-line" d="M6 25 C16 19 26 31 38 24 L44 24"/><path class="pl-line" d="M76 24 L82 24 C94 17 104 31 114 25"/><polyline class="pl-stitch" pathLength="100" points="44,24 50,16 56,30 62,16 68,30 76,24"/><g class="pl-pen" transform="translate(76 24)"><g transform="rotate(35)"><path class="pl-nib" d="M0 0 L-2.4 -7 Q0 -8.4 2.4 -7 Z"/><rect class="pl-body" x="-2.7" y="-26" width="5.4" height="19" rx="1.8"/><rect class="pl-band" x="-2.7" y="-11" width="5.4" height="2"/></g></g></svg>
+      <h3>Check your email</h3>
+      <div class="modal-sub">We sent a confirmation link to <strong id="checkEmailAddr"></strong>. Tap it to finish creating your account. It can take a minute, and it may land in Spam or Promotions.</div>
+      <div class="modal-ok" id="resendOk">A new link is on its way.</div>
+      <div class="modal-error" id="resendError"></div>
+      <button class="btn btn-dark" id="resendBtn" type="button">Send the email again</button>
+      <div class="ce-links">
+        <button class="link-btn" type="button" data-auth-open="signin">I have confirmed, sign me in</button>
+        <button class="link-btn" type="button" data-auth-open="signup">Wrong address? Start again</button>
+      </div>
+    </div>
+
     <!-- Request a reset link -->
     <form class="modal-panel" id="panel-forgot" novalidate>
       <h3>Reset your password</h3>
@@ -3768,7 +3941,7 @@
       <div><span class="gxv-kind"></span><h2 class="gxv-title"></h2><p class="gxv-meta"></p></div>
       <div class="gxv-tools"><span class="gxv-count"></span><button type="button" class="gxv-zoom">Zoom in</button><button type="button" class="gxv-close" aria-label="Close">&times;</button></div>
     </header>
-    <span class="cwt-ring gxv-wait" aria-hidden="true"></span><div class="gxv-stage"></div>
+    <span class="gxv-wait" aria-hidden="true"><svg class="pen-loader light" viewBox="0 0 120 40" aria-hidden="true" focusable="false"><path class="pl-line" d="M6 25 C16 19 26 31 38 24 L44 24"/><path class="pl-line" d="M76 24 L82 24 C94 17 104 31 114 25"/><polyline class="pl-stitch" pathLength="100" points="44,24 50,16 56,30 62,16 68,30 76,24"/><g class="pl-pen"><g transform="rotate(35)"><path class="pl-nib" d="M0 0 L-2.4 -7 Q0 -8.4 2.4 -7 Z"/><rect class="pl-body" x="-2.7" y="-26" width="5.4" height="19" rx="1.8"/><rect class="pl-band" x="-2.7" y="-11" width="5.4" height="2"/></g></g></svg></span><div class="gxv-stage"></div>
     <footer class="gxv-foot"><p class="gxv-caption"></p><div class="gxv-actions"></div></footer>
     <button type="button" class="gxv-prev" aria-label="Previous">&#8249;</button>
     <button type="button" class="gxv-next" aria-label="Next">&#8250;</button>
@@ -3995,20 +4168,23 @@
   // Every request goes through fetch (the API, sign in, uploads), so counting them here drives one
   // bar under the header (after a quarter second, so quick answers never flash it) and a pill when
   // it is slow or the device is offline.
+  const PEN_LOADER = (cls = '') => '<svg class="pen-loader' + (cls ? ' ' + cls : '') + '" viewBox="0 0 120 40" aria-hidden="true" focusable="false"><path class="pl-line" d="M6 25 C16 19 26 31 38 24 L44 24"/><path class="pl-line" d="M76 24 L82 24 C94 17 104 31 114 25"/><polyline class="pl-stitch" pathLength="100" points="44,24 50,16 56,30 62,16 68,30 76,24"/><g class="pl-pen"><g transform="rotate(35)"><path class="pl-nib" d="M0 0 L-2.4 -7 Q0 -8.4 2.4 -7 Z"/><rect class="pl-body" x="-2.7" y="-26" width="5.4" height="19" rx="1.8"/><rect class="pl-band" x="-2.7" y="-11" width="5.4" height="2"/></g></g></svg>';
   const netUI = (() => {
     let pending = 0, barTimer = null, slowTimer = null, offline = !navigator.onLine;
     const el = (id) => document.getElementById(id);
-    function say(text, still){
+    // mode: 'busy' (the pen mends the line), 'still' (offline: the pen waits), 'mended' (back online).
+    function say(text, mode = 'busy'){
       const p = el('netPill'); if(!p) return;
       if(!text){ p.classList.remove('on'); return; }
       p.querySelector('.np-text').textContent = text;
-      p.classList.toggle('still', Boolean(still));
+      p.classList.toggle('still', mode === 'still');
+      p.classList.toggle('mended', mode === 'mended');
       p.classList.add('on');
     }
     function paint(){
       if(pending > 0){
         if(!barTimer) barTimer = setTimeout(() => el('netBar')?.classList.add('on'), 250);
-        if(!slowTimer) slowTimer = setTimeout(() => { if(!offline) say('Slow connection. Still loading…'); }, 6000);
+        if(!slowTimer) slowTimer = setTimeout(() => { if(!offline) say('Slow connection. Mending the line…'); }, 6000);
       } else {
         clearTimeout(barTimer); barTimer = null;
         clearTimeout(slowTimer); slowTimer = null;
@@ -4021,10 +4197,10 @@
       pending++; paint();
       return original(...args).finally(() => { pending = Math.max(0, pending - 1); paint(); });
     };
-    const offMsg = 'You are offline. Showing what was saved on this device.';
-    addEventListener('offline', () => { offline = true; say(offMsg, true); });
-    addEventListener('online', () => { offline = false; say('Back online.', true); setTimeout(() => { if(!offline && !pending) say(null); }, 2000); });
-    if(offline) setTimeout(() => say(offMsg, true), 0);
+    const offMsg = 'You are offline. The pen waits; showing what was saved on this device.';
+    addEventListener('offline', () => { offline = true; say(offMsg, 'still'); });
+    addEventListener('online', () => { offline = false; say('Connection mended.', 'mended'); setTimeout(() => { if(!offline && !pending) say(null); }, 2200); });
+    if(offline) setTimeout(() => say(offMsg, 'still'), 0);
     // For background checks that should not light up the bar.
     return { say, quietFetch: original };
   })();
@@ -4041,6 +4217,7 @@
     const p = new URLSearchParams((location.hash || '').slice(1));
     return {
       recovery: p.get('type') === 'recovery' || h.startsWith('#password-reset'),
+      type: p.get('type') || '',
       error: p.get('error_description') || ''
     };
   })();
@@ -4638,12 +4815,21 @@
   function paintHeaderAccount(user){
     const b = document.getElementById('acctBtnMobile');
     if(!b) return;
+    const menu = document.getElementById('acctMenu');
+    if(user && menu){
+      menu.querySelector('.am-avatar').textContent = initials(user.name || user.email || '?');
+      menu.querySelector('.am-name').textContent = user.name || 'Reader';
+      menu.querySelector('.am-email').textContent = user.email || '';
+      document.querySelectorAll('.mm-user-name').forEach(n => { n.textContent = user.name || user.email || ''; });
+    }
+    if(!user) closeAccountMenu();
     if(user){
       b.removeAttribute('data-auth-open');
       b.classList.add('is-user');
       b.innerHTML = `<span>${escapeAttr(initials(user.name || user.email || '?'))}</span>`;
-      b.setAttribute('aria-label', 'Your account');
-      b.onclick = () => { showView('account'); loadAccountView(); };
+      b.setAttribute('aria-label', 'Your account menu');
+      b.setAttribute('aria-haspopup', 'menu');
+      b.onclick = (e) => { e.stopPropagation(); toggleAccountMenu(b); };
     } else {
       b.setAttribute('data-auth-open', 'signin');
       b.classList.remove('is-user');
@@ -4652,6 +4838,44 @@
       b.onclick = null;
     }
   }
+  // The account menu: under the name (computer) or the initials (phone).
+  function closeAccountMenu(){
+    const m = document.getElementById('acctMenu');
+    if(m && !m.hidden){ m.hidden = true; document.querySelectorAll('[aria-haspopup="menu"]').forEach(b => b.setAttribute('aria-expanded', 'false')); }
+  }
+  function toggleAccountMenu(anchor){
+    const m = document.getElementById('acctMenu');
+    if(!m) return;
+    if(!m.hidden){ closeAccountMenu(); return; }
+    const r = anchor.getBoundingClientRect();
+    m.style.top = Math.round(r.bottom + 8) + 'px';
+    m.style.right = Math.max(12, Math.round(window.innerWidth - r.right)) + 'px';
+    m.hidden = false;
+    m.dataset.openY = String(window.scrollY);
+    anchor.setAttribute('aria-expanded', 'true');
+    m.querySelector('button')?.focus({ preventScroll: true });
+  }
+  document.addEventListener('click', (e) => {
+    const item = e.target.closest('[data-am]');
+    if(item){
+      closeAccountMenu();
+      document.getElementById('mobileMenu')?.classList.remove('open');
+      const what = item.dataset.am;
+      if(what === 'account'){ showView('account'); loadAccountView(); }
+      else if(what === 'bookclub') showView('bookclub');
+      else if(what === 'dashboard') showView('admin');
+      else if(what === 'signout') signOutEverywhere();
+      return;
+    }
+    if(!e.target.closest('#acctMenu')) closeAccountMenu();
+  });
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeAccountMenu(); });
+  // A real scroll closes it (not the small one a tap can cause).
+  window.addEventListener('scroll', () => {
+    const m = document.getElementById('acctMenu');
+    if(m && !m.hidden && Math.abs(window.scrollY - Number(m.dataset.openY || 0)) > 40) closeAccountMenu();
+  }, { passive: true });
+
   // Any element with data-auth-open="signin|signup|forgot" opens that panel; data-open-search opens
   // the search (data-search-q fills it in).
   function openAuthAt(panel){
@@ -4712,13 +4936,13 @@
         loadAccountView();
       };
     }
-    // Clicking your name opens account settings rather than firing a bare
-    // confirm() dialog. Sign out lives inside that page, next to everything
-    // else about the account.
-    document.getElementById('userMenuBtn').addEventListener('click', () => {
-      showView('account');
-      loadAccountView();
-    });
+    // Clicking your name opens the account menu: account, Book Club, the dashboard for staff, Sign out.
+    const userBtn = document.getElementById('userMenuBtn');
+    userBtn.setAttribute('role', 'button');
+    userBtn.setAttribute('tabindex', '0');
+    userBtn.setAttribute('aria-haspopup', 'menu');
+    userBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleAccountMenu(userBtn); });
+    userBtn.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleAccountMenu(userBtn); } });
     // A reset link signs the reader in too; keep the "choose a new password" form open until they finish.
     if(!document.getElementById('panel-reset').classList.contains('active')) closeAuth();
     document.body.classList.add('signed-in');
@@ -4728,6 +4952,12 @@
     refreshLibrary().then(() => { if(booksLoaded){ loadAllChapters(); repaintReadButtons(); } });
     // Only on a fresh sign in, not when the session is restored on every reload.
     if(isNewSession && !restoringSession) playWelcome(user.name || user.email);
+    // Arriving from the confirmation email: a welcome, and a word that it worked.
+    if(AUTH_RETURN.type === 'signup' && !window.__confirmedShown){
+      window.__confirmedShown = true;
+      if(restoringSession) playWelcome(user.name || user.email);
+      setTimeout(() => showAdminToast('Your email is confirmed. Welcome to Can We Talk?'), 600);
+    }
 
     // The author signs in to work, so go straight to the dashboard. The site
     // stays fully browsable from there: this sets a starting point, not a cage.
@@ -4776,7 +5006,7 @@
     if(tab) tab.classList.add('active');
     // Forgot and reset are reached from links, not tabs, so hide the tab strip there.
     const strip = document.querySelector('#authModal .modal-tabs');
-    if(strip) strip.style.display = (name === 'forgot' || name === 'reset') ? 'none' : '';
+    if(strip) strip.style.display = (name === 'forgot' || name === 'reset' || name === 'checkemail') ? 'none' : '';
   }
 
   const setMsg = (id, text, show) => {
@@ -4871,6 +5101,12 @@
     }
     await withBusy(document.getElementById('signinSubmit'), 'Signing in…', async () => {
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if(error && /email not confirmed/i.test(error.message || '')){
+        // Not confirmed yet: offer the email again rather than a dead end.
+        showCheckEmail(email);
+        setMsg('resendError', 'This account is not confirmed yet. Tap the link in the email we sent, or send it again.', true);
+        return;
+      }
       if(error){ setMsg('signinError', friendlyAuthError(error), true); return; }
       setMsg('signinError', null, false);
       document.getElementById('signinPassword').value = '';
@@ -4960,11 +5196,44 @@
         currentSession = data.session;
         setSignedIn({ name, email });
       } else {
-        alert('Account created. Check your email to confirm it, then sign in.');
-        showPanel('signin');
+        showCheckEmail(email);
       }
     });
   });
+
+  // ---------- Confirming a new account's email ----------
+  let confirmEmailFor = '';
+  function showCheckEmail(email){
+    confirmEmailFor = email;
+    document.getElementById('checkEmailAddr').textContent = email;
+    setMsg('resendOk', null, false);
+    setMsg('resendError', null, false);
+    openAuth();
+    showPanel('checkemail');
+  }
+  async function resendConfirmation(email){
+    const btn = document.getElementById('resendBtn');
+    if(!email){ setMsg('resendError', 'Enter your email on the sign in form first.', true); return; }
+    setMsg('resendOk', null, false); setMsg('resendError', null, false);
+    btn.disabled = true;
+    const { error } = await sb.auth.resend({ type: 'signup', email, options: { emailRedirectTo: `${location.origin}${location.pathname}` } });
+    if(error && /rate|too many|seconds/i.test(error.message || '')){
+      setMsg('resendError', 'An email was sent very recently. Please wait a minute, then try again.', true);
+    } else if(error && !/already|confirmed/i.test(error.message || '')){
+      setMsg('resendError', friendlyAuthError(error), true);
+    } else {
+      setMsg('resendOk', null, true);
+    }
+    // One email a minute at most (the mail service limits it too).
+    let left = 60;
+    btn.textContent = `Send again in ${left} s`;
+    const t = setInterval(() => {
+      left -= 1;
+      if(left <= 0){ clearInterval(t); btn.disabled = false; btn.textContent = 'Send the email again'; }
+      else btn.textContent = `Send again in ${left} s`;
+    }, 1000);
+  }
+  document.getElementById('resendBtn').addEventListener('click', () => resendConfirmation(confirmEmailFor));
 
   // ---------- Forgot password ----------
   document.getElementById('forgotLink').addEventListener('click', () => {
@@ -5075,6 +5344,14 @@
       history.replaceState(null, '', location.pathname + location.search);
       return;
     }
+    // An old or used confirmation (or sign in) link: say so, and offer what to do.
+    if(AUTH_RETURN.error && !AUTH_RETURN.recovery){
+      openAuth();
+      showPanel('signin');
+      setMsg('signinError', 'That link has expired or was already used. If you confirmed already, just sign in. If not, sign in and we will offer to send a new link.', true);
+      history.replaceState(null, '', location.pathname + location.search);
+      return;
+    }
     if(AUTH_RETURN.recovery){
       inPasswordRecovery = true;
       openAuth();
@@ -5128,10 +5405,10 @@
     try {
       const res = await fetch(`${API_URL}/api/media/${bookId}`);
       const data = await res.json();
-      if(data.length === 0){
-        list.innerHTML = '<p style="color:var(--ink-soft); font-size:0.9rem;">No media coverage added yet.</p>';
-        return;
-      }
+      // No coverage yet: the section steps aside rather than saying so (newspapers show in the book's gallery).
+      const pressSection = document.getElementById(key + '-press');
+      if(pressSection) pressSection.hidden = data.length === 0;
+      if(data.length === 0){ list.innerHTML = ''; return; }
       list.innerHTML = '';
       data.forEach(m => {
         const row = document.createElement('div');
@@ -8379,6 +8656,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     renderHomeNews();
     renderEvents();
     renderAllLinked();
+    renderSpeakShow();
     if(document.getElementById('admin-dashboard')?.style.display === 'block') renderAdminGallery();
     sweepVideos();
     sweepShows();
@@ -8426,7 +8704,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     video.addEventListener('waiting', () => { if(!video.paused) set('is-buffering', true); });
     ['pause', 'canplay', 'error'].forEach(t => video.addEventListener(t, () => set('is-buffering', false)));
     if(!holder.querySelector(':scope > .media-wait')){
-      holder.insertAdjacentHTML('beforeend', '<span class="media-wait" aria-hidden="true"><span class="cwt-ring"></span></span>');
+      holder.insertAdjacentHTML('beforeend', '<span class="media-wait" aria-hidden="true">' + PEN_LOADER('light') + '</span>');
     }
     watchedVideos.add(video);
     if(hasIO){ nearVideos.observe(video); playingVideos.observe(video); }
@@ -8710,7 +8988,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       grid.replaceChildren(...Array.from({ length: 6 }, (_, n) => {
         const s = document.createElement('div');
         s.className = 'gx-tile gx-skeleton img-skeleton';
-        if(n === 0) s.innerHTML = '<span class="gx-skel-ring"><span class="cwt-ring"></span>Loading the gallery…</span>';
+        if(n === 0) s.innerHTML = '<span class="gx-skel-ring">' + PEN_LOADER() + 'Loading the gallery…</span>';
         return s;
       }));
       if(empty) empty.hidden = true;
@@ -8945,6 +9223,15 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       }
       return card;
     }));
+  }
+
+  // The Speaking page shows pictures from his events and the press when there are some.
+  function renderSpeakShow(){
+    const wrap = document.getElementById('speakShow');
+    if(!wrap) return;
+    const pics = galleryItems.filter(i => i.image_url && (i.section === 'event' || kindOf(i) === 'video' || i.section === 'media')).sort(byLatest).slice(0, 12);
+    wrap.hidden = pics.length < 2;
+    if(!wrap.hidden) placeSlideshow(wrap.querySelector('.speak-show-box'), pics, 'Where Alpha has spoken');
   }
 
   function renderVideoWall(){
@@ -10112,6 +10399,10 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   });
 
   document.getElementById('cartBtn').addEventListener('click', () => { renderCart(); showView('cart'); });
+  if('MutationObserver' in window){
+    const cartView = document.getElementById('view-cart');
+    new MutationObserver(() => { if(cartView.classList.contains('active')) renderCart(); }).observe(cartView, { attributes: true, attributeFilter: ['class'] });
+  }
 
   function renderCart(){
     const itemsWrap = document.getElementById('cart-items');
@@ -10121,6 +10412,25 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     if(cart.length === 0){
       emptyMsg.style.display = 'block';
       summary.style.display = 'none';
+      // Never a bare page: the books themselves, ready to open.
+      const sug = document.getElementById('cartSuggest');
+      if(sug) sug.replaceChildren(...books.slice(0, 4).map(b => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'cs-card';
+        card.innerHTML = '<span class="cs-cover"></span><span class="cs-title"></span><span class="cs-price"></span>';
+        if(b.cover_image_url){
+          const img = document.createElement('img');
+          img.alt = ''; img.decoding = 'async';
+          img.onerror = () => { img.onerror = null; img.src = b.cover_image_url; };
+          img.src = sized(b.cover_image_url, 300);
+          card.querySelector('.cs-cover').appendChild(img);
+        }
+        card.querySelector('.cs-title').textContent = b.title;
+        card.querySelector('.cs-price').textContent = b.price ? `From $${b.price.toFixed(2)}` : 'See formats';
+        card.addEventListener('click', () => openBook(b.id));
+        return card;
+      }));
       return;
     }
     emptyMsg.style.display = 'none';
@@ -10208,7 +10518,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   const RECENT_SEARCHES = 'cwt.recentSearches';
   const normText = (str) => String(str || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
   const SEARCH_STOP = new Set(['the', 'a', 'an', 'of', 'and', 'or', 'to', 'in', 'on', 'for', 'my', 'is', 'i', 'how', 'do', 'where', 'what', 'me', 'with', 'by', 'want', 'find', 'please']);
-  const GROUP_ICON = { Pages: '📄', Help: '💬', Books: '📘', Essays: '✍️', Videos: '▶', 'Newspapers and letters': '📰', 'Photos and events': '📷' };
+  const GROUP_ICON = { Pages: '📄', Help: '💬', Books: '📘', Essays: '✍️', Videos: '▶', 'Newspapers and letters': '📰', 'Photos and events': '📷', Comments: '🗨️', 'Audiobook chapters': '🎧', 'On the site': '🔖' };
   const SEARCH_PAGES = [
     { title: 'Home', view: 'home', sub: 'The front page', words: 'home start main front welcome' },
     { title: 'All books', view: 'books-catalog', sub: 'Buy paperbacks, eBooks and audiobooks', words: 'books shop buy order store purchase catalogue paperback hardcover ebook price' },
@@ -10226,15 +10536,61 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     { title: 'Terms', view: 'terms', sub: 'Terms of use', words: 'terms conditions rules refund' },
   ];
   const SEARCH_HELP = [
+    { title: 'Leave a comment or review', sub: 'On any book page, under Comments', words: 'comment comments review reviews rate rating stars feedback opinion', run: () => { const b = books[0]; if(b) openBookAt(b.id, '.comments-section'); else showView('books-catalog'); } },
+    { title: 'Read a sample', sub: 'Open a book and choose Read', words: 'sample read preview excerpt first chapter', run: () => showView('books-catalog') },
     { title: 'Sign in', sub: 'To your account', words: 'sign in signin login log logon account enter', run: () => openAuthAt('signin') },
     { title: 'Create an account', sub: 'Free, for your library and the Book Club', words: 'register registration sign up signup join create account new member', run: () => openAuthAt('signup') },
     { title: 'Forgot your password?', sub: 'Get a reset link by email', words: 'forgot forgotten password reset lost cannot cant sign in change password', run: () => openAuthAt('forgot') },
+    { title: 'Sign out', sub: 'Of this device', words: 'sign out signout log out logout exit leave', run: () => { if(currentUser) signOutEverywhere(); else openAuthAt('signin'); } },
     { title: 'Your account and library', sub: 'Books you own, orders and settings', words: 'account library my books orders profile settings purchases downloads owned', run: () => { if(currentUser){ showView('account'); loadAccountView(); } else openAuthAt('signin'); } },
     { title: 'Buy a book', sub: 'Paperback, eBook or audiobook', words: 'buy purchase order shop price pay paperback ebook', run: () => showView('books-catalog') },
     { title: 'Invite Alpha to speak', sub: 'Send a speaking request', words: 'invite speak speaker booking keynote request event', run: () => showView('speaking') },
     { title: 'Get the app', sub: 'Install it on your phone', words: 'app install download android iphone phone application', run: () => document.querySelector('[data-install-app]')?.click() },
     { title: 'Turn on notifications', sub: 'Hear about new books and essays', words: 'notifications notify alerts new releases updates bell', run: () => document.querySelector('[data-push-toggle]')?.click() },
   ];
+
+  // Open a book, then bring a part of its page (comments, audiobook) into view.
+  function openBookAt(id, selector){
+    openBook(id);
+    setTimeout(() => {
+      const target = document.querySelector(`.view.active ${selector}`);
+      if(target){ target.scrollIntoView({ behavior: 'smooth', block: 'start' }); flashFound(target); }
+    }, 650);
+  }
+  function flashFound(el){ el.classList.remove('found-flash'); void el.offsetWidth; el.classList.add('found-flash'); }
+
+  // Reader comments and audiobook chapters, fetched when the search opens (quietly, kept a minute).
+  let searchExtras = { comments: [], chapters: [] }, searchExtrasAt = 0;
+  async function loadSearchExtras(){
+    if(Date.now() - searchExtrasAt < 60000) return false;
+    try {
+      const res = await netUI.quietFetch(`${API_URL}/api/search`, { cache: 'no-cache' });
+      if(!res.ok) return false;
+      const data = await res.json();
+      searchExtras = { comments: data.comments || [], chapters: data.chapters || [] };
+      searchExtrasAt = Date.now();
+      return true;
+    } catch(e){ return false; }
+  }
+  // Every heading on every public page, with the text under it, so anything written on the site can
+  // be found (and the page opens at that spot).
+  const SEARCH_SKIP_VIEWS = new Set(['admin', 'account', 'checkout', 'cart', 'reader', 'order-confirm', 'essay-detail', 'book-generic']);
+  function pageTextRecords(add){
+    document.querySelectorAll('.view').forEach(view => {
+      const name = view.id.replace(/^view-/, '');
+      if(SEARCH_SKIP_VIEWS.has(name)) return;
+      const pageTitle = SEARCH_PAGES.find(p => p.view === name)?.title || (view.querySelector('h1, h2')?.textContent || '').replace(/\s+/g, ' ').trim() || name;
+      view.querySelectorAll('h1, h2, h3, h4').forEach(h => {
+        if(h.closest('.gx-tile, .cx-show, [hidden]')) return;
+        const heading = (h.textContent || '').replace(/\s+/g, ' ').trim();
+        if(!heading || heading.length > 140) return;
+        const box = h.closest('section, article, .faq-item, .card, .detail') || h.parentElement;
+        const body = (box?.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 1500);
+        add({ group: 'On the site', title: heading, sub: pageTitle, words: pageTitle, body,
+          run: () => { showView(name); setTimeout(() => { h.scrollIntoView({ behavior: 'smooth', block: 'center' }); flashFound(h); }, 450); } });
+      });
+    });
+  }
 
   function searchRecords(){
     const recs = [];
@@ -10244,7 +10600,24 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       recs.push(r);
     };
     books.forEach(b => add({ group: 'Books', title: b.title, sub: [b.subtitle, b.genre].filter(Boolean).join(' · ') || 'Book',
-      words: [b.subtitle, b.genre, b.isbn, b.publisher, b.edition, 'book books'].join(' '), body: b.description, thumb: b.cover_image_url, run: () => openBook(b.id) }));
+      words: [b.subtitle, b.genre, b.isbn, b.publisher, b.edition, b.language, b.published_date, 'book books',
+        ...(b.formats || []).map(f => f.format_name), ...(b.video_urls || []).map(v => v.title)].join(' '),
+      body: b.description, thumb: b.cover_image_url, run: () => openBook(b.id) }));
+    const titleFor = (type, id) => type === 'book' ? books.find(x => x.id === id)?.title : essays.find(x => x.id === id)?.title;
+    searchExtras.comments.forEach(c => {
+      const on = titleFor(c.target_type, c.target_id);
+      if(!on) return;
+      add({ group: 'Comments', title: `${c.name} on ${on}`, sub: (c.rating ? '★'.repeat(c.rating) + ' ' : '') + c.body.slice(0, 120),
+        words: ['comment comments review reviews reader', c.name, on].join(' '), body: c.body,
+        run: () => c.target_type === 'book' ? openBookAt(c.target_id, '.comments-section') : openEssay(c.target_id) });
+    });
+    searchExtras.chapters.forEach(ch => {
+      const book = books.find(x => x.id === ch.book_id);
+      if(!book) return;
+      add({ group: 'Audiobook chapters', title: ch.title, sub: [`Chapter ${(ch.sort_order ?? 0) + 1}`, book.title, ch.duration_seconds ? Math.round(ch.duration_seconds / 60) + ' min' : ''].filter(Boolean).join(' · '),
+        words: ['chapter chapters audiobook listen audio', book.title].join(' '), thumb: book.cover_image_url,
+        run: () => openBookAt(book.id, '[id$="-audiobook"]') });
+    });
     essays.forEach(e => add({ group: 'Essays', title: e.title, sub: ['Essay', e.cat, e.year, e.audio_url ? 'Audio' : ''].filter(Boolean).join(' · '),
       words: [e.cat, e.year, 'essay essays', e.audio_url ? 'audio listen' : ''].join(' '), body: e.excerpt, thumb: e.cover_image_url, run: () => openEssay(e.id) }));
     galleryItems.forEach(i => {
@@ -10256,6 +10629,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     });
     SEARCH_PAGES.forEach(p => add({ group: 'Pages', title: p.title, sub: p.sub, words: p.words, run: () => showView(p.view) }));
     SEARCH_HELP.forEach(h => add({ group: 'Help', ...h }));
+    pageTextRecords(add);
     return recs;
   }
   // True when two words differ by one letter (two for long words): typing mistakes still match.
@@ -10407,6 +10781,8 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     document.documentElement.classList.add('gx-locked');
     siteSearchInput.value = prefill;
     paintSearch(prefill);
+    // Comments and chapters arrive a moment later; show them as soon as they are in.
+    loadSearchExtras().then(fresh => { if(fresh && searchOpen) paintSearch(siteSearchInput.value); });
     siteSearchInput.focus();
     setTimeout(() => siteSearchInput.focus(), 60);
   }

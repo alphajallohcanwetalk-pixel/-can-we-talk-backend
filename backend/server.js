@@ -22,6 +22,7 @@ import newsletterRoutes from './routes/newsletter.js';
 import telemetryRoutes from './routes/telemetry.js';
 import shippingRoutes from './routes/shipping.js';
 import galleryRoutes from './routes/gallery.js';
+import searchRoutes from './routes/search.js';
 import contactRoutes from './routes/contact.js';
 import pushRoutes from './routes/push.js';
 import narrationRoutes from './routes/narration.js';
@@ -106,6 +107,7 @@ app.use('/api/telemetry', rateLimit({ windowMs: 60 * 1000, limit: 20, standardHe
 app.use('/api/shipping', shippingRoutes);
 app.use('/api/contact', rateLimit({ windowMs: 60 * 60 * 1000, limit: 8, standardHeaders: 'draft-8', legacyHeaders: false, skip: (req) => req.method !== 'POST' || req.path !== '/' }), contactRoutes);
 app.use('/api/gallery', trackChanges('gallery'), galleryRoutes);
+app.use('/api/search', searchRoutes);
 app.use('/api/narration', narrationRoutes);
 app.use('/api/push', rateLimit({ windowMs: 60 * 1000, limit: 30, standardHeaders: 'draft-8', legacyHeaders: false }), pushRoutes);
 
