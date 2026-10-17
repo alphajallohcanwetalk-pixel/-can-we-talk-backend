@@ -29,6 +29,7 @@ import narrationRoutes from './routes/narration.js';
 import webhookRoutes from './routes/webhooks.js';
 import { logAppError } from './lib/errorLog.js';
 import { changes, trackChanges } from './lib/changes.js';
+import { loadServerConfig } from './lib/serverConfig.js';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -133,4 +134,6 @@ app.use((err, req, res, next) => {
 });
 
 const port = process.env.PORT || 4000;
+// Fill in settings missing on Render from the private server-config file (notification keys).
+await loadServerConfig();
 app.listen(port, () => console.log(`Can We Talk? API running on port ${port}`));

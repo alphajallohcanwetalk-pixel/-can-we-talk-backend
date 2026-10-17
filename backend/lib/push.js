@@ -8,22 +8,31 @@ import { supabaseAdmin } from './supabase.js';
 //   VAPID_SUBJECT                        (mailto:alpha.jalloh@canwetalkvoice.com)
 // Without them push is switched off and everything else carries on as normal.
 
-const PUBLIC = process.env.VAPID_PUBLIC_KEY || '';
-const PRIVATE = process.env.VAPID_PRIVATE_KEY || '';
-const SUBJECT = process.env.VAPID_SUBJECT || 'mailto:alpha.jalloh@canwetalkvoice.com';
-
-export const pushEnabled = Boolean(PUBLIC && PRIVATE);
-if (pushEnabled) webpush.setVapidDetails(SUBJECT, PUBLIC, PRIVATE);
+// Read when needed (not once at start), so keys filled in at startup from lib/serverConfig.js count too.
+let applied = '';
+function pushReady() {
+  const pub = process.env.VAPID_PUBLIC_KEY || '';
+  const priv = process.env.VAPID_PRIVATE_KEY || '';
+  if (!pub || !priv) return false;
+  const subject = process.env.VAPID_SUBJECT || 'mailto:alpha.jalloh@canwetalkvoice.com';
+  if (applied !== pub + subject) {
+    try { webpush.setVapidDetails(subject, pub, priv); applied = pub + subject; } catch (err) {
+      console.error(JSON.stringify({ type: 'error', scope: 'push_keys', message: err.message }));
+      return false;
+    }
+  }
+  return true;
+}
 
 export function pushPublicKey() {
-  return pushEnabled ? PUBLIC : null;
+  return pushReady() ? process.env.VAPID_PUBLIC_KEY : null;
 }
 
 // Sends one notification to every subscribed device. Never throws: a failed
 // notification must not fail the publish that triggered it. Devices that have
 // uninstalled or revoked permission answer 404 or 410 and are removed.
 export async function notifyEveryone({ title, body, url, image }) {
-  if (!pushEnabled) return { sent: 0, skipped: 'push not configured' };
+  if (!pushReady()) return { sent: 0, skipped: 'push not configured' };
   const { data: subs, error } = await supabaseAdmin.from('push_subscriptions').select('id,endpoint,p256dh,auth');
   if (error || !subs?.length) return { sent: 0 };
 
@@ -51,7 +60,7 @@ export function announce(message) {
 
 // A notification for chosen people only (for example Alpha when a message arrives). Never throws.
 export async function notifyUsers(userIds, { title, body, url }) {
-  if (!pushEnabled || !userIds?.length) return { sent: 0 };
+  if (!pushReady() || !userIds?.length) return { sent: 0 };
   const { data: subs } = await supabaseAdmin.from('push_subscriptions').select('id,endpoint,p256dh,auth').in('user_id', userIds);
   let sent = 0;
   const payload = JSON.stringify({ title, body, url: url || '/', image: null });

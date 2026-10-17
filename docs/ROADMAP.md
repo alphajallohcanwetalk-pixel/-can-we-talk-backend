@@ -4,7 +4,7 @@ What is next, what is waiting on someone, and ideas for later. Tick items off (o
 Back to the [BRAIN](BRAIN.md) · [LOG](LOG.md)
 
 ## Now and next (from the B&A owner area, 16 October 2026)
-- [ ] Owner: add VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and VAPID_SUBJECT on Render (copy the three lines from backend/.env, checked to be a matching pair on 18 October 2026). Until then "Notify me of new releases" says notifications are not switched on, and the author gets no phone alerts for new messages.
+- [x] Notifications switched on (18 October 2026): the VAPID keys are read from the private Storage file server-config/server.json (service role only) because Render had none. Owner, when rotating keys: make a new pair (npx web-push generate-vapid-keys), set all three on Render (Render always wins over the file), then delete server-config/server.json. Note: new keys mean devices must turn notifications on again.
 - [ ] Owner: create a Supabase personal access token (supabase.com/dashboard/account/tokens) and add it on Render as SUPABASE_ACCESS_TOKEN. Then in the dashboard, Developer tab, Sign in and email settings, press "Send them through Resend" so confirmation and reset emails are not limited to a few an hour.
 - [ ] Owner, when convenient: have the Terms and the short in-site Privacy summary reviewed (the template notes are no longer shown to visitors).
 - [x] Password reset works again (17 October 2026; tested end to end on the live site).
