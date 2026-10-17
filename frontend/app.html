@@ -8041,7 +8041,8 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   const GALLERY_LABEL = { event: 'Event', article: 'Article', media: 'In the media' };
   const KIND_LABEL = { photo: 'Photo', video: 'Video', document: 'Newspaper or letter', link: 'Link' };
   const kindOf = (i) => i.media_type === 'document' ? 'document' : i.video_url ? 'video' : i.image_url ? 'photo' : 'link';
-  const pagesOf = (i) => [i.image_url, ...(Array.isArray(i.pages) ? i.pages : [])].filter(Boolean);
+  // The cover image may also be listed among the pages; show each page once.
+  const pagesOf = (i) => [...new Set([i.image_url, ...(Array.isArray(i.pages) ? i.pages : [])].filter(Boolean))];
   const titleOf = (i) => i.title || (kindOf(i) === 'document' ? (i.outlet || 'Article') : kindOf(i) === 'video' ? 'Video' : GALLERY_LABEL[i.section] || 'Photo');
   const fmtDay = (d) => d ? new Date(d + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }) : '';
   const byLatest = (a, b) => String(b.event_date || b.created_at || '').localeCompare(String(a.event_date || a.created_at || ''));
