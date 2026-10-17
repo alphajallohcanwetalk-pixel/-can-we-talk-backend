@@ -95,6 +95,7 @@ router.get('/health', async (req, res) => {
   add('STRIPE_WEBHOOK_SECRET set', envFlag('STRIPE_WEBHOOK_SECRET'));
   add('RESEND_API_KEY set', envFlag('RESEND_API_KEY'));
   add('SENTRY_DSN set', envFlag('SENTRY_DSN'), 'Optional. Enables crash alerts.');
+  add('Notification keys set (VAPID)', envFlag('VAPID_PUBLIC_KEY') && envFlag('VAPID_PRIVATE_KEY'), 'Needed for app notifications and the new message alerts to the author.');
   add('SUPABASE_ACCESS_TOKEN set', envFlag('SUPABASE_ACCESS_TOKEN'), 'Optional. Lets the Developer tab change sign in and email settings.');
 
   // Live mode checks: the prefix is safe to look at, the key itself is not.
