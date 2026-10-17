@@ -1132,6 +1132,21 @@
   .gx-admin-actions{display:flex; flex-direction:column; gap:6px;}
   .gx-admin-actions button{font-size:0.78rem; padding:6px 12px; border-radius:4px; border:1px solid var(--line); background:var(--paper); cursor:pointer;}
   .gx-admin-actions .gxa-del{color:#b3261e;}
+  .gx-admin-sum{display:flex; flex-direction:column; gap:4px; min-width:0; padding-top:4px;}
+  .gx-admin-sum strong{font-size:0.95rem; overflow-wrap:anywhere;}
+  .gx-admin-meta{font-size:0.8rem; color:var(--ink-soft);}
+  .gx-admin-actions .gxa-edit[aria-expanded="true"]{background:var(--sl-green-deep); color:#fff; border-color:var(--sl-green-deep);}
+  .gx-edit{margin:6px 0 20px; max-width:none; box-shadow:0 10px 30px rgba(0,0,0,0.06);}
+  .gx-edit-media{margin-bottom:16px;}
+  .gx-edit .gx-prev-cell{width:96px; height:124px;}
+  .gxe-move{position:absolute; left:50%; bottom:4px; transform:translateX(-50%); display:flex; gap:4px;}
+  .gx-prev-cell .gxe-mv{position:static; width:28px; height:28px; background:rgba(255,255,255,0.95); color:#10301a; font-weight:700; box-shadow:0 1px 4px rgba(0,0,0,0.35);}
+  .gxe-file{display:inline-flex; margin-top:12px; cursor:pointer;}
+  .gxe-hint{font-size:0.8rem; color:var(--ink-soft); margin-top:6px;}
+  .gxe-video-box{font-size:0.85rem; overflow-wrap:anywhere;}
+  .gxe-video-box video{display:block; width:100%; max-width:420px; border-radius:8px; background:#000;}
+  .gx-edit-actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:4px;}
+  .gxe-status{font-size:0.85rem; color:var(--ink-soft);}
   @media (max-width: 640px){
     .gx-grid{columns:2 150px; column-gap:12px;}
     .gx-tile{margin-bottom:12px;}
@@ -8584,60 +8599,230 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     finally { button.disabled = false; }
   });
 
+  // The dashboard list: a short summary per item with Edit and Delete. Edit opens every field, the
+  // photo, and a newspaper's pages (add, reorder, remove), so nothing has to be deleted and added again.
+  let gxEditing = null;   // while an item is open in the editor, refreshes leave the list alone
   function renderAdminGallery(){
     const box = document.getElementById('admin-gallery-list');
     if(!box) return;
     fillRelatedOptions(gxGet('gxRelated'), gxGet('gxRelated')?.value);
+    if(gxEditing && box.querySelector('.gx-edit')) return;
+    gxEditing = null;
     if(!galleryItems.length){ box.innerHTML = '<p class="an-empty">Nothing added yet. Use the form above.</p>'; return; }
-    box.replaceChildren(...galleryItems.slice().sort(byLatest).map(item => {
-      const kind = kindOf(item);
-      const row = document.createElement('div');
-      row.className = 'gx-admin-row';
-      row.innerHTML = `<span class="admin-thumb"></span>
-        <div class="gx-admin-fields">
-          <input type="text" class="gxa-title" maxlength="300" placeholder="Title (optional)">
-          <div class="gx-admin-line">
-            <select class="gxa-kind"><option value="photo">Photo</option><option value="document">Newspaper or letter</option><option value="video" disabled>Video</option></select>
-            <select class="gxa-section"><option value="event">Event</option><option value="article">Article by Alpha</option><option value="media">In the media</option></select>
-            <select class="gxa-related"></select>
-          </div>
-          <label class="gxa-slide"><input type="checkbox"> Show in the gallery slideshow</label>
-        </div>
-        <div class="gx-admin-actions"><button type="button" class="gxa-save">Save</button><button type="button" class="gxa-del">Delete</button></div>`;
-      const thumb = row.querySelector('.admin-thumb');
-      if(item.image_url) lazyLoadCover(thumb, item.image_url); else { thumb.classList.add('no-cover'); thumb.textContent = kind === 'video' ? '▶' : ''; }
-      row.querySelector('.gxa-title').value = item.title || '';
-      const kSel = row.querySelector('.gxa-kind');
-      kSel.value = kind === 'link' ? 'photo' : kind;
-      kSel.disabled = kind === 'video' || kind === 'link';
-      row.querySelector('.gxa-section').value = item.section || 'event';
-      fillRelatedOptions(row.querySelector('.gxa-related'), relatedValue(item));
-      const slide = row.querySelector('.gxa-slide input');
-      slide.checked = item.in_slideshow !== false;
-      row.querySelector('.gxa-slide').hidden = kind !== 'photo';
-      row.querySelector('.gxa-save').addEventListener('click', async (ev) => {
-        const b = ev.currentTarget; b.disabled = true;
+    box.replaceChildren(...galleryItems.slice().sort(byLatest).map(adminGalleryRow));
+  }
+
+  function adminGalleryRow(item){
+    const kind = kindOf(item);
+    const row = document.createElement('div');
+    row.className = 'gx-admin-row';
+    row.innerHTML = `<span class="admin-thumb"></span>
+      <div class="gx-admin-sum"><strong></strong><span class="gx-admin-meta"></span></div>
+      <div class="gx-admin-actions"><button type="button" class="gxa-edit" aria-expanded="false">Edit</button><button type="button" class="gxa-del">Delete</button></div>`;
+    const thumb = row.querySelector('.admin-thumb');
+    if(item.image_url) lazyLoadCover(thumb, item.image_url); else { thumb.classList.add('no-cover'); thumb.textContent = kind === 'video' ? '▶' : ''; }
+    row.querySelector('strong').textContent = titleOf(item);
+    const linked = linkedName(item);
+    const pageCount = pagesOf(item).length;
+    row.querySelector('.gx-admin-meta').textContent = [
+      KIND_LABEL[kind] + (kind === 'document' && pageCount > 1 ? `, ${pageCount} pages` : ''),
+      GALLERY_LABEL[item.section] || '',
+      linked ? (linked.type === 'book' ? 'Book: ' : 'Essay: ') + linked.name : '',
+      item.event_date ? fmtDay(item.event_date) : '',
+      kind === 'photo' && item.in_slideshow === false ? 'Not in the slideshow' : ''
+    ].filter(Boolean).join(' · ');
+
+    const editBtn = row.querySelector('.gxa-edit');
+    const close = () => {
+      row.nextElementSibling?.classList.contains('gx-edit') && row.nextElementSibling.remove();
+      editBtn.textContent = 'Edit'; editBtn.setAttribute('aria-expanded', 'false');
+      gxEditing = null;
+    };
+    editBtn.addEventListener('click', () => {
+      const wasOpen = editBtn.getAttribute('aria-expanded') === 'true';
+      // One editor at a time.
+      document.querySelectorAll('#admin-gallery-list .gx-edit').forEach(e => e.remove());
+      document.querySelectorAll('#admin-gallery-list .gxa-edit').forEach(b => { b.textContent = 'Edit'; b.setAttribute('aria-expanded', 'false'); });
+      gxEditing = null;
+      if(wasOpen) return;
+      gxEditing = item.id;
+      editBtn.textContent = 'Close'; editBtn.setAttribute('aria-expanded', 'true');
+      const ed = galleryEditor(item, () => { close(); renderAdminGallery(); });
+      row.after(ed);
+      ed.querySelector('.gxe-title')?.focus();
+    });
+    row.querySelector('.gxa-del').addEventListener('click', async () => {
+      if(!confirm(`Remove "${titleOf(item)}" from the gallery?`)) return;
+      const res = await fetch(`${API_URL}/api/gallery/${item.id}`, { method: 'DELETE', headers: authHeaders() });
+      if(!res.ok && res.status !== 204){ alert('Could not remove it.'); return; }
+      if(gxEditing === item.id) gxEditing = null;
+      showAdminToast('Removed.');
+      loadGallery();
+    });
+    return row;
+  }
+
+  function galleryEditor(item, onDone){
+    const kind0 = kindOf(item);
+    const isVideo = kind0 === 'video';
+    let pages = isVideo ? [] : pagesOf(item);   // [0] is the photo, or the first page of a document
+    let videoUrl = item.video_url || '';
+    const p = 'gxe' + String(item.id).slice(0, 8);
+    const ed = document.createElement('div');
+    ed.className = 'gx-up gx-edit';
+    ed.innerHTML = `
+      <div class="gx-edit-media"></div>
+      <div class="gx-up-grid">
+        <div class="field"><label for="${p}k">Type</label><select id="${p}k" class="gxe-kind">${isVideo
+          ? '<option value="video">Video</option>'
+          : '<option value="photo">Photo</option><option value="document">Newspaper or letter</option>'}</select></div>
+        <div class="field"><label for="${p}s">Section</label><select id="${p}s" class="gxe-section"><option value="event">Event</option><option value="article">Article by Alpha</option><option value="media">In the media</option></select></div>
+        <div class="field"><label for="${p}r">Related book or essay</label><select id="${p}r" class="gxe-related"></select></div>
+        <div class="field"><label for="${p}t">Title (optional)</label><input type="text" id="${p}t" class="gxe-title" maxlength="300"></div>
+        <div class="field gxe-outlet-f"><label for="${p}o">Newspaper or sender (optional)</label><input type="text" id="${p}o" class="gxe-outlet" maxlength="200"></div>
+        <div class="field"><label for="${p}d">Date (optional)</label><input type="date" id="${p}d" class="gxe-date"></div>
+        <div class="field gxe-video-f"><label for="${p}v">Video link (YouTube, Vimeo or the uploaded file)</label><input type="url" id="${p}v" class="gxe-video"></div>
+        <div class="field"><label for="${p}l">Link to read it online (optional)</label><input type="url" id="${p}l" class="gxe-link" placeholder="https://..."></div>
+      </div>
+      <div class="field"><label for="${p}c">Say something about it (optional)</label><textarea id="${p}c" class="gxe-caption" rows="3" maxlength="2000"></textarea></div>
+      <label class="gx-check gxe-slide-f"><input type="checkbox" class="gxe-slide"> Show in the gallery slideshow</label>
+      <div class="gx-edit-actions">
+        <button type="button" class="btn btn-dark btn-sm gxe-save">Save changes</button>
+        <button type="button" class="btn btn-outline-dark btn-sm gxe-cancel">Cancel</button>
+        <span class="gxe-status" role="status"></span>
+      </div>`;
+    const $ = (sel) => ed.querySelector(sel);
+    const kindSel = $('.gxe-kind');
+    kindSel.value = isVideo ? 'video' : kind0 === 'document' ? 'document' : 'photo';
+    $('.gxe-section').value = item.section || 'event';
+    fillRelatedOptions($('.gxe-related'), relatedValue(item));
+    $('.gxe-title').value = item.title || '';
+    $('.gxe-outlet').value = item.outlet || '';
+    $('.gxe-date').value = item.event_date || '';
+    $('.gxe-video').value = videoUrl;
+    $('.gxe-link').value = item.link_url || '';
+    $('.gxe-caption').value = item.caption || '';
+    $('.gxe-slide').checked = item.in_slideshow !== false;
+    const status = $('.gxe-status');
+
+    const media = $('.gx-edit-media');
+    function paintMedia(){
+      const k = kindSel.value;
+      $('.gxe-outlet-f').hidden = k !== 'document';
+      $('.gxe-video-f').hidden = k !== 'video';
+      $('.gxe-slide-f').hidden = k !== 'photo';
+      if(k === 'video'){
+        media.innerHTML = `<div class="gxe-video-box"></div>
+          <label class="btn btn-outline-dark btn-sm gxe-file">Replace the video file<input type="file" accept="video/*" hidden></label>`;
+        const url = $('.gxe-video').value.trim();
+        if(url && !/youtu\.?be|vimeo\.com/i.test(url)){
+          const v = document.createElement('video'); v.controls = true; v.preload = 'metadata'; v.src = url;
+          media.querySelector('.gxe-video-box').appendChild(v);
+        } else media.querySelector('.gxe-video-box').textContent = url ? 'Video link: ' + url : 'No video yet.';
+      } else {
+        const doc = k === 'document';
+        media.innerHTML = `<div class="gx-preview gxe-pages"></div>
+          <label class="btn btn-outline-dark btn-sm gxe-file">${doc ? 'Add pages' : pages.length ? 'Replace the photo' : 'Add a photo'}<input type="file" accept="image/*" ${doc ? 'multiple' : ''} hidden></label>
+          <p class="gxe-hint">${doc ? 'Pages show in this order. Use the arrows to move a page.' : ''}</p>`;
+        const strip = media.querySelector('.gxe-pages');
+        strip.replaceChildren(...pages.map((url, n) => {
+          const cell = document.createElement('div');
+          cell.className = 'gx-prev-cell';
+          const img = document.createElement('img'); img.alt = doc ? `Page ${n + 1}` : 'Photo'; img.src = sized(url, 240);
+          img.onerror = () => { img.onerror = null; img.src = url; };
+          cell.appendChild(img);
+          if(doc){
+            const num = document.createElement('span'); num.className = 'gx-prev-n'; num.textContent = n + 1; cell.appendChild(num);
+            const x = document.createElement('button'); x.type = 'button'; x.textContent = '×'; x.setAttribute('aria-label', `Remove page ${n + 1}`);
+            x.addEventListener('click', () => { pages.splice(n, 1); paintMedia(); });
+            cell.appendChild(x);
+            const mv = document.createElement('div'); mv.className = 'gxe-move';
+            [['‹', -1, 'earlier'], ['›', 1, 'later']].forEach(([sym, d, word]) => {
+              const to = n + d;
+              if(to < 0 || to >= pages.length) return;
+              const b = document.createElement('button'); b.type = 'button'; b.className = 'gxe-mv'; b.textContent = sym;
+              b.setAttribute('aria-label', `Move page ${n + 1} ${word}`);
+              b.addEventListener('click', () => { [pages[n], pages[to]] = [pages[to], pages[n]]; paintMedia(); });
+              mv.appendChild(b);
+            });
+            cell.appendChild(mv);
+          }
+          return cell;
+        }));
+      }
+      media.querySelector('input[type="file"]').addEventListener('change', async (e) => {
+        const files = [...e.target.files]; e.target.value = '';
+        if(!files.length) return;
+        const save = $('.gxe-save'); save.disabled = true;
         try {
-          const res = await fetch(`${API_URL}/api/gallery/${item.id}`, {
-            method: 'PUT', headers: authHeaders(),
-            body: JSON.stringify({ ...item, title: row.querySelector('.gxa-title').value.trim(), kind: kSel.value, section: row.querySelector('.gxa-section').value,
-              ...relatedFields(row.querySelector('.gxa-related').value), in_slideshow: slide.checked })
-          });
-          if(!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Save failed');
-          showAdminToast('Saved.');
-          loadGallery();
-        } catch(err){ alert('Could not save: ' + err.message); }
-        b.disabled = false;
+          if(kindSel.value === 'video'){
+            status.textContent = 'Uploading the video…';
+            const url = await uploadMedia(files[0], 'gallery-video');
+            if(!url) throw new Error('The video did not upload.');
+            $('.gxe-video').value = url;
+          } else {
+            const urls = [];
+            for(let n = 0; n < files.length; n++){
+              status.textContent = `Uploading ${n + 1} of ${files.length}…`;
+              const url = await uploadCover(await shrinkImage(files[n]), 'gallery');
+              if(!url) throw new Error('A photo did not upload.');
+              urls.push(url);
+            }
+            pages = kindSel.value === 'document' ? pages.concat(urls).slice(0, 40) : [urls[0]];
+          }
+          status.textContent = 'Uploaded. Save changes to keep it.';
+        } catch(err){ status.textContent = ''; alert(err.message); }
+        save.disabled = false;
+        paintMedia();
       });
-      row.querySelector('.gxa-del').addEventListener('click', async () => {
-        if(!confirm(`Remove "${titleOf(item)}" from the gallery?`)) return;
-        const res = await fetch(`${API_URL}/api/gallery/${item.id}`, { method: 'DELETE', headers: authHeaders() });
-        if(!res.ok && res.status !== 204){ alert('Could not remove it.'); return; }
-        showAdminToast('Removed.');
-        loadGallery();
-      });
-      return row;
-    }));
+    }
+    let lastKind = kindSel.value;
+    kindSel.addEventListener('change', () => {
+      if(kindSel.value === 'photo' && pages.length > 1){
+        if(!confirm(`A photo shows one picture. Keep only the first of the ${pages.length} pages?`)){ kindSel.value = lastKind; return; }
+        pages = pages.slice(0, 1);
+      }
+      lastKind = kindSel.value;
+      paintMedia();
+    });
+    $('.gxe-video').addEventListener('change', paintMedia);
+    paintMedia();
+
+    $('.gxe-cancel').addEventListener('click', onDone);
+    $('.gxe-save').addEventListener('click', async (ev) => {
+      const k = kindSel.value;
+      const link = $('.gxe-link').value.trim();
+      const video = $('.gxe-video').value.trim();
+      if(k === 'video' && !video){ alert('Add a video link or upload a video file.'); return; }
+      if(k !== 'video' && !pages.length && !link){ alert('Add a photo or a link, or delete this item instead.'); return; }
+      const b = ev.currentTarget; b.disabled = true;
+      status.textContent = 'Saving…';
+      try {
+        const res = await fetch(`${API_URL}/api/gallery/${item.id}`, {
+          method: 'PUT', headers: authHeaders(),
+          body: JSON.stringify({
+            kind: k,
+            section: $('.gxe-section').value,
+            title: $('.gxe-title').value.trim(),
+            caption: $('.gxe-caption').value.trim(),
+            outlet: k === 'document' ? $('.gxe-outlet').value.trim() : '',
+            event_date: $('.gxe-date').value || null,
+            link_url: link || null,
+            ...relatedFields($('.gxe-related').value),
+            image_url: k === 'video' ? (item.image_url || null) : (pages[0] || null),
+            pages: k === 'document' ? pages.slice(1) : [],
+            video_url: k === 'video' ? video : null,
+            in_slideshow: k === 'photo' ? $('.gxe-slide').checked : false,
+            sort_order: item.sort_order || 0
+          })
+        });
+        if(!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Save failed');
+        gxEditing = null;
+        showAdminToast('Saved.');
+        await loadGallery();
+      } catch(err){ status.textContent = ''; alert('Could not save: ' + err.message); b.disabled = false; }
+    });
+    return ed;
   }
 
   loadGallery();
