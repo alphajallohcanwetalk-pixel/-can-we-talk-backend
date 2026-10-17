@@ -1212,9 +1212,11 @@
   .cx-show:hover .cx-nav, .cx-show:focus-within .cx-nav{opacity:1;}
   .cx-prev{left:12px;} .cx-next{right:12px;}
   .cx-foot{position:absolute; left:0; right:0; bottom:14px; z-index:4; display:flex; justify-content:center; align-items:center; gap:10px; pointer-events:none;}
-  .cx-dots{display:flex; gap:6px; pointer-events:auto;}
-  .cx-dots button{width:8px; height:8px; padding:0; border-radius:50%; border:0; background:rgba(255,255,255,0.5); cursor:pointer; transition:transform .2s, background .2s;}
-  .cx-dots button.on{background:#fff; transform:scale(1.35);}
+  .cx-dots{display:flex; gap:0; pointer-events:auto;}
+  /* A 24 pixel tap area around a small visible dot. */
+  .cx-dots button{width:24px; height:24px; padding:0; border:0; background:none; cursor:pointer; display:grid; place-items:center;}
+  .cx-dots button::before{content:''; width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.5); transition:transform .2s, background .2s;}
+  .cx-dots button.on::before{background:#fff; transform:scale(1.35);}
   .cx-count{display:none; font:700 0.72rem 'IBM Plex Mono',monospace; color:#fff; text-shadow:0 1px 3px #000;}
   .cx-dots:empty + .cx-count{display:inline;}
   .cx-progress{position:absolute; left:0; right:0; bottom:0; height:3px; z-index:4; background:rgba(255,255,255,0.15);}
