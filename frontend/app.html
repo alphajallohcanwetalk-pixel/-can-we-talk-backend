@@ -490,7 +490,8 @@
 
   /* ---------- Sign in and Join, easy to find ---------- */
   #authArea{display:flex; align-items:center; gap:8px;}
-  .nav-signin{padding:9px 14px; border:1px solid var(--line); border-radius:3px; font-size:0.85rem; font-weight:600; color:var(--sl-green-deep); cursor:pointer;}
+  .nav-signin{padding:9px 14px; border:1px solid var(--line); border-radius:3px; background:transparent; font:inherit; font-size:0.85rem; font-weight:600; color:var(--sl-green-deep); cursor:pointer;}
+  button.nav-join{border:0; font:inherit; font-size:0.85rem; font-weight:600;}
   .nav-signin:hover{border-color:var(--sl-green-deep);}
   .nav-join{cursor:pointer;}
   .nav-acct{display:none;}
@@ -515,7 +516,8 @@
   /* Header labels never wrap; on mid size screens search is an icon and the extra shop button goes
      (Books is in the menu), so everything stays on one line. */
   nav.links a, .nav-signin, .nav-join, .nav-inner > .nav-cta, .brand{white-space:nowrap;}
-  @media(min-width:901px) and (max-width:1240px){
+  @media(min-width:901px){ .nav-inner{max-width:1320px; gap:16px;} }
+  @media(min-width:901px) and (max-width:1340px){
     .nav-inner{gap:12px; padding:14px 20px;}
     nav.links{gap:18px;}
     .nav-inner > .nav-cta{display:none;}
@@ -2058,7 +2060,7 @@
       <a href="#contact" class="nav-link" data-view="contact">Contact</a>
     </nav>
     <div id="authArea">
-      <a class="nav-signin" id="signInBtn" data-auth-open="signin">Sign in</a><a class="nav-cta nav-join" data-auth-open="signup">Join free</a>
+      <button type="button" class="nav-signin" id="signInBtn" data-auth-open="signin">Sign in</button><button type="button" class="nav-cta nav-join" data-auth-open="signup">Join free</button>
     </div>
     <a href="#admin" class="nav-dash nav-link" data-view="admin" id="navDash" title="Open your dashboard">Dashboard</a>
     <button class="icon-btn" id="searchBtn" aria-label="Search the site" title="Search (press /)"><span aria-hidden="true">🔍</span><span class="sb-txt">Search</span></button>
@@ -6645,7 +6647,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     currentSession = null;
     document.body.classList.remove('is-staff', 'signed-in');
     const authArea = document.getElementById('authArea');
-    authArea.innerHTML = '<a class="nav-signin" id="signInBtn" data-auth-open="signin">Sign in</a><a class="nav-cta nav-join" data-auth-open="signup">Join free</a>';
+    authArea.innerHTML = '<button type="button" class="nav-signin" id="signInBtn" data-auth-open="signin">Sign in</button><button type="button" class="nav-cta nav-join" data-auth-open="signup">Join free</button>';
     paintHeaderAccount(null);
     const mobileAuth = document.getElementById('signInBtnMobile');
     if(mobileAuth){
