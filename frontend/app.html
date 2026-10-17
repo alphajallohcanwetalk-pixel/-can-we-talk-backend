@@ -669,6 +669,29 @@
   .report-btn:hover{opacity:1; color:#b3261e;}
   .report-btn:disabled{cursor:default; text-decoration:none;}
   .comment-report.done .report-btn{color:#12622f; opacity:1;}
+
+  .hp-field{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;}
+  .error-msg{margin-top:12px; padding:12px 14px; border-radius:6px; background:#fdecec; color:#8a1c1c; font-size:0.9rem;}
+  .tab-badge{display:inline-grid; place-items:center; min-width:20px; height:20px; padding:0 6px; margin-left:6px; border-radius:10px; background:#c62828; color:#fff; font-size:0.72rem; font-weight:700; vertical-align:middle;}
+  .msg-banner{display:block; width:100%; text-align:left; margin-top:18px; padding:12px 16px; border:0; border-radius:8px; background:var(--sl-green-deep); color:#fff; font-weight:600; cursor:pointer;}
+  .msg-banner[hidden]{display:none;}
+  .msg-filters{display:flex; gap:6px; flex-wrap:wrap;}
+  .msg-filters button{font-size:0.78rem; padding:6px 12px; border-radius:20px; border:1px solid var(--line); background:var(--paper); cursor:pointer;}
+  .msg-filters button.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .msg-item{border:1px solid var(--line); border-left:4px solid var(--line); border-radius:8px; padding:14px 16px; background:var(--paper); margin-bottom:12px;}
+  .msg-item.status-new{border-left-color:#c62828; background:#fff;}
+  .msg-item.status-replied{border-left-color:var(--sl-green);}
+  .msg-top{display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:0.76rem; color:var(--ink-soft);}
+  .msg-reason{font-weight:700; color:var(--sl-green-deep); text-transform:uppercase; letter-spacing:0.06em;}
+  .msg-state{padding:2px 8px; border-radius:10px; background:#f0ede3; font-weight:600;}
+  .status-new .msg-state{background:#fdecec; color:#8a1c1c;}
+  .msg-when{margin-left:auto;}
+  .msg-who{margin-top:6px; font-size:0.92rem;}
+  .msg-who a{color:var(--sl-blue); word-break:break-all;}
+  .msg-body{margin-top:8px; white-space:pre-wrap; line-height:1.55;}
+  .msg-reply-done{margin-top:10px; padding:10px 12px; border-radius:6px; background:#eef6ef; font-size:0.88rem; white-space:pre-wrap;}
+  .msg-reply textarea{width:100%; margin-top:10px; padding:10px; border:1px solid var(--line); border-radius:6px; font:inherit;}
+  .mod-actions button.primary{background:var(--ink); color:#fff; border-color:var(--ink);}
   .mod-item{border:1px solid var(--line); border-radius:8px; padding:14px 16px; background:var(--paper); margin-bottom:10px;}
   .mod-item.flagged{border-left:3px solid #b3261e;}
   .mod-item.hidden-c{opacity:0.55;}
@@ -2372,8 +2395,10 @@
           <select id="reason"><option>General inquiry</option><option>Speaking engagement</option><option>Media / press request</option><option>Bulk / bookstore order</option><option>Signed copy request</option><option>Feedback about the website</option></select>
         </div>
         <div class="field"><label for="message">Message</label><textarea id="message" required placeholder="How can we help?"></textarea></div>
-        <button type="submit" class="btn btn-dark" style="align-self:flex-start;">Send Message</button>
-        <div class="success-msg" id="successMsg">Thank you. Your message has been noted. We'll be in touch soon.</div>
+        <div class="hp-field" aria-hidden="true"><label for="contactWebsite">Leave this empty</label><input type="text" id="contactWebsite" tabindex="-1" autocomplete="off"></div>
+        <button type="submit" class="btn btn-dark" style="align-self:flex-start;" id="contactSend">Send Message</button>
+        <div class="success-msg" id="successMsg" role="status">Thank you. Your message reached Alpha. You will get a reply by email.</div>
+        <div class="error-msg" id="contactError" role="alert" hidden></div>
       </form>
       <div class="info-card">
         <h3>Direct contact</h3>
@@ -2845,6 +2870,7 @@
           <nav class="dash-nav" aria-label="Dashboard sections">
           <div class="modal-tabs dash-tabs">
             <div class="modal-tab active" data-admin-tab="analytics">Overview</div>
+            <div class="modal-tab" data-admin-tab="messages" id="messagesTab">Messages <span class="tab-badge" id="messagesBadge" hidden></span></div>
             <div class="modal-tab" data-admin-tab="books">Books</div>
             <div class="modal-tab" data-admin-tab="essays">Essays</div>
             <div class="modal-tab" data-admin-tab="audio">Audiobooks</div>
@@ -2857,6 +2883,22 @@
           </nav>
 
           <div class="dash-content">
+          <button type="button" class="msg-banner" id="msgBanner" hidden></button>
+          <div class="modal-panel" id="admin-panel-messages" style="flex-direction:column; gap:18px; margin-top:30px;">
+            <div class="an-head">
+              <div>
+                <h3 style="font-family:'Fraunces',serif; font-size:1.3rem;">Messages</h3>
+                <p style="color:var(--ink-soft); font-size:0.85rem;" id="msgStatus">Speaking requests, press, orders and questions from the Contact page. Each one is also emailed to you.</p>
+              </div>
+              <div class="msg-filters" role="group" aria-label="Show messages">
+                <button type="button" class="active" data-msg-filter="all">All</button>
+                <button type="button" data-msg-filter="new">New</button>
+                <button type="button" data-msg-filter="read">Read</button>
+                <button type="button" data-msg-filter="replied">Replied</button>
+              </div>
+            </div>
+            <div id="msgList"></div>
+          </div>
           <div class="modal-panel active" id="admin-panel-analytics" style="display:flex; flex-direction:column; gap:26px; margin-top:30px;">
             <div class="an-head">
               <div>
@@ -3484,9 +3526,9 @@
     <img src="icons/bna-developers-logo.png" alt="B&amp;A Developers" class="bna-logo" loading="lazy" decoding="async">
     <p class="bna-tag">Smart apps for real businesses</p>
     <div class="bna-rows">
-      <a class="bna-row" href="mailto:b.and.a.developers@gmail.com?subject=Website%20enquiry">
+      <a class="bna-row" href="mailto:bandadevelopers2026@gmail.com?subject=Website%20enquiry">
         <span class="bna-k">Email</span>
-        <span class="bna-v">b.and.a.developers@gmail.com</span>
+        <span class="bna-v">bandadevelopers2026@gmail.com</span>
       </a>
       <button type="button" class="bna-row" id="bnaCopy">
         <span class="bna-k">Copy address</span>
@@ -4062,11 +4104,45 @@
     item.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); choose(); } });
   });
   loadEssays();
-  document.getElementById('contactForm').addEventListener('submit', function(e){
+  // Contact and speaking requests go to the server: kept for Alpha's dashboard (Messages),
+  // emailed to him, and announced on his devices. (Until 17 Oct 2026 this form kept nothing.)
+  document.getElementById('contactForm').addEventListener('submit', async function(e){
     e.preventDefault();
-    document.getElementById('successMsg').style.display = 'block';
-    this.reset();
+    const form = this;
+    const send = document.getElementById('contactSend');
+    const ok = document.getElementById('successMsg');
+    const fail = document.getElementById('contactError');
+    ok.style.display = 'none'; fail.hidden = true;
+    send.disabled = true; send.textContent = 'Sending…';
+    try {
+      const res = await fetch(`${API_URL}/api/contact`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: document.getElementById('name').value,
+          email: document.getElementById('email').value,
+          reason: document.getElementById('reason').value,
+          message: document.getElementById('message').value,
+          website: document.getElementById('contactWebsite').value,
+        })
+      });
+      const body = await res.json().catch(() => ({}));
+      if(!res.ok) throw new Error(body.error || 'Your message could not be sent. Please try again.');
+      ok.style.display = 'block';
+      form.reset();
+    } catch(err){
+      fail.textContent = err.message === 'Failed to fetch'
+        ? 'You seem to be offline. Your message was not sent; please try again when connected.'
+        : err.message;
+      fail.hidden = false;
+    } finally {
+      send.disabled = false; send.textContent = 'Send Message';
+    }
   });
+  // "Request a Booking" on the Speaking page opens the form with the right reason chosen.
+  document.querySelectorAll('#view-speaking [data-view="contact"]').forEach(a => a.addEventListener('click', () => {
+    const r = document.getElementById('reason');
+    if(r) r.value = 'Speaking engagement';
+  }));
 
   // ================= AUTH =================
   let currentUser = null; // {name, email}
@@ -5302,6 +5378,9 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
           renderAdminAudioTable();
           checkNarrationConfig();
           loadAnalytics();   // Analytics is the tab the dashboard opens on.
+          refreshMessageBadge();
+          clearInterval(window.__msgPoll);
+          window.__msgPoll = setInterval(refreshMessageBadge, 120000);
         } else {
           loadDeveloperPanel();
         }
@@ -5329,10 +5408,11 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       if(active === 'moderation') loadModeration();
       if(active === 'settings'){ loadShippingRates(); loadPushStats(); }
       if(active === 'gallery') loadGallery();
+      if(active === 'messages') loadMessages();
     });
   });
 
-  const ADMIN_TABS = ['analytics', 'books', 'essays', 'audio', 'gallery', 'settings', 'moderation', 'security', 'developer'];
+  const ADMIN_TABS = ['analytics', 'messages', 'books', 'essays', 'audio', 'gallery', 'settings', 'moderation', 'security', 'developer'];
   let isAuthorUser = false, isDeveloperUser = false;
 
   // Shows only the tabs this account is entitled to, and opens the first one.
@@ -5340,7 +5420,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     const devTab = document.getElementById('devTab');
     if(devTab) devTab.style.display = isDeveloperUser ? '' : 'none';
 
-    const authorTabs = ['analytics', 'books', 'essays', 'audio', 'gallery', 'settings', 'moderation'];   // 'security' is for both roles
+    const authorTabs = ['analytics', 'messages', 'books', 'essays', 'audio', 'gallery', 'settings', 'moderation'];   // 'security' is for both roles
     document.querySelectorAll('[data-admin-tab]').forEach(tab => {
       const name = tab.dataset.adminTab;
       if(authorTabs.includes(name)) tab.style.display = isAuthorUser ? '' : 'none';
@@ -5355,6 +5435,112 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
 
     const heading = document.querySelector('#admin-dashboard .section-head h2');
     if(heading && !isAuthorUser) heading.textContent = 'Developer access';
+  }
+
+
+  // ================= MESSAGES (Contact page) =================
+  let messageRows = [];
+  let messageFilter = 'all';
+  function openAdminTab(name){ document.querySelector(`[data-admin-tab="${name}"]`)?.click(); }
+
+  async function refreshMessageBadge(){
+    if(!isAuthorUser) return;
+    try {
+      const r = await fetch(`${API_URL}/api/contact/unread`, { headers: authHeaders() });
+      const { unread = 0 } = r.ok ? await r.json() : {};
+      const badge = document.getElementById('messagesBadge');
+      const banner = document.getElementById('msgBanner');
+      badge.hidden = !unread; badge.textContent = unread;
+      banner.hidden = !unread;
+      banner.textContent = unread ? `You have ${unread} new message${unread === 1 ? '' : 's'}. Open Messages` : '';
+    } catch(e){}
+  }
+  document.getElementById('msgBanner')?.addEventListener('click', () => openAdminTab('messages'));
+  document.querySelectorAll('[data-msg-filter]').forEach(b => b.addEventListener('click', () => {
+    messageFilter = b.dataset.msgFilter;
+    document.querySelectorAll('[data-msg-filter]').forEach(x => x.classList.toggle('active', x === b));
+    renderMessages();
+  }));
+
+  async function setMessageStatus(id, status){
+    const r = await fetch(`${API_URL}/api/contact/${id}`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ status }) });
+    if(!r.ok){ const b = await r.json().catch(() => ({})); throw new Error(b.error || 'Could not update.'); }
+    const row = await r.json();
+    messageRows = messageRows.map(m => m.id === id ? row : m);
+    renderMessages(); refreshMessageBadge();
+  }
+
+  async function loadMessages(){
+    const status = document.getElementById('msgStatus');
+    const list = document.getElementById('msgList');
+    list.innerHTML = '<p class="an-empty">Loading messages…</p>';
+    try {
+      const r = await fetch(`${API_URL}/api/contact`, { headers: authHeaders() });
+      const body = await r.json().catch(() => ({}));
+      if(!r.ok) throw new Error(body.error || 'Could not load messages.');
+      messageRows = body.messages || [];
+      status.textContent = `${messageRows.length} message${messageRows.length === 1 ? '' : 's'}, ${body.unread || 0} new. Each one is also emailed to you.`;
+      renderMessages(); refreshMessageBadge();
+    } catch(err){
+      list.innerHTML = '';
+      const p = document.createElement('p'); p.className = 'an-empty'; p.textContent = err.message; list.appendChild(p);
+    }
+  }
+
+  function renderMessages(){
+    const list = document.getElementById('msgList');
+    const rows = messageRows.filter(m => messageFilter === 'all' || m.status === messageFilter);
+    list.innerHTML = '';
+    if(!rows.length){ list.innerHTML = '<p class="an-empty">No messages here.</p>'; return; }
+    rows.forEach(m => {
+      const item = document.createElement('article');
+      item.className = 'msg-item status-' + m.status;
+      item.innerHTML = `
+        <div class="msg-top"><span class="msg-reason"></span><span class="msg-state"></span><span class="msg-when"></span></div>
+        <div class="msg-who"><strong></strong> <a></a></div>
+        <p class="msg-body"></p>
+        <div class="msg-reply-done" hidden></div>
+        <form class="msg-reply" hidden><textarea rows="4" required placeholder="Write your reply. It is emailed to them from the site, and they can answer to your email."></textarea>
+          <div class="mod-actions"><button type="submit" class="primary">Send reply</button><button type="button" class="msg-cancel">Cancel</button></div></form>
+        <div class="mod-actions msg-actions"></div>`;
+      item.querySelector('.msg-reason').textContent = m.reason || 'Message';
+      item.querySelector('.msg-state').textContent = m.status === 'new' ? 'New' : m.status === 'read' ? 'Read' : 'Replied';
+      item.querySelector('.msg-when').textContent = new Date(m.created_at).toLocaleString();
+      item.querySelector('.msg-who strong').textContent = m.name;
+      const mail = item.querySelector('.msg-who a');
+      mail.textContent = m.email; mail.href = `mailto:${m.email}?subject=${encodeURIComponent('Re: ' + (m.reason || 'your message'))}`;
+      item.querySelector('.msg-body').textContent = m.message;
+      if(m.reply){ const d = item.querySelector('.msg-reply-done'); d.hidden = false; d.textContent = 'Your reply: ' + m.reply; }
+
+      const actions = item.querySelector('.msg-actions');
+      const form = item.querySelector('.msg-reply');
+      const add = (label, fn) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.addEventListener('click', async () => { b.disabled = true; try { await fn(); } catch(err){ alert(err.message); } b.disabled = false; }); actions.appendChild(b); };
+      add('Reply', async () => { form.hidden = false; form.querySelector('textarea').focus(); });
+      if(m.status === 'new') add('Mark as read', () => setMessageStatus(m.id, 'read'));
+      if(m.status !== 'replied') add('Mark as replied', () => setMessageStatus(m.id, 'replied'));
+      if(m.status !== 'new') add('Mark as new', () => setMessageStatus(m.id, 'new'));
+      add('Delete', async () => {
+        if(!confirm('Delete this message for good?')) return;
+        const r = await fetch(`${API_URL}/api/contact/${m.id}`, { method: 'DELETE', headers: authHeaders() });
+        if(!r.ok) throw new Error('Could not delete.');
+        messageRows = messageRows.filter(x => x.id !== m.id); renderMessages(); refreshMessageBadge();
+      });
+      form.querySelector('.msg-cancel').addEventListener('click', () => { form.hidden = true; });
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = form.querySelector('button[type="submit"]');
+        btn.disabled = true; btn.textContent = 'Sending…';
+        try {
+          const r = await fetch(`${API_URL}/api/contact/${m.id}/reply`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ reply: form.querySelector('textarea').value }) });
+          const b = await r.json().catch(() => ({}));
+          if(!r.ok) throw new Error(b.error || 'Could not send the reply.');
+          messageRows = messageRows.map(x => x.id === m.id ? b : x); renderMessages(); refreshMessageBadge();
+        } catch(err){ alert(err.message); btn.disabled = false; btn.textContent = 'Send reply'; }
+      });
+      // Opening a new message counts as reading it.
+      if(m.status === 'new') item.addEventListener('click', (ev) => { if(!ev.target.closest('button,textarea,a')) setMessageStatus(m.id, 'read').catch(() => {}); }, { once: true });
+      list.appendChild(item);
+    });
   }
 
   // ================= NEWSLETTER =================
@@ -5425,7 +5611,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
 
     document.getElementById('bnaCopy')?.addEventListener('click', async () => {
       const state = document.getElementById('bnaCopyState');
-      const address = 'b.and.a.developers@gmail.com';
+      const address = 'bandadevelopers2026@gmail.com';
       try {
         await navigator.clipboard.writeText(address);
         state.textContent = 'Copied';

@@ -125,3 +125,38 @@ export async function sendNewsletterConfirmation(toEmail, name, token) {
   `);
   return resend.emails.send({ from: FROM, to: toEmail, subject: 'Confirm your email', html });
 }
+
+// A message from the Contact page, to Alpha. Replying in the email app goes straight to the sender.
+export async function sendContactToAuthor(toEmail, msg) {
+  const html = wrapper(`
+    <p style="margin:0 0 6px; color:#777; font-size:13px; text-transform:uppercase; letter-spacing:1px;">${esc(msg.reason || 'Message')}</p>
+    <h2 style="margin:0 0 14px;">New message from ${esc(msg.name)}</h2>
+    <p style="color:#444; line-height:1.6; white-space:pre-wrap;">${esc(msg.message)}</p>
+    <p style="color:#777; font-size:13px; line-height:1.6;">From: ${esc(msg.name)} &lt;${esc(msg.email)}&gt;<br>
+    Press Reply to answer them directly, or open the dashboard (Messages) to reply and mark it done.</p>
+  `);
+  return resend.emails.send({
+    from: FROM,
+    to: toEmail,
+    reply_to: msg.email,
+    subject: `${msg.reason || 'Message'}: ${String(msg.name).slice(0, 60)}`,
+    html
+  });
+}
+
+// Alpha's reply from the dashboard, to the person who wrote.
+export async function sendContactReply(toEmail, name, reply, original, replyTo) {
+  const html = wrapper(`
+    <h2 style="margin:0 0 14px;">Hello ${firstName(name)}</h2>
+    <p style="color:#444; line-height:1.6; white-space:pre-wrap;">${esc(reply)}</p>
+    <p style="color:#444; line-height:1.6;">Alpha Amadu Jalloh</p>
+    <div style="margin-top:22px; padding-top:14px; border-top:1px solid #eee; color:#888; font-size:13px; white-space:pre-wrap;">Your message:\n${esc(original)}</div>
+  `);
+  return resend.emails.send({
+    from: FROM,
+    to: toEmail,
+    reply_to: replyTo || undefined,
+    subject: 'Reply from Alpha Amadu Jalloh (Can We Talk?)',
+    html
+  });
+}

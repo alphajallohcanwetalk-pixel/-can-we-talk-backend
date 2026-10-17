@@ -48,3 +48,20 @@ export function announce(message) {
   notifyEveryone(message).catch((err) =>
     console.error(JSON.stringify({ type: 'error', scope: 'push_announce', message: err.message })));
 }
+
+// A notification for chosen people only (for example Alpha when a message arrives). Never throws.
+export async function notifyUsers(userIds, { title, body, url }) {
+  if (!pushEnabled || !userIds?.length) return { sent: 0 };
+  const { data: subs } = await supabaseAdmin.from('push_subscriptions').select('id,endpoint,p256dh,auth').in('user_id', userIds);
+  let sent = 0;
+  const payload = JSON.stringify({ title, body, url: url || '/', image: null });
+  await Promise.all((subs || []).map(async (s) => {
+    try {
+      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, payload, { TTL: 60 * 60 * 24 });
+      sent += 1;
+    } catch (err) {
+      if (err.statusCode === 404 || err.statusCode === 410) await supabaseAdmin.from('push_subscriptions').delete().eq('id', s.id);
+    }
+  }));
+  return { sent };
+}

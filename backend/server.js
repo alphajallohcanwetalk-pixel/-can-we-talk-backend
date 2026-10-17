@@ -22,6 +22,7 @@ import newsletterRoutes from './routes/newsletter.js';
 import telemetryRoutes from './routes/telemetry.js';
 import shippingRoutes from './routes/shipping.js';
 import galleryRoutes from './routes/gallery.js';
+import contactRoutes from './routes/contact.js';
 import pushRoutes from './routes/push.js';
 import narrationRoutes from './routes/narration.js';
 import webhookRoutes from './routes/webhooks.js';
@@ -98,6 +99,7 @@ app.use('/api/newsletter', newsletterRoutes);
 // cannot be used to flood the log.
 app.use('/api/telemetry', rateLimit({ windowMs: 60 * 1000, limit: 20, standardHeaders: 'draft-8', legacyHeaders: false }), telemetryRoutes);
 app.use('/api/shipping', shippingRoutes);
+app.use('/api/contact', rateLimit({ windowMs: 60 * 60 * 1000, limit: 8, standardHeaders: 'draft-8', legacyHeaders: false, skip: (req) => req.method !== 'POST' || req.path !== '/' }), contactRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/narration', narrationRoutes);
 app.use('/api/push', rateLimit({ windowMs: 60 * 1000, limit: 30, standardHeaders: 'draft-8', legacyHeaders: false }), pushRoutes);
