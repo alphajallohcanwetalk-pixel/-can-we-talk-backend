@@ -1031,6 +1031,123 @@
   .gal-body h3{font-size:1.08rem; margin:8px 0 4px; line-height:1.35;}
   .gal-meta{color:var(--ink-soft); font-size:0.8rem;}
   .gal-caption{color:var(--ink-soft); font-size:0.88rem; margin-top:8px;}
+  /* ---------- Gallery v2: slideshow, tiles, viewer, uploader ---------- */
+  .gx-show{position:relative; aspect-ratio:16/9; max-height:62vh; width:100%; margin:0 0 30px; border-radius:14px; overflow:hidden; background:#0b1a10; box-shadow:0 24px 60px rgba(8,30,15,0.22);}
+  .gx-show-stage, .gx-slide{position:absolute; inset:0; margin:0;}
+  .gx-slide{opacity:0; transition:opacity .9s var(--glide, ease); cursor:zoom-in;}
+  .gx-slide.on{opacity:1;}
+  .gx-slide img{width:100%; height:100%; object-fit:cover; display:block; transform:scale(1.04); transition:transform 6s linear;}
+  .gx-slide.on img{transform:scale(1);}
+  .gx-slide figcaption{position:absolute; left:0; right:0; bottom:0; padding:44px 22px 40px; color:#fff; font-size:0.95rem; background:linear-gradient(0deg, rgba(0,0,0,0.65), transparent);}
+  .gx-prev, .gx-next{position:absolute; top:50%; transform:translateY(-50%); width:44px; height:44px; border-radius:50%; border:0; background:rgba(255,255,255,0.85); color:#10301a; font-size:1.6rem; line-height:1; cursor:pointer; z-index:2;}
+  .gx-prev{left:12px;} .gx-next{right:12px;}
+  .gx-show-dots{position:absolute; left:0; right:0; bottom:14px; display:flex; gap:6px; justify-content:center; z-index:2;}
+  .gx-show-dots button{width:8px; height:8px; padding:0; border-radius:50%; border:0; background:rgba(255,255,255,0.5); cursor:pointer;}
+  .gx-show-dots button.on{background:#fff; transform:scale(1.3);}
+  .gal-filters button[hidden]{display:none;}
+
+  .gx-grid{columns:3 260px; column-gap:18px;}
+  .gx-tile{position:relative; display:block; width:100%; break-inside:avoid; margin:0 0 18px; padding:0; border:0; border-radius:12px; overflow:hidden; background:var(--paper-dim); cursor:pointer; text-align:left; color:#fff; box-shadow:0 6px 18px rgba(8,30,15,0.10); transition:transform .35s var(--glide, ease), box-shadow .35s var(--glide, ease);}
+  .gx-tile:hover, .gx-tile:focus-visible{transform:translateY(-4px); box-shadow:0 16px 34px rgba(8,30,15,0.20);}
+  .gx-thumb{display:block; min-height:120px;}
+  .gx-thumb img{display:block; width:100%; height:auto; transition:transform .6s var(--glide, ease);}
+  .gx-tile:hover .gx-thumb img{transform:scale(1.04);}
+  .gx-thumb.gx-noimg{display:grid; place-items:center; aspect-ratio:4/3; color:var(--sl-green-deep); font-family:'Fraunces',serif; font-size:1.2rem;}
+  .gx-badge{position:absolute; top:10px; left:10px; padding:4px 10px; border-radius:20px; background:rgba(255,255,255,0.92); color:#10301a; font:700 0.7rem 'IBM Plex Mono',monospace; letter-spacing:0.05em; text-transform:uppercase;}
+  .kind-document .gx-badge{background:#f4e7c3; color:#5a3d00;}
+  .kind-video .gx-badge{background:#c62828; color:#fff;}
+  .gx-cap{position:absolute; left:0; right:0; bottom:0; padding:42px 14px 12px; background:linear-gradient(0deg, rgba(0,0,0,0.72), transparent); display:flex; flex-direction:column; gap:2px;}
+  .gx-title{font-weight:700; font-size:0.95rem; line-height:1.3;}
+  .gx-sub{font-size:0.75rem; opacity:0.85;}
+  .gx-sub:empty{display:none;}
+  .kind-document .gx-thumb{background:#f7f1e3; padding:10px 10px 0;}
+  .kind-document .gx-thumb img{box-shadow:0 2px 8px rgba(0,0,0,0.18); transform:rotate(-0.6deg);}
+  .gx-skeleton{height:220px;}
+  .gx-skeleton:nth-child(3n){height:300px;} .gx-skeleton:nth-child(3n+1){height:180px;}
+
+  .gx-viewer{position:fixed; inset:0; z-index:900; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .22s ease;}
+  .gx-viewer.open{opacity:1;}
+  .gx-viewer[hidden]{display:none;}
+  html.gx-locked, html.gx-locked body{overflow:hidden;}
+  .gxv-backdrop{position:absolute; inset:0; background:rgba(5,12,7,0.9);}
+  .gxv-panel{position:relative; width:min(1100px, 100%); height:100%; max-height:100dvh; display:flex; flex-direction:column; color:#fff; transform:translateY(12px); transition:transform .3s var(--glide, ease);}
+  .gx-viewer.open .gxv-panel{transform:none;}
+  .gxv-head{display:flex; justify-content:space-between; gap:16px; padding:16px 18px 10px; align-items:flex-start;}
+  .gxv-kind{font:700 0.7rem 'IBM Plex Mono',monospace; letter-spacing:0.08em; text-transform:uppercase; color:#9fd8ac;}
+  .gxv-title{font-family:'Fraunces',serif; font-size:clamp(1.1rem, 3vw, 1.6rem); color:#fff; margin-top:4px;}
+  .gxv-meta{font-size:0.8rem; opacity:0.75;}
+  .gxv-tools{display:flex; gap:8px; align-items:center; flex-shrink:0;}
+  .gxv-count{font-size:0.8rem; opacity:0.75;}
+  .gxv-zoom, .gxv-close{border:1px solid rgba(255,255,255,0.35); background:rgba(255,255,255,0.08); color:#fff; border-radius:20px; padding:8px 14px; cursor:pointer; font:600 0.8rem 'Inter',sans-serif;}
+  .gxv-close{font-size:1.4rem; line-height:1; padding:4px 13px 7px;}
+  .gxv-zoom[hidden]{display:none;}
+  .gxv-stage{flex:1; overflow:auto; display:flex; flex-direction:column; align-items:center; gap:14px; padding:6px 18px 18px; touch-action:pan-x pan-y pinch-zoom; overscroll-behavior:contain;}
+  .gxv-stage img{max-width:100%; max-height:100%; object-fit:contain; border-radius:6px; background:#fff;}
+  .kind-photo .gxv-stage{justify-content:center;}
+  .kind-document .gxv-stage img{max-height:none; width:min(820px, 100%); box-shadow:0 10px 30px rgba(0,0,0,0.5);}
+  .gx-viewer.zoomed .gxv-stage{align-items:flex-start;}
+  .gx-viewer.zoomed .gxv-stage img{max-width:none; max-height:none; width:200%;}
+  .kind-document.zoomed .gxv-stage img{width:min(1800px, 220%);}
+  .gxv-stage iframe, .gxv-stage video{width:100%; max-width:960px; aspect-ratio:16/9; border:0; background:#000; border-radius:8px; margin:auto 0;}
+  .gxv-linkonly{margin:auto; max-width:640px; font-size:1.05rem; line-height:1.7;}
+  .gxv-foot{padding:10px 18px 18px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;}
+  .gxv-caption{max-width:720px; font-size:0.9rem; opacity:0.9; white-space:pre-wrap;}
+  .gxv-caption:empty{display:none;}
+  .gxv-actions{display:flex; gap:8px; flex-wrap:wrap;}
+  .gxv-actions .btn{color:#fff; border-color:rgba(255,255,255,0.5);}
+  .gxv-prev, .gxv-next{position:absolute; top:50%; width:46px; height:46px; border-radius:50%; border:0; background:rgba(255,255,255,0.88); color:#10301a; font-size:1.7rem; line-height:1; cursor:pointer;}
+  .gxv-prev{left:10px;} .gxv-next{right:10px;}
+  .gxv-prev[hidden], .gxv-next[hidden]{display:none;}
+
+  .bk-media .section-head{margin-bottom:18px;}
+  .bk-media-essay{margin-top:40px;}
+  .bk-tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;}
+  .bk-tabs button{border:1px solid var(--line); background:var(--paper); border-radius:20px; padding:8px 16px; font:600 0.84rem 'Inter',sans-serif; cursor:pointer;}
+  .bk-tabs button.active{background:var(--sl-green-deep); border-color:var(--sl-green-deep); color:#fff;}
+  .bk-quick{display:flex; gap:8px; flex-wrap:wrap; margin-top:16px;}
+  .bk-quick:empty{display:none;}
+
+  .gx-up{border:1px solid var(--line); border-radius:10px; padding:24px; background:var(--paper-dim); max-width:760px;}
+  .gx-drop{display:flex; flex-direction:column; align-items:center; gap:6px; padding:28px 18px; border:2px dashed var(--line); border-radius:10px; background:var(--paper); text-align:center; cursor:pointer; transition:border-color .2s, background .2s;}
+  .gx-drop.over, .gx-drop:hover{border-color:var(--sl-green); background:#f2f8f3;}
+  .gx-drop input{position:absolute; width:1px; height:1px; opacity:0;}
+  .gx-drop span{font-size:0.82rem; color:var(--ink-soft);}
+  .gx-preview{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;}
+  .gx-prev-cell{position:relative; width:78px; height:78px; border-radius:8px; overflow:hidden; background:#e8e4d8; display:grid; place-items:center; font-size:0.75rem;}
+  .gx-prev-cell img{width:100%; height:100%; object-fit:cover;}
+  .gx-prev-cell button{position:absolute; top:3px; right:3px; width:22px; height:22px; border-radius:50%; border:0; background:rgba(0,0,0,0.65); color:#fff; cursor:pointer; line-height:1;}
+  .gx-prev-n{position:absolute; left:4px; bottom:3px; font:700 0.68rem 'IBM Plex Mono',monospace; color:#fff; text-shadow:0 1px 2px #000;}
+  .gx-kinds{border:0; padding:0; margin:14px 0; display:flex; flex-direction:column; gap:6px;}
+  .gx-kinds legend{font-weight:600; margin-bottom:6px;}
+  .gx-up-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px;}
+  .gx-up textarea{width:100%; padding:11px 13px; border:1px solid var(--line); border-radius:5px; font:inherit;}
+  .gx-check{display:flex; gap:8px; align-items:center; margin:10px 0 16px; font-size:0.9rem;}
+  .gx-check[hidden], .gx-up .field[hidden]{display:none;}
+  .gx-admin-row{display:grid; grid-template-columns:72px 1fr auto; gap:14px; align-items:start; padding:14px 0; border-bottom:1px solid var(--line);}
+  .gx-admin-row .admin-thumb{width:72px; height:72px;}
+  .gx-admin-fields{display:flex; flex-direction:column; gap:8px; min-width:0;}
+  .gx-admin-fields input[type="text"], .gx-admin-fields select{padding:8px 10px; border:1px solid var(--line); border-radius:5px; font:inherit; font-size:0.85rem; max-width:100%;}
+  .gx-admin-line{display:flex; gap:8px; flex-wrap:wrap;}
+  .gx-admin-line select{flex:1 1 160px;}
+  .gxa-slide{font-size:0.82rem; display:flex; gap:6px; align-items:center;}
+  .gxa-slide[hidden]{display:none;}
+  .gx-admin-actions{display:flex; flex-direction:column; gap:6px;}
+  .gx-admin-actions button{font-size:0.78rem; padding:6px 12px; border-radius:4px; border:1px solid var(--line); background:var(--paper); cursor:pointer;}
+  .gx-admin-actions .gxa-del{color:#b3261e;}
+  @media (max-width: 640px){
+    .gx-grid{columns:2 150px; column-gap:12px;}
+    .gx-tile{margin-bottom:12px;}
+    .gx-show{aspect-ratio:4/3; border-radius:10px;}
+    .gx-prev, .gx-next{display:none;}
+    .gxv-prev, .gxv-next{top:auto; bottom:84px; width:40px; height:40px;}
+    .gx-admin-row{grid-template-columns:56px 1fr; }
+    .gx-admin-actions{grid-column:1 / -1; flex-direction:row;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .gx-slide, .gx-slide img, .gx-tile, .gx-thumb img, .gx-viewer, .gxv-panel{transition:none !important;}
+    .gx-slide img{transform:none !important;}
+  }
+
   .gal-body .read-more{display:inline-block; margin-top:10px; font-weight:600; color:var(--sl-blue);}
 
   /* ---------- Notifications ---------- */
@@ -2317,7 +2434,7 @@
       </aside>
       <div>
         <div class="essay-grid" id="essayGrid"></div>
-        <div class="no-results" id="noResults">No essays match your search. Try a different title, subject or year.</div>
+        <div class="no-results" id="noResults">Loading essays…</div>
       </div>
     </div>
   </section>
@@ -2683,13 +2800,22 @@
   <section class="page-hero"><div class="wrap"><span class="eyebrow">Gallery</span><h1>Events, articles and media</h1><p>Photos and videos from events Alpha Amadu Jalloh has attended, the articles he has written, and what the press has said.</p></div></section>
   <section style="padding:0 0 90px;">
     <div class="wrap">
+      <div class="gx-show" id="gxShow" hidden>
+        <div class="gx-show-stage"></div>
+        <button type="button" class="gx-prev" aria-label="Previous photo">&#8249;</button>
+        <button type="button" class="gx-next" aria-label="Next photo">&#8250;</button>
+        <div class="gx-show-dots"></div>
+      </div>
       <div class="gal-filters" role="tablist" aria-label="Show">
         <button type="button" class="active" data-gal="all">Everything <span class="n"></span></button>
+        <button type="button" data-gal="photo">Photos <span class="n"></span></button>
+        <button type="button" data-gal="document">Newspapers and letters <span class="n"></span></button>
+        <button type="button" data-gal="video">Videos <span class="n"></span></button>
         <button type="button" data-gal="event">Events <span class="n"></span></button>
-        <button type="button" data-gal="article">Articles <span class="n"></span></button>
+        <button type="button" data-gal="article">Articles by Alpha <span class="n"></span></button>
         <button type="button" data-gal="media">In the media <span class="n"></span></button>
       </div>
-      <div class="gal-grid" id="galleryGrid"></div>
+      <div class="gx-grid" id="galleryGrid"></div>
       <p class="audio-empty" id="galleryEmpty" hidden>Nothing here yet. Photos, videos and articles appear here as they are added.</p>
     </div>
   </section>
@@ -2753,6 +2879,7 @@
         <span id="essayPageIndicator" style="font-family:'IBM Plex Mono',monospace; font-size:0.8rem; color:var(--ink-soft);">Page 1 of 1</span>
         <button class="btn btn-outline-dark" id="essayPageNext">Next →</button>
       </div>
+      <div id="essay-linked-anchor"></div>
       <a href="#essays" class="btn btn-outline-dark nav-link" data-view="essays" style="margin-top:36px; display:inline-block;">← Back to Essay Library</a>
     </div>
   </section>
@@ -3116,29 +3243,38 @@
   
           <!-- GALLERY AND PRESS -->
           <div class="modal-panel" id="admin-panel-gallery" style="flex-direction:column; gap:30px; margin-top:30px;">
-            <div style="border:1px solid var(--line); border-radius:6px; padding:24px; background:var(--paper-dim); max-width:620px;">
-              <h3 style="font-size:1.05rem; margin-bottom:6px;">+ Add to the gallery</h3>
-              <p class="field-hint" style="margin-bottom:16px;">Events you attended, articles you wrote, and media talking about you. Add a photo, a video, or both. Everything appears on the Gallery page; videos also appear on the Videos page.</p>
-              <div style="display:flex; flex-direction:column; gap:12px;">
-                <div class="field"><label>What is it?</label>
-                  <select id="gSection"><option value="event">An event I attended</option><option value="article">An article I wrote</option><option value="media">Media coverage about me</option></select></div>
-                <div class="field"><label>Title</label><input type="text" id="gTitle" maxlength="300" placeholder="e.g. Freetown Peace Forum, or the article headline"></div>
-                <div class="field" id="gOutletField" style="display:none;"><label>Newspaper, station or website</label><input type="text" id="gOutlet" maxlength="200" placeholder="e.g. Awoko, BBC Africa"></div>
-                <div class="field"><label>Date</label><input type="date" id="gDate"></div>
-                <div class="field"><label>Short description (optional)</label><textarea id="gCaption" rows="3" maxlength="2000" style="padding:11px 13px; border:1px solid var(--line); border-radius:5px; font:inherit;"></textarea></div>
-                <div class="field"><label>Photo (JPG, PNG or WebP, up to 10 MB)</label><input type="file" id="gPhoto" accept="image/jpeg,image/png,image/webp"></div>
-                <div class="field"><label>Video file (optional, up to 50 MB)</label><input type="file" id="gVideoFile" accept="video/*"></div>
-                <div class="field"><label>Or a YouTube or Vimeo video link (optional)</label><input type="url" id="gVideoLink" placeholder="https://www.youtube.com/watch?v=..."></div>
-                <div class="field"><label>Link to the article, report or Facebook post (optional)</label><input type="url" id="gLink" placeholder="https://..."></div>
-                <button class="btn btn-dark" id="gAddBtn" style="align-self:flex-start;">Add to gallery</button>
+            <div class="gx-up">
+              <h3 style="font-size:1.1rem; margin-bottom:4px;">Add to the gallery</h3>
+              <p class="field-hint" style="margin-bottom:16px;">Photos, videos, and newspaper articles or letters (photograph or scan each page). Everything else is optional: you can just upload.</p>
+              <label class="gx-drop" id="gxDrop">
+                <input type="file" id="gxFiles" multiple accept="image/jpeg,image/png,image/webp,video/*">
+                <strong>Drop files here or tap to choose</strong>
+                <span>Photos (JPG, PNG, WebP), videos, or the pages of a newspaper or letter</span>
+              </label>
+              <div class="gx-preview" id="gxPreview"></div>
+              <p class="field-hint" id="gxHint"></p>
+              <fieldset class="gx-kinds"><legend>What are these?</legend>
+                <label><input type="radio" name="gxKind" value="photo" checked> Photos</label>
+                <label><input type="radio" name="gxKind" value="document"> A newspaper article or letter (all pages together)</label>
+                <label><input type="radio" name="gxKind" value="video"> Videos</label>
+              </fieldset>
+              <div class="gx-up-grid">
+                <div class="field"><label for="gxRelated">Related to (optional)</label><select id="gxRelated"><option value="">Not related to a book or essay</option></select></div>
+                <div class="field"><label for="gxSection">Show under (optional)</label><select id="gxSection"><option value="">Choose for me</option><option value="event">Events</option><option value="article">Articles by Alpha</option><option value="media">In the media</option></select></div>
+                <div class="field"><label for="gxTitle">Title (optional)</label><input type="text" id="gxTitle" maxlength="300" placeholder="e.g. Freetown Peace Forum, or the headline"></div>
+                <div class="field" id="gxOutletField" hidden><label for="gxOutlet">Newspaper or sender (optional)</label><input type="text" id="gxOutlet" maxlength="200" placeholder="e.g. Awoko"></div>
+                <div class="field"><label for="gxDate">Date (optional)</label><input type="date" id="gxDate"></div>
+                <div class="field"><label for="gxVideoLink">YouTube or Vimeo link (optional)</label><input type="url" id="gxVideoLink" placeholder="https://www.youtube.com/watch?v=..."></div>
+                <div class="field"><label for="gxLink">Link to read it online (optional)</label><input type="url" id="gxLink" placeholder="https://..."></div>
+              </div>
+              <div class="field"><label for="gxCaption">Say something about it (optional)</label><textarea id="gxCaption" rows="3" maxlength="2000"></textarea></div>
+              <label class="gx-check" id="gxSlideField"><input type="checkbox" id="gxSlide" checked> Show these photos in the gallery slideshow</label>
+              <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
+                <button class="btn btn-dark" id="gxUploadBtn" type="button">Upload</button>
+                <span class="field-hint" id="gxStatus" role="status"></span>
               </div>
             </div>
-            <div style="overflow-x:auto;">
-              <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
-                <thead><tr style="text-align:left; border-bottom:2px solid var(--line);"><th style="padding:10px;"></th><th style="padding:10px;">Title</th><th style="padding:10px;">Type</th><th style="padding:10px;">Date</th><th style="padding:10px;">Actions</th></tr></thead>
-                <tbody id="admin-gallery-table"></tbody>
-              </table>
-            </div>
+            <div><h3 style="font-size:1.05rem; margin-bottom:10px;">In the gallery</h3><div id="admin-gallery-list"></div></div>
           </div>
 
           <!-- SITE SETTINGS -->
@@ -3398,6 +3534,19 @@
 <div class="admin-toast" id="adminToast">Saved successfully.</div>
 
 <!-- ============ IMAGE LIGHTBOX ============ -->
+<div class="gx-viewer" id="gxViewer" role="dialog" aria-modal="true" aria-label="Gallery viewer" hidden>
+  <div class="gxv-backdrop"></div>
+  <div class="gxv-panel">
+    <header class="gxv-head">
+      <div><span class="gxv-kind"></span><h2 class="gxv-title"></h2><p class="gxv-meta"></p></div>
+      <div class="gxv-tools"><span class="gxv-count"></span><button type="button" class="gxv-zoom">Zoom in</button><button type="button" class="gxv-close" aria-label="Close">&times;</button></div>
+    </header>
+    <div class="gxv-stage"></div>
+    <footer class="gxv-foot"><p class="gxv-caption"></p><div class="gxv-actions"></div></footer>
+    <button type="button" class="gxv-prev" aria-label="Previous">&#8249;</button>
+    <button type="button" class="gxv-next" aria-label="Next">&#8250;</button>
+  </div>
+</div>
 <div class="lightbox-overlay" id="lightboxOverlay">
   <button class="lightbox-close" id="lightboxClose">&times;</button>
   <img id="lightboxImg" src="" alt="Full size image">
@@ -3622,6 +3771,32 @@
   let currentSession = null; // holds the Supabase session (access_token etc.) once signed in
   let cart = []; // shopping cart, declared early since the Stripe-redirect check below needs it immediately on page load
 
+  // Public data (books, essays, gallery, settings) is fetched with retries and the last good copy
+  // is kept on the device. The page shows that copy at once, so a slow or failed request never makes
+  // the site say "nothing published" when there is.
+  const API_CACHE = 'cwt.api:';
+  function apiCached(path){
+    try { const v = JSON.parse(localStorage.getItem(API_CACHE + path) || 'null'); return v && v.d; } catch(e){ return null; }
+  }
+  async function apiGet(path, { tries = 4, timeout = 15000 } = {}){
+    let last;
+    for(let n = 0; n < tries; n++){
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), timeout);
+      try {
+        const res = await fetch(`${API_URL}${path}`, { signal: ctl.signal });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data && data.error || `HTTP ${res.status}`);
+        try { const raw = JSON.stringify({ t: Date.now(), d: data }); if(raw.length < 1500000) localStorage.setItem(API_CACHE + path, raw); } catch(e){}
+        return data;
+      } catch(err){
+        last = err;
+        if(n < tries - 1) await new Promise(r => setTimeout(r, [1000, 2500, 6000][n] || 6000));
+      } finally { clearTimeout(timer); }
+    }
+    throw last;
+  }
+
   function authHeaders(extra = {}) {
     const headers = { 'Content-Type': 'application/json', ...extra };
     if (currentSession) headers.Authorization = `Bearer ${currentSession.access_token}`;
@@ -3818,20 +3993,27 @@
   const filterItems = document.querySelectorAll('.filter-item');
   let activeCat = 'all';
 
+  let essaysFailed = false;
+  const toEssay = e => ({ id: e.id, title: e.title, cat: e.category, year: e.year, excerpt: e.excerpt,
+    cover_image_url: e.cover_image_url, audio_url: e.audio_url || null, audio_seconds: e.audio_seconds || null, created_at: e.created_at });
   async function loadEssays(){
+    await 0;   // run after the whole page script, so every variable used below exists
+    const cached = apiCached('/api/essays');
+    if(Array.isArray(cached) && !essaysLoaded){ essays = cached.map(toEssay); essaysLoaded = true; paintEssays(); }
     try {
-      const res = await fetch(`${API_URL}/api/essays`);
-      const data = await res.json();
-      if(!res.ok || !Array.isArray(data)) throw new Error('Essays unavailable');
-      essays = data.map(e => ({ id: e.id, title: e.title, cat: e.category, year: e.year, excerpt: e.excerpt,
-        cover_image_url: e.cover_image_url, audio_url: e.audio_url || null, audio_seconds: e.audio_seconds || null, created_at: e.created_at }));
-      essaysLoaded = true;
+      const data = await apiGet('/api/essays');
+      if(!Array.isArray(data)) throw new Error('Essays unavailable');
+      essays = data.map(toEssay);
+      essaysLoaded = true; essaysFailed = false;
     } catch (err) {
       console.error('Failed to load essays:', err);
-      // Keep whatever was already showing rather than blanking the library on a
-      // passing network fault.
-      if(!essaysLoaded) essays = [];
+      // Keep whatever was already showing rather than blanking the library on a passing fault.
+      if(!essaysLoaded) essaysFailed = true;
+      setTimeout(loadEssays, 30000);
     }
+    paintEssays();
+  }
+  function paintEssays(){
     updateEssayCategoryCounts();
     renderEssays();
     renderHomeEssays();
@@ -4039,6 +4221,7 @@
     const coverEl = document.getElementById('essay-detail-cover');
     if(e.cover_image_url){ coverEl.style.display = 'block'; coverEl.style.backgroundImage = `url('${sized(e.cover_image_url, 900)}')`; coverEl.setAttribute('data-lightbox', e.cover_image_url); }
     else { coverEl.style.display = 'none'; coverEl.removeAttribute('data-lightbox'); }
+    renderLinkedMedia('essay', e.id);
 
     // Read it in the book reader, so an essay gets the same spread, page turns,
     // typography and saved position a book does.
@@ -4059,9 +4242,11 @@
     // search wording when the library is simply empty reads like a fault.
     const libraryEmpty = essays.length === 0;
     noResults.style.display = filtered.length === 0 ? 'block' : 'none';
-    noResults.textContent = libraryEmpty
-      ? 'No essays have been published yet. New writing appears here as Alpha publishes it.'
-      : 'No essays match your search. Try a different title, subject or year.';
+    noResults.textContent = !essaysLoaded
+      ? (essaysFailed ? 'The essays could not load. Check your connection; the page tries again by itself.' : 'Loading essays…')
+      : libraryEmpty
+        ? 'No essays have been published yet. New writing appears here as Alpha publishes it.'
+        : 'No essays match your search. Try a different title, subject or year.';
     filtered.forEach(e => {
       const card = document.createElement('article');
       card.className = 'essay-card';
@@ -4082,7 +4267,7 @@
     grid.querySelectorAll('[data-open-essay]').forEach(el => {
       el.addEventListener('click', (ev) => { ev.preventDefault(); openEssay(el.dataset.openEssay); });
     });
-    resultCount.textContent = libraryEmpty ? 'None yet' : `${filtered.length} essay${filtered.length === 1 ? '' : 's'}`;
+    resultCount.textContent = !essaysLoaded ? '' : libraryEmpty ? 'None yet' : `${filtered.length} essay${filtered.length === 1 ? '' : 's'}`;
   }
   searchInput.addEventListener('input', renderEssays);
   filterItems.forEach(item => {
@@ -4894,6 +5079,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   }
 
   function applyBookExtras(key, book){
+    renderLinkedMedia(key, book?.id);
     const thumbRow = document.getElementById(key + '-thumb-row');
     if(thumbRow && book?.back_cover_url){
       const backThumb = thumbRow.querySelector('.thumb');
@@ -5135,9 +5321,19 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
 
   let booksLoaded = false;
   async function loadBooks(){
+    await 0;   // run after the whole page script, so every variable used below exists
+    const cached = apiCached('/api/books');
+    if(Array.isArray(cached) && !booksLoaded && !window.__booksFromCache){ window.__booksFromCache = true; booksFromData(cached); }
     try {
-      const res = await fetch(`${API_URL}/api/books`);
-      const data = await res.json();
+      booksFromData(await apiGet('/api/books'));
+    } catch(err){
+      console.error('Failed to load books:', err);
+      if(!booksLoaded) renderHomeBooks([]);
+      setTimeout(loadBooks, 30000);
+    }
+  }
+  function booksFromData(data){
+    try {
       books = data.map(b => {
         const paperback = (b.book_formats || []).find(f => f.format_name === 'Paperback') || (b.book_formats || [])[0];
         return {
@@ -5329,6 +5525,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     if(id === monoBookId){ showView('book-mono'); return; }
     // populate generic view
     currentGenericBookId = b.id;
+    renderLinkedMedia('gb', b.id);
     document.getElementById('gb-crumb').textContent = b.title;
     document.getElementById('gb-title').textContent = b.title;
     document.getElementById('gb-title2').textContent = b.title;
@@ -5407,7 +5604,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       if(active === 'security') refreshMfaStatus();
       if(active === 'moderation') loadModeration();
       if(active === 'settings'){ loadShippingRates(); loadPushStats(); }
-      if(active === 'gallery') loadGallery();
+      if(active === 'gallery'){ loadGallery(); fillRelatedOptions(document.getElementById('gxRelated')); }
       if(active === 'messages') loadMessages();
     });
   });
@@ -7792,106 +7989,114 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   // Photos and videos of events Alpha has attended, articles he has written,
   // and coverage of him in the press. Public pages and the dashboard both read
   // the same list.
+  // ================= GALLERY (v2) =================
+  // Photos, videos and documents (newspaper articles, letters). Any item can be linked to a book
+  // or an essay and then also shows on that page. Photos join a random slideshow unless the author
+  // turned that off. Tapping any tile opens the viewer (photos, videos, and documents to read page
+  // by page with zoom). Loaded with apiGet, so the last good copy shows at once and offline.
   let galleryItems = [];
   let galleryFilter = 'all';
+  let galleryState = 'loading';   // loading | ready | error
   const GALLERY_LABEL = { event: 'Event', article: 'Article', media: 'In the media' };
+  const KIND_LABEL = { photo: 'Photo', video: 'Video', document: 'Newspaper or letter', link: 'Link' };
+  const kindOf = (i) => i.media_type === 'document' ? 'document' : i.video_url ? 'video' : i.image_url ? 'photo' : 'link';
+  const pagesOf = (i) => [i.image_url, ...(Array.isArray(i.pages) ? i.pages : [])].filter(Boolean);
+  const titleOf = (i) => i.title || (kindOf(i) === 'document' ? (i.outlet || 'Article') : kindOf(i) === 'video' ? 'Video' : GALLERY_LABEL[i.section] || 'Photo');
+  const fmtDay = (d) => d ? new Date(d + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+  const byLatest = (a, b) => String(b.event_date || b.created_at || '').localeCompare(String(a.event_date || a.created_at || ''));
+  const linkedName = (i) => {
+    if(i.book_id){ const b = books.find(x => x.id === i.book_id); if(b) return { type: 'book', id: b.id, name: b.title }; }
+    if(i.essay_id){ const e = essays.find(x => x.id === i.essay_id); if(e) return { type: 'essay', id: e.id, name: e.title }; }
+    return null;
+  };
 
   async function loadGallery(){
+    await 0;   // run after the whole page script, so every variable used below exists
+    const cached = apiCached('/api/gallery');
+    if(cached && !galleryItems.length){ galleryItems = cached; galleryState = 'ready'; paintGalleryEverywhere(); }
     try {
-      const res = await fetch(`${API_URL}/api/gallery`);
-      const data = await res.json();
+      const data = await apiGet('/api/gallery');
       galleryItems = Array.isArray(data) ? data : [];
-    } catch(e){ /* keep what is showing */ }
+      galleryState = 'ready';
+    } catch(e){
+      if(!galleryItems.length) galleryState = 'error';
+    }
+    paintGalleryEverywhere();
+  }
+  function paintGalleryEverywhere(){
     renderGallery();
+    renderSlideshow();
     renderVideoWall();
     renderHomeNews();
     renderEvents();
+    renderAllLinked();
     if(document.getElementById('admin-dashboard')?.style.display === 'block') renderAdminGallery();
   }
 
-  function galleryMedia(item, { autoplay = false } = {}){
-    const box = document.createElement('div');
-    box.className = 'gal-media';
-    if(item.video_url){
-      if(/youtube\.com\/embed|player\.vimeo\.com/.test(item.video_url)){
-        // The player only loads when asked for: a page of iframes is slow.
-        const start = document.createElement('button');
-        start.type = 'button';
-        start.className = 'gal-video-start';
-        start.setAttribute('aria-label', 'Play video');
-        start.textContent = '▶';
-        if(item.image_url) start.style.backgroundImage = `url('${sized(item.image_url, 800)}')`;
-        start.addEventListener('click', () => {
-          const frame = document.createElement('iframe');
-          frame.src = item.video_url + (item.video_url.includes('?') ? '&' : '?') + 'autoplay=1';
-          frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
-          frame.allowFullscreen = true;
-          frame.title = item.title;
-          box.replaceChildren(frame);
-        });
-        box.appendChild(start);
-      } else {
-        const video = document.createElement('video');
-        video.src = item.video_url;
-        video.controls = true;
-        video.preload = 'metadata';
-        video.playsInline = true;
-        if(item.image_url) video.poster = sized(item.image_url, 800);
-        box.appendChild(video);
-      }
-    } else if(item.image_url){
+  // ---------- Tiles ----------
+  function galleryTile(item, list){
+    const kind = kindOf(item);
+    const tile = document.createElement('button');
+    tile.type = 'button';
+    tile.className = 'gx-tile kind-' + kind;
+    const pages = pagesOf(item);
+    const linked = linkedName(item);
+    tile.innerHTML = '<span class="gx-thumb"></span><span class="gx-badge"></span><span class="gx-cap"><span class="gx-title"></span><span class="gx-sub"></span></span>';
+    const thumb = tile.querySelector('.gx-thumb');
+    if(item.image_url){
       const img = document.createElement('img');
-      img.src = sized(item.image_url, 700);
-      img.alt = item.title;
+      img.alt = '';
       img.loading = 'lazy';
       img.decoding = 'async';
-      img.setAttribute('data-lightbox', item.image_url);
-      box.appendChild(img);
+      img.src = sized(item.image_url, kind === 'document' ? 420 : 480);
+      img.addEventListener('error', () => { if(!img.dataset.retry){ img.dataset.retry = '1'; img.src = item.image_url; } }, { once: false });
+      thumb.appendChild(img);
     } else {
-      box.classList.add('gal-text');
-      box.textContent = GALLERY_LABEL[item.section] || '';
+      thumb.classList.add('gx-noimg');
+      thumb.textContent = kind === 'video' ? 'Video' : GALLERY_LABEL[item.section] || '';
     }
-    return box;
+    tile.querySelector('.gx-badge').textContent = kind === 'document' ? (pages.length > 1 ? `Read · ${pages.length} pages` : 'Read') : kind === 'video' ? 'Play' : KIND_LABEL[kind];
+    tile.querySelector('.gx-title').textContent = titleOf(item);
+    tile.querySelector('.gx-sub').textContent = [item.outlet, fmtDay(item.event_date), linked ? linked.name : ''].filter(Boolean).join(' · ');
+    tile.setAttribute('aria-label', `${KIND_LABEL[kind]}: ${titleOf(item)}`);
+    tile.addEventListener('click', () => openViewer(list, list.indexOf(item)));
+    return tile;
   }
 
-  function galleryCard(item){
-    const card = document.createElement('article');
-    card.className = 'gal-card';
-    card.appendChild(galleryMedia(item));
-    const body = document.createElement('div');
-    body.className = 'gal-body';
-    body.innerHTML = '<span class="tag"></span><h3></h3><p class="gal-meta"></p><p class="gal-caption"></p>';
-    body.querySelector('.tag').textContent = GALLERY_LABEL[item.section] || '';
-    body.querySelector('h3').textContent = item.title;
-    const meta = [item.outlet, item.event_date ? new Date(item.event_date + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }) : '']
-      .filter(Boolean).join(' · ');
-    body.querySelector('.gal-meta').textContent = meta;
-    if(!meta) body.querySelector('.gal-meta').remove();
-    if(item.caption) body.querySelector('.gal-caption').textContent = item.caption;
-    else body.querySelector('.gal-caption').remove();
-    if(item.link_url){
-      const a = document.createElement('a');
-      a.href = item.link_url;
-      a.target = '_blank';
-      a.rel = 'noopener';
-      a.className = 'read-more';
-      a.textContent = item.section === 'article' ? 'Read the article →' : 'Open →';
-      body.appendChild(a);
-    }
-    card.appendChild(body);
-    return card;
+  function galleryShown(){
+    const f = galleryFilter;
+    return galleryItems.filter(i => {
+      const k = kindOf(i);
+      if(f === 'all') return true;
+      if(f === 'photo' || f === 'video' || f === 'document') return k === f;
+      return i.section === f;
+    }).sort(byLatest);
   }
 
   function renderGallery(){
     const grid = document.getElementById('galleryGrid');
     if(!grid) return;
-    const shown = galleryItems.filter(i => galleryFilter === 'all' || i.section === galleryFilter).sort(byLatest);
-    grid.replaceChildren(...shown.map(galleryCard));
     const empty = document.getElementById('galleryEmpty');
-    if(empty) empty.hidden = shown.length > 0;
+    if(galleryState === 'loading' && !galleryItems.length){
+      grid.replaceChildren(...Array.from({ length: 6 }, () => { const s = document.createElement('div'); s.className = 'gx-tile gx-skeleton img-skeleton'; return s; }));
+      if(empty) empty.hidden = true;
+      return;
+    }
+    const shown = galleryShown();
+    grid.replaceChildren(...shown.map(i => galleryTile(i, shown)));
+    if(empty){
+      empty.hidden = shown.length > 0;
+      empty.textContent = galleryState === 'error'
+        ? 'The gallery could not load. Check your connection; it tries again by itself.'
+        : 'Nothing here yet. Photos, videos and articles appear here as they are added.';
+    }
+    const count = (f) => f === 'all' ? galleryItems.length
+      : ['photo', 'video', 'document'].includes(f) ? galleryItems.filter(i => kindOf(i) === f).length
+      : galleryItems.filter(i => i.section === f).length;
     document.querySelectorAll('[data-gal]').forEach(b => {
-      const n = b.dataset.gal === 'all' ? galleryItems.length : galleryItems.filter(i => i.section === b.dataset.gal).length;
+      const n = count(b.dataset.gal);
       b.querySelector('.n').textContent = n ? n : '';
+      b.hidden = b.dataset.gal !== 'all' && n === 0;
     });
   }
   document.querySelectorAll('[data-gal]').forEach(btn => btn.addEventListener('click', () => {
@@ -7900,16 +8105,192 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     renderGallery();
   }));
 
-  // Newest first: by the date of the event or article, then by when added.
-  const byLatest = (a, b) => String(b.event_date || b.created_at || '').localeCompare(String(a.event_date || a.created_at || ''));
+  // ---------- Slideshow (random photos) ----------
+  let slideTimer = null, slideIndex = 0, slideList = [];
+  function renderSlideshow(){
+    const box = document.getElementById('gxShow');
+    if(!box) return;
+    const photos = galleryItems.filter(i => kindOf(i) === 'photo' && i.in_slideshow !== false);
+    box.hidden = photos.length < 2;
+    if(photos.length < 2){ clearInterval(slideTimer); return; }
+    slideList = photos.slice().sort(() => Math.random() - 0.5).slice(0, 20);
+    slideIndex = 0;
+    const stage = box.querySelector('.gx-show-stage');
+    stage.replaceChildren(...slideList.map((p, n) => {
+      const fig = document.createElement('figure');
+      fig.className = 'gx-slide' + (n === 0 ? ' on' : '');
+      const img = document.createElement('img');
+      img.alt = titleOf(p);
+      img.decoding = 'async';
+      if(n < 2) img.src = sized(p.image_url, 1100); else img.dataset.src = sized(p.image_url, 1100);
+      img.addEventListener('error', () => { if(!img.dataset.retry){ img.dataset.retry = '1'; img.src = p.image_url; } });
+      const cap = document.createElement('figcaption');
+      cap.textContent = [p.title, p.caption].filter(Boolean).join(': ').slice(0, 140);
+      fig.append(img, cap);
+      fig.addEventListener('click', () => openViewer(slideList, n));
+      return fig;
+    }));
+    const dots = box.querySelector('.gx-show-dots');
+    dots.replaceChildren(...slideList.map((_, n) => { const d = document.createElement('button'); d.type = 'button'; d.setAttribute('aria-label', `Photo ${n + 1}`); d.addEventListener('click', () => showSlide(n, true)); return d; }));
+    showSlide(0);
+    startSlides();
+  }
+  function showSlide(n, user){
+    const box = document.getElementById('gxShow');
+    const slides = box.querySelectorAll('.gx-slide');
+    if(!slides.length) return;
+    slideIndex = (n + slides.length) % slides.length;
+    slides.forEach((s, k) => s.classList.toggle('on', k === slideIndex));
+    box.querySelectorAll('.gx-show-dots button').forEach((d, k) => d.classList.toggle('on', k === slideIndex));
+    // Load the next photo just before it is needed.
+    const next = slides[(slideIndex + 1) % slides.length]?.querySelector('img[data-src]');
+    if(next){ next.src = next.dataset.src; next.removeAttribute('data-src'); }
+    if(user) startSlides();
+  }
+  function startSlides(){
+    clearInterval(slideTimer);
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    slideTimer = setInterval(() => {
+      const box = document.getElementById('gxShow');
+      if(document.hidden || !box || box.hidden || !box.classList.contains('in-view') || box.matches(':hover')) return;
+      showSlide(slideIndex + 1);
+    }, 5000);
+  }
+  (function(){
+    const box = document.getElementById('gxShow');
+    if(!box) return;
+    box.querySelector('.gx-prev')?.addEventListener('click', () => showSlide(slideIndex - 1, true));
+    box.querySelector('.gx-next')?.addEventListener('click', () => showSlide(slideIndex + 1, true));
+    let x0 = null;
+    box.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+    box.addEventListener('touchend', e => { if(x0 === null) return; const dx = e.changedTouches[0].clientX - x0; if(Math.abs(dx) > 40) showSlide(slideIndex + (dx < 0 ? 1 : -1), true); x0 = null; });
+    if('IntersectionObserver' in window) new IntersectionObserver(es => es.forEach(en => box.classList.toggle('in-view', en.isIntersecting))).observe(box);
+    else box.classList.add('in-view');
+  })();
 
+  // ---------- Viewer (photos, videos, documents) ----------
+  let viewerList = [], viewerIndex = 0, viewerOpen = false;
+  function openViewer(list, index){
+    viewerList = list; viewerIndex = Math.max(0, index);
+    const v = document.getElementById('gxViewer');
+    if(!viewerOpen){ history.pushState(Object.assign({}, history.state || {}, { gxViewer: true }), '', location.href); }
+    viewerOpen = true;
+    v.hidden = false;
+    document.documentElement.classList.add('gx-locked');
+    paintViewer();
+    requestAnimationFrame(() => v.classList.add('open'));
+    v.querySelector('.gxv-close').focus({ preventScroll: true });
+  }
+  function closeViewer(fromHistory){
+    const v = document.getElementById('gxViewer');
+    if(!viewerOpen) return;
+    viewerOpen = false;
+    v.classList.remove('open');
+    document.documentElement.classList.remove('gx-locked');
+    v.querySelector('.gxv-stage').replaceChildren();
+    setTimeout(() => { if(!viewerOpen) v.hidden = true; }, 220);
+    if(!fromHistory && history.state && history.state.gxViewer) history.back();
+  }
+  // The phone back button closes the viewer instead of leaving the page.
+  window.addEventListener('popstate', e => { if(viewerOpen){ e.stopImmediatePropagation(); closeViewer(true); } }, true);
+
+  function paintViewer(){
+    const v = document.getElementById('gxViewer');
+    const item = viewerList[viewerIndex];
+    if(!item) return;
+    const kind = kindOf(item);
+    v.className = 'gx-viewer open kind-' + kind;
+    v.querySelector('.gxv-kind').textContent = KIND_LABEL[kind];
+    v.querySelector('.gxv-title').textContent = titleOf(item);
+    v.querySelector('.gxv-meta').textContent = [item.outlet, fmtDay(item.event_date), GALLERY_LABEL[item.section]].filter(Boolean).join(' · ');
+    v.querySelector('.gxv-caption').textContent = item.caption || '';
+    v.querySelector('.gxv-count').textContent = viewerList.length > 1 ? `${viewerIndex + 1} of ${viewerList.length}` : '';
+    v.querySelector('.gxv-prev').hidden = v.querySelector('.gxv-next').hidden = viewerList.length < 2;
+    const actions = v.querySelector('.gxv-actions');
+    actions.replaceChildren();
+    const linked = linkedName(item);
+    if(linked){
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'btn btn-sm btn-outline-dark';
+      b.textContent = (linked.type === 'book' ? 'About the book: ' : 'Read the essay: ') + linked.name;
+      b.addEventListener('click', () => { closeViewer(); setTimeout(() => linked.type === 'book' ? openBook(linked.id) : openEssay(linked.id), 260); });
+      actions.appendChild(b);
+    }
+    if(item.link_url){
+      const a = document.createElement('a');
+      a.className = 'btn btn-sm btn-outline-dark'; a.href = item.link_url; a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = item.section === 'article' || kind === 'document' ? 'Read online' : 'Open link';
+      actions.appendChild(a);
+    }
+    const zoom = v.querySelector('.gxv-zoom');
+    zoom.hidden = kind !== 'document' && kind !== 'photo';
+    v.classList.remove('zoomed');
+    zoom.textContent = 'Zoom in';
+
+    const stage = v.querySelector('.gxv-stage');
+    stage.scrollTop = 0;
+    if(kind === 'video'){
+      if(/youtube\.com\/embed|player\.vimeo\.com/.test(item.video_url)){
+        const frame = document.createElement('iframe');
+        frame.src = item.video_url + (item.video_url.includes('?') ? '&' : '?') + 'autoplay=1';
+        frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+        frame.allowFullscreen = true; frame.title = titleOf(item);
+        stage.replaceChildren(frame);
+      } else {
+        const video = document.createElement('video');
+        video.src = item.video_url; video.controls = true; video.autoplay = true; video.playsInline = true;
+        if(item.image_url) video.poster = sized(item.image_url, 1100);
+        stage.replaceChildren(video);
+      }
+    } else if(kind === 'document' || kind === 'photo'){
+      const pages = kind === 'document' ? pagesOf(item) : [item.image_url];
+      stage.replaceChildren(...pages.map((url, n) => {
+        const img = document.createElement('img');
+        img.alt = pages.length > 1 ? `${titleOf(item)}, page ${n + 1}` : titleOf(item);
+        img.decoding = 'async';
+        img.src = sized(url, 1600);
+        img.addEventListener('error', () => { if(!img.dataset.retry){ img.dataset.retry = '1'; img.src = url; } });
+        return img;
+      }));
+    } else {
+      const p = document.createElement('p');
+      p.className = 'gxv-linkonly'; p.textContent = item.caption || titleOf(item);
+      stage.replaceChildren(p);
+    }
+  }
+  (function(){
+    const v = document.getElementById('gxViewer');
+    if(!v) return;
+    v.querySelector('.gxv-close').addEventListener('click', () => closeViewer());
+    v.querySelector('.gxv-backdrop').addEventListener('click', () => closeViewer());
+    v.querySelector('.gxv-prev').addEventListener('click', () => { viewerIndex = (viewerIndex - 1 + viewerList.length) % viewerList.length; paintViewer(); });
+    v.querySelector('.gxv-next').addEventListener('click', () => { viewerIndex = (viewerIndex + 1) % viewerList.length; paintViewer(); });
+    v.querySelector('.gxv-zoom').addEventListener('click', (e) => { const z = v.classList.toggle('zoomed'); e.currentTarget.textContent = z ? 'Fit to screen' : 'Zoom in'; });
+    document.addEventListener('keydown', e => {
+      if(!viewerOpen) return;
+      if(e.key === 'Escape') closeViewer();
+      if(e.key === 'ArrowLeft') v.querySelector('.gxv-prev').click();
+      if(e.key === 'ArrowRight') v.querySelector('.gxv-next').click();
+    });
+    let x0 = null;
+    const stage = v.querySelector('.gxv-stage');
+    stage.addEventListener('touchstart', e => { x0 = e.touches.length === 1 ? e.touches[0].clientX : null; }, { passive: true });
+    stage.addEventListener('touchend', e => {
+      if(x0 === null || v.classList.contains('zoomed') || v.classList.contains('kind-document')) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      if(Math.abs(dx) > 50 && viewerList.length > 1) v.querySelector(dx < 0 ? '.gxv-next' : '.gxv-prev').click();
+      x0 = null;
+    });
+  })();
+
+  // ---------- Home "news" strip, Events page, video wall ----------
   function renderHomeNews(){
     const box = document.getElementById('homeNewsGrid');
     const section = document.getElementById('homeNews');
     if(!box || !section) return;
     const latest = galleryItems.slice().sort(byLatest).slice(0, 3);
     section.hidden = latest.length === 0;
-    box.replaceChildren(...latest.map(galleryCard));
+    box.replaceChildren(...latest.map(i => galleryTile(i, latest)));
   }
 
   // The Events page: events added in the dashboard, upcoming ones first
@@ -7918,12 +8299,13 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     const box = document.getElementById('eventsLive');
     if(!box) return;
     const today = new Date().toISOString().slice(0, 10);
-    const events = galleryItems.filter(i => i.section === 'event');
+    const events = galleryItems.filter(i => i.section === 'event' && kindOf(i) !== 'document');
     const upcoming = events.filter(e => e.event_date && e.event_date >= today).sort((a, b) => a.event_date.localeCompare(b.event_date));
     const past = events.filter(e => !e.event_date || e.event_date < today).sort(byLatest);
     const tba = document.getElementById('eventTbaCard');
     if(tba) tba.style.display = upcoming.length ? 'none' : '';
-    box.replaceChildren(...upcoming.concat(past).map(e => {
+    const all = upcoming.concat(past);
+    box.replaceChildren(...all.map(e => {
       const isUpcoming = upcoming.includes(e);
       const card = document.createElement('div');
       card.className = 'event-card';
@@ -7934,7 +8316,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       const tag = card.querySelector('.event-tag');
       tag.textContent = isUpcoming ? 'Upcoming' : 'Past';
       tag.classList.add(isUpcoming ? 'upcoming' : 'past');
-      card.querySelector('h3').textContent = e.title;
+      card.querySelector('h3').textContent = titleOf(e);
       const p = card.querySelector('p');
       if(e.caption) p.textContent = e.caption; else p.remove();
       if(e.image_url || e.video_url){
@@ -7944,10 +8326,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         thumb.setAttribute('aria-label', 'Open photo or video');
         if(e.image_url) thumb.style.backgroundImage = `url('${sized(e.image_url, 240)}')`;
         else thumb.textContent = '▶';
-        thumb.addEventListener('click', () => {
-          if(e.video_url){ galleryFilter = 'event'; showView('gallery'); document.querySelectorAll('[data-gal]').forEach(b => b.classList.toggle('active', b.dataset.gal === 'event')); renderGallery(); }
-          else openLightbox(e.image_url);
-        });
+        thumb.addEventListener('click', () => openViewer(all, all.indexOf(e)));
         card.appendChild(thumb);
       }
       if(e.link_url){
@@ -7964,89 +8343,264 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   function renderVideoWall(){
     const grid = document.getElementById('videoGrid');
     if(!grid) return;
-    const videos = galleryItems.filter(i => i.video_url).sort(byLatest);
-    grid.replaceChildren(...videos.map(galleryCard));
+    const videos = galleryItems.filter(i => kindOf(i) === 'video').sort(byLatest);
+    grid.replaceChildren(...videos.map(i => galleryTile(i, videos)));
     const empty = document.getElementById('videoEmpty');
     if(empty) empty.hidden = videos.length > 0;
   }
 
-  // ---------- Dashboard: add and remove gallery items ----------
-  function renderAdminGallery(){
-    const tbody = document.getElementById('admin-gallery-table');
-    if(!tbody) return;
-    if(!galleryItems.length){
-      tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--ink-soft);">Nothing added yet. Use the form above.</td></tr>';
-      return;
+  // ---------- On book and essay pages: their own gallery, articles and videos ----------
+  const linkedTargets = {};   // key (mrp, mono, gb, essay) -> book or essay id
+  function renderLinkedMedia(key, id){ linkedTargets[key] = id || null; paintLinked(key); }
+  function renderAllLinked(){ Object.keys(linkedTargets).forEach(paintLinked); }
+  function paintLinked(key){
+    const id = linkedTargets[key];
+    let section = document.getElementById(key + '-linked-media');
+    if(!section){
+      const anchor = key === 'essay' ? document.getElementById('essay-linked-anchor')
+        : document.getElementById(key + '-press') || document.getElementById(key + '-comments') || document.getElementById(key + '-video-section');
+      if(!anchor) return;
+      section = document.createElement('section');
+      section.id = key + '-linked-media';
+      section.className = key === 'essay' ? 'bk-media bk-media-essay' : 'detail bk-media';
+      section.innerHTML = `<div class="${key === 'essay' ? '' : 'wrap'}"><div class="section-head"><span class="eyebrow">Gallery and press</span><h2>${key === 'essay' ? 'Pictures and articles about this essay' : 'Book gallery, articles and newspapers'}</h2></div><div class="bk-tabs" role="tablist"></div><div class="gx-grid bk-grid"></div></div>`;
+      anchor.parentNode.insertBefore(section, anchor);
     }
-    tbody.replaceChildren(...galleryItems.map(item => {
-      const tr = document.createElement('tr');
-      tr.style.borderBottom = '1px solid var(--line)';
-      tr.innerHTML = '<td style="padding:10px;"><span class="admin-thumb"></span></td><td style="padding:10px;"></td><td style="padding:10px;"></td><td style="padding:10px;"></td><td style="padding:10px;"><a style="color:#b3261e; font-weight:600; cursor:pointer;">Delete</a></td>';
-      const cells = tr.querySelectorAll('td');
-      const thumb = cells[0].querySelector('.admin-thumb');
-      if(item.image_url) lazyLoadCover(thumb, item.image_url); else { thumb.classList.add('no-cover'); thumb.textContent = item.video_url ? '▶' : ''; }
-      cells[1].textContent = item.title;
-      cells[2].textContent = GALLERY_LABEL[item.section] + (item.video_url ? ' · video' : item.image_url ? ' · photo' : ' · link');
-      cells[3].textContent = item.event_date || '';
-      tr.querySelector('a').addEventListener('click', async () => {
-        if(!confirm(`Remove "${item.title}" from the gallery?`)) return;
+    const mine = galleryItems.filter(i => key === 'essay' ? i.essay_id === id : i.book_id === id).sort(byLatest);
+    // Newspapers and letters show on every book page: first the ones about this book, then the rest.
+    const otherDocs = key === 'essay' ? [] : galleryItems.filter(i => kindOf(i) === 'document' && !i.book_id && !i.essay_id).sort(byLatest).slice(0, 6);
+    const groups = [
+      { k: 'docs', label: 'Articles and newspapers', items: mine.filter(i => kindOf(i) === 'document').concat(otherDocs) },
+      { k: 'photos', label: key === 'essay' ? 'Pictures' : 'Book gallery', items: mine.filter(i => kindOf(i) === 'photo') },
+      { k: 'videos', label: 'Videos', items: mine.filter(i => kindOf(i) === 'video') },
+    ].filter(g => g.items.length);
+    section.hidden = !id || groups.length === 0;
+    if(section.hidden) return;
+    const tabs = section.querySelector('.bk-tabs');
+    const grid = section.querySelector('.bk-grid');
+    let active = section.dataset.tab && groups.some(g => g.k === section.dataset.tab) ? section.dataset.tab : groups[0].k;
+    const paint = () => {
+      section.dataset.tab = active;
+      tabs.replaceChildren(...groups.map(g => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', String(g.k === active));
+        b.className = g.k === active ? 'active' : '';
+        b.textContent = `${g.label} (${g.items.length})`;
+        b.addEventListener('click', () => { active = g.k; paint(); });
+        return b;
+      }));
+      const items = groups.find(g => g.k === active).items;
+      grid.replaceChildren(...items.map(i => galleryTile(i, items)));
+    };
+    paint();
+    // Quick buttons near the top of a book page.
+    if(key !== 'essay'){
+      const desc = document.getElementById(key + '-description');
+      let bar = document.getElementById(key + '-quicklinks');
+      if(desc && !bar){ bar = document.createElement('div'); bar.id = key + '-quicklinks'; bar.className = 'bk-quick'; desc.insertAdjacentElement('afterend', bar); }
+      if(bar) bar.replaceChildren(...groups.map(g => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'btn btn-sm btn-outline-dark';
+        b.textContent = g.k === 'docs' ? 'Read articles and newspapers' : g.k === 'photos' ? 'See the book gallery' : 'Watch videos';
+        b.addEventListener('click', () => { active = g.k; paint(); section.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+        return b;
+      }));
+    }
+  }
+
+  // ---------- Dashboard: upload and manage ----------
+  let gxFiles = [];
+  const gxGet = (id) => document.getElementById(id);
+  function gxMode(){ return document.querySelector('input[name="gxKind"]:checked')?.value || 'photo'; }
+  function fillRelatedOptions(select, current){
+    if(!select) return;
+    const opts = ['<option value="">Not related to a book or essay</option>'];
+    if(books.length) opts.push('<optgroup label="Books">' + books.map(b => `<option value="book:${b.id}">${escapeAttr(b.title)}</option>`).join('') + '</optgroup>');
+    if(essays.length) opts.push('<optgroup label="Essays">' + essays.map(e => `<option value="essay:${e.id}">${escapeAttr(e.title)}</option>`).join('') + '</optgroup>');
+    select.innerHTML = opts.join('');
+    if(current) select.value = current;
+  }
+  function escapeAttr(s){ return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
+  function relatedValue(item){ return item.book_id ? 'book:' + item.book_id : item.essay_id ? 'essay:' + item.essay_id : ''; }
+  function relatedFields(value){ const [t, id] = String(value || '').split(':'); return { book_id: t === 'book' ? id : null, essay_id: t === 'essay' ? id : null }; }
+
+  // Phone photos are often 5 to 12 MB: shrink them before upload (faster, and under the 10 MB limit).
+  async function shrinkImage(file){
+    if(!file.type.startsWith('image/') || file.size < 1.5e6 || !('createImageBitmap' in window)) return file;
+    try {
+      const bmp = await createImageBitmap(file);
+      const scale = Math.min(1, 2400 / Math.max(bmp.width, bmp.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(bmp.width * scale); canvas.height = Math.round(bmp.height * scale);
+      canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.86));
+      return blob && blob.size < file.size ? new File([blob], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' }) : file;
+    } catch(e){ return file; }
+  }
+
+  function paintUploadPreview(){
+    const strip = gxGet('gxPreview');
+    if(!strip) return;
+    strip.replaceChildren(...gxFiles.map((f, n) => {
+      const cell = document.createElement('div');
+      cell.className = 'gx-prev-cell';
+      if(f.type.startsWith('image/')){ const img = document.createElement('img'); img.src = URL.createObjectURL(f); img.alt = ''; cell.appendChild(img); }
+      else cell.textContent = f.type.startsWith('video/') ? 'Video' : 'File';
+      const num = document.createElement('span'); num.className = 'gx-prev-n'; num.textContent = n + 1; cell.appendChild(num);
+      const x = document.createElement('button'); x.type = 'button'; x.textContent = '×'; x.setAttribute('aria-label', 'Remove');
+      x.addEventListener('click', () => { gxFiles.splice(n, 1); paintUploadPreview(); });
+      cell.appendChild(x);
+      return cell;
+    }));
+    const mode = gxMode();
+    gxGet('gxHint').textContent = !gxFiles.length ? ''
+      : mode === 'document' ? `${gxFiles.length} page${gxFiles.length === 1 ? '' : 's'} of one newspaper article or letter, in this order.`
+      : mode === 'video' ? `${gxFiles.length} video${gxFiles.length === 1 ? '' : 's'}.`
+      : `${gxFiles.length} photo${gxFiles.length === 1 ? '' : 's'}, each shown on its own.`;
+  }
+  function addUploadFiles(list){
+    const files = [...list].filter(f => /^(image|video)\//.test(f.type));
+    if(files.some(f => f.type.startsWith('video/')) && !files.some(f => f.type.startsWith('image/'))){ const v = document.querySelector('input[name="gxKind"][value="video"]'); if(v) v.checked = true; }
+    gxFiles = gxFiles.concat(files).slice(0, 40);
+    paintUploadPreview();
+  }
+  (function(){
+    const drop = gxGet('gxDrop'), input = gxGet('gxFiles');
+    if(!drop || !input) return;
+    input.addEventListener('change', () => { addUploadFiles(input.files); input.value = ''; });
+    ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+    ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+    drop.addEventListener('drop', e => addUploadFiles(e.dataTransfer.files));
+    document.querySelectorAll('input[name="gxKind"]').forEach(r => r.addEventListener('change', () => {
+      gxGet('gxOutletField').hidden = gxMode() !== 'document';
+      gxGet('gxSlideField').hidden = gxMode() !== 'photo';
+      paintUploadPreview();
+    }));
+  })();
+
+  async function postGallery(body){
+    const res = await fetch(`${API_URL}/api/gallery`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+    if(!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Save failed');
+    return res.json();
+  }
+
+  gxGet('gxUploadBtn')?.addEventListener('click', async () => {
+    const button = gxGet('gxUploadBtn');
+    const status = gxGet('gxStatus');
+    if(!currentSession){ alert('Please sign in as the author account first.'); return; }
+    const mode = gxMode();
+    const videoLink = gxGet('gxVideoLink').value.trim();
+    const link = gxGet('gxLink').value.trim();
+    if(!gxFiles.length && !videoLink && !link){ alert('Choose photos, a video, or the pages of a newspaper or letter first (or paste a link).'); return; }
+    const common = {
+      section: gxGet('gxSection').value || undefined,
+      title: gxGet('gxTitle').value.trim(),
+      caption: gxGet('gxCaption').value.trim(),
+      outlet: gxGet('gxOutlet').value.trim(),
+      event_date: gxGet('gxDate').value || null,
+      link_url: link || null,
+      ...relatedFields(gxGet('gxRelated').value),
+    };
+    button.disabled = true;
+    try {
+      const images = gxFiles.filter(f => f.type.startsWith('image/'));
+      const videos = gxFiles.filter(f => f.type.startsWith('video/'));
+      const uploadImage = async (f, n, total) => {
+        status.textContent = `Uploading ${n} of ${total}…`;
+        const url = await uploadCover(await shrinkImage(f), 'gallery');
+        if(!url) throw new Error('A photo did not upload.');
+        return url;
+      };
+      let saved = 0;
+      if(mode === 'document' && images.length){
+        const urls = [];
+        for(let n = 0; n < images.length; n++) urls.push(await uploadImage(images[n], n + 1, images.length));
+        status.textContent = 'Saving…';
+        await postGallery({ ...common, kind: 'document', image_url: urls[0], pages: urls.slice(1), in_slideshow: false });
+        saved = 1;
+      } else if(mode === 'video' || (!images.length && (videos.length || videoLink))){
+        for(let n = 0; n < videos.length; n++){
+          status.textContent = `Uploading video ${n + 1} of ${videos.length}…`;
+          const url = await uploadMedia(videos[n], 'gallery-video');
+          if(!url) throw new Error('The video did not upload.');
+          await postGallery({ ...common, kind: 'video', video_url: url }); saved++;
+        }
+        if(videoLink){ await postGallery({ ...common, kind: 'video', video_url: videoLink }); saved++; }
+      } else {
+        for(let n = 0; n < images.length; n++){
+          const url = await uploadImage(images[n], n + 1, images.length);
+          await postGallery({ ...common, kind: 'photo', image_url: url, in_slideshow: gxGet('gxSlide').checked }); saved++;
+        }
+        if(!images.length && link){ await postGallery({ ...common, kind: 'link' }); saved++; }
+      }
+      gxFiles = []; paintUploadPreview();
+      ['gxTitle', 'gxCaption', 'gxOutlet', 'gxDate', 'gxVideoLink', 'gxLink'].forEach(id => gxGet(id).value = '');
+      status.textContent = '';
+      showAdminToast(saved === 1 ? 'Added to the gallery.' : `${saved} items added to the gallery.`);
+      await loadGallery();
+    } catch(err){ status.textContent = ''; alert('Could not add it: ' + err.message); }
+    finally { button.disabled = false; }
+  });
+
+  function renderAdminGallery(){
+    const box = document.getElementById('admin-gallery-list');
+    if(!box) return;
+    fillRelatedOptions(gxGet('gxRelated'), gxGet('gxRelated')?.value);
+    if(!galleryItems.length){ box.innerHTML = '<p class="an-empty">Nothing added yet. Use the form above.</p>'; return; }
+    box.replaceChildren(...galleryItems.slice().sort(byLatest).map(item => {
+      const kind = kindOf(item);
+      const row = document.createElement('div');
+      row.className = 'gx-admin-row';
+      row.innerHTML = `<span class="admin-thumb"></span>
+        <div class="gx-admin-fields">
+          <input type="text" class="gxa-title" maxlength="300" placeholder="Title (optional)">
+          <div class="gx-admin-line">
+            <select class="gxa-kind"><option value="photo">Photo</option><option value="document">Newspaper or letter</option><option value="video" disabled>Video</option></select>
+            <select class="gxa-section"><option value="event">Event</option><option value="article">Article by Alpha</option><option value="media">In the media</option></select>
+            <select class="gxa-related"></select>
+          </div>
+          <label class="gxa-slide"><input type="checkbox"> Show in the gallery slideshow</label>
+        </div>
+        <div class="gx-admin-actions"><button type="button" class="gxa-save">Save</button><button type="button" class="gxa-del">Delete</button></div>`;
+      const thumb = row.querySelector('.admin-thumb');
+      if(item.image_url) lazyLoadCover(thumb, item.image_url); else { thumb.classList.add('no-cover'); thumb.textContent = kind === 'video' ? '▶' : ''; }
+      row.querySelector('.gxa-title').value = item.title || '';
+      const kSel = row.querySelector('.gxa-kind');
+      kSel.value = kind === 'link' ? 'photo' : kind;
+      kSel.disabled = kind === 'video' || kind === 'link';
+      row.querySelector('.gxa-section').value = item.section || 'event';
+      fillRelatedOptions(row.querySelector('.gxa-related'), relatedValue(item));
+      const slide = row.querySelector('.gxa-slide input');
+      slide.checked = item.in_slideshow !== false;
+      row.querySelector('.gxa-slide').hidden = kind !== 'photo';
+      row.querySelector('.gxa-save').addEventListener('click', async (ev) => {
+        const b = ev.currentTarget; b.disabled = true;
+        try {
+          const res = await fetch(`${API_URL}/api/gallery/${item.id}`, {
+            method: 'PUT', headers: authHeaders(),
+            body: JSON.stringify({ ...item, title: row.querySelector('.gxa-title').value.trim(), kind: kSel.value, section: row.querySelector('.gxa-section').value,
+              ...relatedFields(row.querySelector('.gxa-related').value), in_slideshow: slide.checked })
+          });
+          if(!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Save failed');
+          showAdminToast('Saved.');
+          loadGallery();
+        } catch(err){ alert('Could not save: ' + err.message); }
+        b.disabled = false;
+      });
+      row.querySelector('.gxa-del').addEventListener('click', async () => {
+        if(!confirm(`Remove "${titleOf(item)}" from the gallery?`)) return;
         const res = await fetch(`${API_URL}/api/gallery/${item.id}`, { method: 'DELETE', headers: authHeaders() });
         if(!res.ok && res.status !== 204){ alert('Could not remove it.'); return; }
         showAdminToast('Removed.');
         loadGallery();
       });
-      return tr;
+      return row;
     }));
   }
 
-  document.getElementById('gSection')?.addEventListener('change', e => {
-    // An outlet name only makes sense for articles and press.
-    document.getElementById('gOutletField').style.display = e.target.value === 'event' ? 'none' : '';
-  });
-
-  document.getElementById('gAddBtn')?.addEventListener('click', async () => {
-    const button = document.getElementById('gAddBtn');
-    const get = (id) => document.getElementById(id);
-    const title = get('gTitle').value.trim();
-    const photo = get('gPhoto').files[0];
-    const videoFile = get('gVideoFile').files[0];
-    const videoLink = get('gVideoLink').value.trim();
-    const link = get('gLink').value.trim();
-    if(!title){ alert('Give it a title, for example the event name or the headline.'); return; }
-    if(!photo && !videoFile && !videoLink && !link){ alert('Add a photo, a video or a link.'); return; }
-    if(!currentSession){ alert('Please sign in as the author account first.'); return; }
-    const label = button.textContent;
-    button.disabled = true;
-    try {
-      let image_url = null, video_url = videoLink || null;
-      if(photo){
-        button.textContent = 'Uploading photo…';
-        image_url = await uploadCover(photo, 'gallery');
-        if(!image_url) throw new Error('The photo did not upload.');
-      }
-      if(videoFile){
-        button.textContent = 'Uploading video…';
-        video_url = await uploadMedia(videoFile, 'gallery-video');
-        if(!video_url) throw new Error('The video did not upload.');
-      }
-      button.textContent = 'Saving…';
-      const res = await fetch(`${API_URL}/api/gallery`, {
-        method: 'POST', headers: authHeaders(),
-        body: JSON.stringify({
-          section: get('gSection').value, title, caption: get('gCaption').value.trim(),
-          outlet: get('gOutlet').value.trim(), event_date: get('gDate').value || null,
-          image_url, video_url, link_url: link || null
-        })
-      });
-      if(!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Save failed');
-      ['gTitle','gCaption','gOutlet','gDate','gPhoto','gVideoFile','gVideoLink','gLink'].forEach(id => get(id).value = '');
-      showAdminToast('Added to the gallery.');
-      await loadGallery();
-    } catch(err){ alert('Could not add it: ' + err.message); }
-    finally { button.disabled = false; button.textContent = label; }
-  });
-
   loadGallery();
+  // Fresh data every few minutes while the page is open, and when the person comes back to it.
+  setInterval(() => { if(!document.hidden) loadGallery(); }, 5 * 60 * 1000);
 
   // ================= APP NOTIFICATIONS =================
   // Readers who turn this on hear about every new book and essay. On iPhone
@@ -8966,9 +9520,15 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   }
 
   async function loadSiteSettings(){
+    await 0;   // run after the whole page script, so every variable used below exists
+    const cached = apiCached('/api/settings');
+    if(cached && !window.__settingsPainted){ window.__settingsPainted = true; paintSiteSettings(cached); }
     try {
-      const res = await fetch(`${API_URL}/api/settings`);
-      const data = await res.json();
+      paintSiteSettings(await apiGet('/api/settings'));
+    } catch(err){ console.error('Could not load site settings:', err); }
+  }
+  function paintSiteSettings(data){
+    try {
       const wrap = document.getElementById('footerSocialLinks');
       wrap.innerHTML = '';
       Object.keys(socialIcons).forEach(key => {

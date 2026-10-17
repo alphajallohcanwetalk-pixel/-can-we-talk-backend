@@ -9,9 +9,16 @@
  *    with the cached shell as the offline fallback.
  */
 
-const VERSION = 'cwt-v3';
+const VERSION = 'cwt-v4';
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
+// Photos are kept across versions (their URLs never change), up to IMAGE_LIMIT files.
+const IMAGE_CACHE = 'cwt-images';
+const IMAGE_LIMIT = 250;
+async function trimImages(cache) {
+  const keys = await cache.keys();
+  if (keys.length > IMAGE_LIMIT) await Promise.all(keys.slice(0, keys.length - IMAGE_LIMIT).map((k) => cache.delete(k)));
+}
 
 const SHELL_ASSETS = [
   '/',
@@ -48,7 +55,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(
-        keys.filter((k) => k !== SHELL_CACHE && k !== RUNTIME_CACHE)
+        keys.filter((k) => k !== SHELL_CACHE && k !== RUNTIME_CACHE && k !== IMAGE_CACHE)
             .map((k) => caches.delete(k))
       ))
       .then(() => self.clients.claim())
@@ -75,6 +82,22 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
+  // Public photos in Supabase Storage (covers, gallery, author photo): every file has its own name and
+  // never changes, so once seen it is kept on the device and shown even on a slow or no connection.
+  // Only public images: never the API, never private files.
+  if (url.hostname.endsWith('.supabase.co') && /^\/storage\/v1\/(object|render\/image)\/public\//.test(url.pathname) && request.destination === 'image') {
+    event.respondWith(
+      caches.open(IMAGE_CACHE).then((cache) => cache.match(request).then((hit) => hit || fetch(request).then((response) => {
+        if (response && (response.ok || response.type === 'opaque')) {
+          cache.put(request, response.clone()).catch(() => {});
+          trimImages(cache);
+        }
+        return response;
+      })))
+    );
+    return;
+  }
   if (isNeverCache(url)) return;
   if (url.pathname.startsWith('/api/')) return;
 
