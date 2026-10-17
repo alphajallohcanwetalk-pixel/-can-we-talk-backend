@@ -51,6 +51,7 @@ Add the live Stripe recurring Price IDs, which must begin with `price_`:
 STRIPE_PRICE_BOOKCLUB_MONTHLY=price_...
 STRIPE_PRICE_BOOKCLUB_ANNUAL=price_...
 SENTRY_DSN=https://...  # optional, configure in Render for crash alerts
+SUPABASE_ACCESS_TOKEN=sbp_...  # optional, a Supabase personal access token: lets the dashboard Developer tab change sign in and email settings
 ```
 
 ## Remaining account-side work

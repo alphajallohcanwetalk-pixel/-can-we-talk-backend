@@ -631,6 +631,33 @@
   .cart-empty-actions, .guest-actions{display:flex; flex-wrap:wrap; gap:12px; justify-content:center;}
   section.detail[hidden]{display:none !important;}
   .acct-guest{padding:10px 0 80px;}
+  /* Developer: sign in and email settings */
+  .as-intro{font-size:0.86rem; color:var(--ink-soft); margin:-4px 0 14px;}
+  .as-group{border:1px solid var(--line); border-radius:10px; padding:12px 16px 14px; margin:0 0 14px;}
+  .as-group legend{padding:0 6px; font:700 0.72rem 'IBM Plex Mono',monospace; letter-spacing:0.1em; text-transform:uppercase; color:var(--sl-green);}
+  .as-row{padding:9px 0; border-bottom:1px solid var(--line);}
+  .as-row:last-child{border-bottom:0;}
+  .as-row > label{display:block; font-size:0.86rem; font-weight:600; margin-bottom:6px;}
+  .as-row input[type=text], .as-row input[type=number], .as-row input[type=password], .as-row textarea{width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:6px; font:inherit; font-size:0.88rem; background:#fff;}
+  .as-row textarea{font-family:'IBM Plex Mono',monospace; font-size:0.78rem;}
+  .as-row > label.as-switch{display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0; cursor:pointer; position:relative;}
+  .as-label{font-size:0.9rem; font-weight:600; display:flex; flex-direction:column; gap:2px;}
+  .as-label small, .as-row small{font-weight:400; color:var(--ink-soft); font-size:0.78rem;}
+  .as-switch input{position:absolute; opacity:0; width:1px; height:1px;}
+  .as-knob{flex:none; width:46px; height:26px; border-radius:999px; background:#c9c6bb; position:relative; transition:background .2s;}
+  .as-knob::after{content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.3); transition:transform .2s;}
+  .as-switch input:checked + .as-knob{background:var(--sl-green-bright);}
+  .as-switch input:checked + .as-knob::after{transform:translateX(20px);}
+  .as-switch input:focus-visible + .as-knob{outline:2px solid var(--sl-green-deep); outline-offset:2px;}
+  .as-resend{padding:8px 0 12px; font-size:0.86rem; color:var(--ink-soft);}
+  .as-resend p{margin:0 0 8px;}
+  .as-actions{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:6px;}
+  .as-status{font-size:0.84rem; color:var(--ink-soft);}
+  .as-status.bad{color:#b3261e;}
+  .as-setup{font-size:0.9rem; line-height:1.6; padding:14px 16px; border-radius:10px; background:var(--paper-dim);}
+  .as-setup ol{margin:10px 0 10px 20px;}
+  .as-setup code{font-family:'IBM Plex Mono',monospace; background:#fff; padding:1px 5px; border-radius:4px;}
+  .as-note{font-size:0.8rem; color:var(--ink-soft); margin:0;}
   #panel-checkemail{text-align:center;}
   #panel-checkemail .pen-still{margin:4px auto 10px;}
   #panel-checkemail .btn{width:100%; margin-top:6px;}
@@ -3788,6 +3815,17 @@
               <h4>System checks</h4>
               <div id="devChecks" class="an-list"></div>
             </div>
+
+            <div class="an-card as-card">
+              <h4>Sign in and email settings</h4>
+              <p class="as-intro">Email confirmation, new accounts, passwords, the email sender and wording, and Google sign in, without opening Supabase.</p>
+              <div id="authSettingsBox"></div>
+              <div class="as-actions">
+                <button type="button" class="btn btn-sm btn-dark" id="authSettingsSave" hidden>Save changes</button>
+                <button type="button" class="btn btn-sm btn-outline-dark" id="authSettingsTest">Send me a test email</button>
+                <span id="authSettingsStatus" class="as-status" role="status"></span>
+              </div>
+            </div>
   
             <div class="an-cols">
               <div class="an-card">
@@ -6224,7 +6262,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         if(panel) panel.style.display = name === active ? 'flex' : 'none';
       });
       if(active === 'analytics') loadAnalytics();
-      if(active === 'developer') loadDeveloperPanel();
+      if(active === 'developer'){ loadDeveloperPanel(); loadAuthSettings(); }
       if(active === 'security') refreshMfaStatus();
       if(active === 'moderation') loadModeration();
       if(active === 'settings'){ loadShippingRates(); loadPushStats(); }
@@ -7426,7 +7464,193 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     }
   }
 
-  document.getElementById('devRefresh')?.addEventListener('click', loadDeveloperPanel);
+  document.getElementById('devRefresh')?.addEventListener('click', () => { loadDeveloperPanel(); loadAuthSettings(); });
+
+  // ---------- Developer: sign in and email settings (Supabase Auth, without the Supabase website) ----------
+  // Each control maps to one Supabase Auth setting; "invert" shows the friendlier question (Require email
+  // confirmation is the opposite of Supabase's "autoconfirm"). Only changed settings are sent.
+  const AUTH_GROUPS = [
+    { title: 'Accounts', fields: [
+      { key: 'disable_signup', label: 'Allow new accounts', type: 'toggle', invert: true, warnOff: 'Nobody will be able to create an account until this is on again.' },
+      { key: 'mailer_autoconfirm', label: 'Require email confirmation', type: 'toggle', invert: true, help: 'New readers tap a link in an email before they can sign in.', warnOff: 'Accounts will work without proving the email is theirs (fake addresses become possible).' },
+      { key: 'external_email_enabled', label: 'Sign in with email and password', type: 'toggle', warnOff: 'Nobody, the author included, will be able to sign in with email and password.' },
+      { key: 'mfa_totp', label: 'Two step sign in (authenticator app)', type: 'toggle', help: 'Lets accounts add a code from an app such as Google Authenticator.' },
+      { key: 'mailer_secure_email_change_enabled', label: 'Confirm both addresses when someone changes their email', type: 'toggle' },
+    ] },
+    { title: 'Passwords and links', fields: [
+      { key: 'password_min_length', label: 'Shortest password allowed', type: 'number', unit: 'characters', min: 6, max: 72 },
+      { key: 'mailer_otp_exp', label: 'Email links stay valid for', type: 'number', unit: 'minutes', scale: 60, min: 5, max: 1440 },
+    ] },
+    { title: 'Addresses', fields: [
+      { key: 'site_url', label: 'Site address used in emails', type: 'text', placeholder: 'https://canwetalkvoice.com', warnChange: 'Links in emails will point to this address.' },
+      { key: 'uri_allow_list', label: 'Other allowed return addresses (comma separated)', type: 'text', placeholder: 'https://canwetalkvoice.com/**' },
+    ] },
+    { title: 'Email sending', resend: true, fields: [
+      { key: 'smtp_sender_name', label: 'Sender name', type: 'text', placeholder: 'Can We Talk?' },
+      { key: 'smtp_admin_email', label: 'Sender address', type: 'text', placeholder: 'hello@canwetalkvoice.com' },
+      { key: 'smtp_host', label: 'Mail server', type: 'text', placeholder: 'smtp.resend.com' },
+      { key: 'smtp_port', label: 'Port', type: 'text', placeholder: '465' },
+      { key: 'smtp_user', label: 'User name', type: 'text' },
+      { key: 'smtp_pass', label: 'Password', type: 'secret' },
+      { key: 'rate_limit_email_sent', label: 'Emails per hour, at most', type: 'number', min: 1, max: 1000 },
+    ] },
+    { title: 'Email wording', fields: [
+      { key: 'mailer_subjects_confirmation', label: 'Confirmation email: subject', type: 'text' },
+      { key: 'mailer_templates_confirmation_content', label: 'Confirmation email: text (HTML; keep {{ .ConfirmationURL }} for the link)', type: 'textarea' },
+      { key: 'mailer_subjects_recovery', label: 'Password reset email: subject', type: 'text' },
+      { key: 'mailer_templates_recovery_content', label: 'Password reset email: text (HTML; keep {{ .ConfirmationURL }} for the link)', type: 'textarea' },
+    ] },
+    { title: 'Sign in with Google', fields: [
+      { key: 'external_google_enabled', label: 'Offer "Sign in with Google"', type: 'toggle' },
+      { key: 'external_google_client_id', label: 'Google client ID', type: 'text' },
+      { key: 'external_google_secret', label: 'Google client secret', type: 'secret' },
+    ] },
+  ];
+  let authLoaded = null;   // the settings as Supabase has them
+  const authBox = () => document.getElementById('authSettingsBox');
+  const authStatus = (text, bad) => { const el = document.getElementById('authSettingsStatus'); if(el){ el.textContent = text || ''; el.classList.toggle('bad', Boolean(bad)); } };
+  // The value a control shows, from Supabase's settings.
+  function authShown(f, s){
+    if(f.key === 'mfa_totp') return Boolean(s.mfa_totp_enroll_enabled && s.mfa_totp_verify_enabled);
+    const v = s[f.key];
+    if(f.type === 'toggle') return f.invert ? !v : Boolean(v);
+    if(f.type === 'number') return v == null ? '' : Math.round(Number(v) / (f.scale || 1));
+    return v ?? '';
+  }
+  function paintAuthSettings(){
+    const box = authBox();
+    if(!box || !authLoaded) return;
+    box.replaceChildren(...AUTH_GROUPS.map(g => {
+      const sec = document.createElement('fieldset');
+      sec.className = 'as-group';
+      sec.innerHTML = `<legend>${escapeAttr(g.title)}</legend>`;
+      if(g.resend){
+        const r = document.createElement('div');
+        r.className = 'as-resend';
+        const using = (authLoaded.smtp_host || '').includes('resend');
+        r.innerHTML = using
+          ? '<p>✅ Sign in emails go out through Resend.</p>'
+          : '<p>Sign in emails use Supabase\'s built in sender, which allows only a few emails an hour and often lands in Spam.</p><button type="button" class="btn btn-sm btn-dark" id="asUseResend">Send them through Resend</button>';
+        sec.appendChild(r);
+      }
+      g.fields.forEach(f => {
+        const id = 'as_' + f.key;
+        const row = document.createElement('div');
+        row.className = 'as-row as-' + f.type;
+        const val = authShown(f, authLoaded);
+        if(f.type === 'toggle'){
+          row.innerHTML = `<label class="as-switch" for="${id}"><span class="as-label">${escapeAttr(f.label)}${f.help ? `<small>${escapeAttr(f.help)}</small>` : ''}</span><input type="checkbox" id="${id}" role="switch"><span class="as-knob" aria-hidden="true"></span></label>`;
+          row.querySelector('input').checked = val;
+        } else if(f.type === 'textarea'){
+          row.innerHTML = `<label for="${id}">${escapeAttr(f.label)}</label><textarea id="${id}" rows="5" spellcheck="false"></textarea>`;
+          row.querySelector('textarea').value = val;
+        } else {
+          const isSecret = f.type === 'secret';
+          const isSet = isSecret && authLoaded[f.key + '_set'];
+          row.innerHTML = `<label for="${id}">${escapeAttr(f.label)}${f.unit ? ` <small>(${escapeAttr(f.unit)})</small>` : ''}</label><input id="${id}" type="${isSecret ? 'password' : f.type === 'number' ? 'number' : 'text'}" autocomplete="off"${f.min != null ? ` min="${f.min}" max="${f.max}"` : ''}>`;
+          const input = row.querySelector('input');
+          if(isSecret) input.placeholder = isSet ? 'Saved (type to replace)' : 'Not set';
+          else { input.value = val; if(f.placeholder) input.placeholder = f.placeholder; }
+        }
+        sec.appendChild(row);
+      });
+      return sec;
+    }));
+    document.getElementById('asUseResend')?.addEventListener('click', useResendForAuth);
+  }
+  // What changed, in Supabase's terms.
+  function authChanges(){
+    const patch = {}, warnings = [];
+    AUTH_GROUPS.forEach(g => g.fields.forEach(f => {
+      const el = document.getElementById('as_' + f.key);
+      if(!el) return;
+      const before = authShown(f, authLoaded);
+      if(f.type === 'toggle'){
+        const now = el.checked;
+        if(now === before) return;
+        if(f.key === 'mfa_totp'){ patch.mfa_totp_enroll_enabled = now; patch.mfa_totp_verify_enabled = now; }
+        else patch[f.key] = f.invert ? !now : now;
+        if(!now && f.warnOff) warnings.push(f.warnOff);
+        return;
+      }
+      if(f.type === 'secret'){ if(el.value.trim()) patch[f.key] = el.value.trim(); return; }
+      const raw = f.type === 'textarea' ? el.value : el.value.trim();
+      if(String(raw) === String(before)) return;
+      if(f.type === 'number'){ if(raw === '') return; patch[f.key] = Number(raw) * (f.scale || 1); }
+      else patch[f.key] = raw;
+      if(f.warnChange) warnings.push(f.warnChange);
+    }));
+    return { patch, warnings };
+  }
+  async function authRequest(method, path = '', body){
+    const res = await fetch(`${API_URL}/api/dev/auth-settings${path}`, { method, headers: authHeaders(), body: body ? JSON.stringify(body) : undefined });
+    const data = await res.json().catch(() => ({}));
+    return { res, data };
+  }
+  async function loadAuthSettings(){
+    const box = authBox();
+    if(!box) return;
+    authStatus('Loading the sign in settings…');
+    try {
+      const { res, data } = await authRequest('GET');
+      if(res.status === 503 && data.error === 'not_connected'){
+        authLoaded = null;
+        document.getElementById('authSettingsSave').hidden = true;
+        authStatus('');
+        box.innerHTML = `<div class="as-setup"><p><strong>One step to switch this on.</strong> These settings live in Supabase, and changing them from here needs a personal access token kept on the server.</p>
+          <ol><li>Open <a href="https://supabase.com/dashboard/account/tokens" target="_blank" rel="noopener">supabase.com/dashboard/account/tokens</a> and choose <em>Generate new token</em> (name it "Can We Talk dashboard").</li>
+          <li>In Render, open <em>can-we-talk-backend</em>, then <em>Environment</em>, add <code>SUPABASE_ACCESS_TOKEN</code> with that token, and save.</li>
+          <li>After the server restarts (about a minute), press Refresh here.</li></ol>
+          <p class="as-note">The token stays on the server and is never shown in the browser.</p></div>`;
+        return;
+      }
+      if(!res.ok) throw new Error(data.error || 'Could not load the settings');
+      authLoaded = data.settings;
+      document.getElementById('authSettingsSave').hidden = false;
+      paintAuthSettings();
+      authStatus(`Connected to Supabase project ${data.project}.`);
+    } catch(err){ authStatus(err.message, true); }
+  }
+  async function saveAuthSettings(){
+    if(!authLoaded) return;
+    const { patch, warnings } = authChanges();
+    if(!Object.keys(patch).length){ authStatus('Nothing has changed.'); return; }
+    if(warnings.length && !confirm('Please check before saving:\n\n' + warnings.join('\n\n') + '\n\nSave anyway?')) return;
+    const btn = document.getElementById('authSettingsSave');
+    btn.disabled = true;
+    authStatus('Saving…');
+    try {
+      const { res, data } = await authRequest('PATCH', '', patch);
+      if(!res.ok) throw new Error(data.error || 'Could not save');
+      authLoaded = data.settings;
+      paintAuthSettings();
+      authStatus('Saved. It takes effect straight away.');
+      showAdminToast('Sign in settings saved.');
+    } catch(err){ authStatus(err.message, true); }
+    btn.disabled = false;
+  }
+  async function useResendForAuth(){
+    if(!confirm('Send every sign in email (confirmations, password resets) through Resend, from the same address as the site\'s other emails?')) return;
+    authStatus('Switching to Resend…');
+    try {
+      const { res, data } = await authRequest('POST', '/use-resend');
+      if(!res.ok) throw new Error(data.error || 'Could not switch');
+      authLoaded = data.settings;
+      paintAuthSettings();
+      authStatus('Done. Sign in emails now go through Resend.');
+      showAdminToast('Sign in emails now go through Resend.');
+    } catch(err){ authStatus(err.message, true); }
+  }
+  async function sendTestAuthEmail(){
+    const email = currentSession?.user?.email;
+    if(!email) return;
+    authStatus(`Sending a password reset email to ${email}…`);
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}${location.pathname}#password-reset` });
+    authStatus(error ? 'Could not send: ' + error.message : `Sent to ${email}. If it arrives, sign in emails work (you can ignore the link).`, Boolean(error));
+  }
+  document.getElementById('authSettingsSave')?.addEventListener('click', saveAuthSettings);
+  document.getElementById('authSettingsTest')?.addEventListener('click', sendTestAuthEmail);
+
   document.getElementById('devLevelFilter')?.addEventListener('change', loadDevErrors);
   document.getElementById('devClearErrors')?.addEventListener('click', async () => {
     if(!confirm('Clear the entire error log? This cannot be undone.')) return;

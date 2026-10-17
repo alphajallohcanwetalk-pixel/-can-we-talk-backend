@@ -2,6 +2,7 @@ import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { requireAuth, requireDeveloper } from '../middleware/auth.js';
 import { logAppError } from '../lib/errorLog.js';
+import authSettingsRoutes from './authSettings.js';
 
 const router = express.Router();
 
@@ -9,6 +10,9 @@ const router = express.Router();
 // state and error stacks, so they are gated twice: a valid session, then the
 // is_developer flag on the profile.
 router.use(requireAuth, requireDeveloper);
+
+// Sign in and email settings (Supabase Auth), developer only like everything here.
+router.use('/auth-settings', authSettingsRoutes);
 
 // GET /api/dev/errors?level=&limit=&since=
 router.get('/errors', async (req, res) => {
@@ -91,6 +95,7 @@ router.get('/health', async (req, res) => {
   add('STRIPE_WEBHOOK_SECRET set', envFlag('STRIPE_WEBHOOK_SECRET'));
   add('RESEND_API_KEY set', envFlag('RESEND_API_KEY'));
   add('SENTRY_DSN set', envFlag('SENTRY_DSN'), 'Optional. Enables crash alerts.');
+  add('SUPABASE_ACCESS_TOKEN set', envFlag('SUPABASE_ACCESS_TOKEN'), 'Optional. Lets the Developer tab change sign in and email settings.');
 
   // Live mode checks: the prefix is safe to look at, the key itself is not.
   const sk = process.env.STRIPE_SECRET_KEY || '';
@@ -116,7 +121,7 @@ router.get('/health', async (req, res) => {
       typeof counts.app_error_logs === 'number' ? undefined : 'Run migration 007.');
 
   res.json({
-    ok: checks.every((c) => c.ok || c.name.includes('SENTRY')),
+    ok: checks.every((c) => c.ok || c.name.includes('SENTRY') || c.name.includes('ACCESS_TOKEN')),
     checked_at: new Date().toISOString(),
     node: process.version,
     uptime_seconds: Math.round(process.uptime()),
