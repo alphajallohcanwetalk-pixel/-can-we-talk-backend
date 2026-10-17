@@ -458,6 +458,77 @@
   .search-result-item .srt{font-weight:600;}
   .search-result-item .src{font-size:0.76rem; color:var(--ink-soft); margin-top:2px;}
 
+  /* ---------- Search everything ---------- */
+  .search-box{display:flex; flex-direction:column; padding:0; overflow:hidden; max-height:80vh;}
+  .sb-head{display:flex; align-items:center; gap:10px; padding:12px 14px 12px 18px; border-bottom:1px solid var(--line);}
+  .sb-ico{font-size:1.1rem;}
+  .search-box .sb-head input{flex:1; min-width:0; border:0; padding:10px 2px; font-size:1.05rem; outline:none; background:transparent;}
+  .sb-close{flex:none; width:40px; height:40px; border-radius:50%; border:0; background:var(--paper-dim); cursor:pointer; font-size:1rem; color:var(--ink);}
+  .search-box .search-results{margin-top:0; padding:6px 10px 16px; overflow-y:auto; flex:1; gap:2px;}
+  .sr-group{font:700 0.68rem 'IBM Plex Mono',monospace; letter-spacing:0.12em; text-transform:uppercase; color:var(--sl-green); padding:14px 8px 6px;}
+  .search-result-item{display:flex; align-items:center; gap:12px; padding:9px 10px; border-radius:8px;}
+  .search-result-item.active{background:var(--paper-dim); box-shadow:inset 3px 0 0 var(--sl-green);}
+  .sr-thumb{flex:none; width:40px; height:50px; border-radius:5px; background:var(--paper-dim) center/cover no-repeat; display:grid; place-items:center; font-size:1.05rem;}
+  .sr-body{min-width:0; display:flex; flex-direction:column;}
+  .search-result-item .srt{overflow-wrap:anywhere;}
+  .search-result-item .src{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .search-result-item mark{background:#fdeca6; color:inherit; border-radius:2px; padding:0 1px;}
+  .sr-empty{padding:16px 8px 8px; color:var(--ink-soft); font-size:0.92rem;}
+  .sr-chips, .hs-chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .sr-chips{padding:4px 8px 8px;}
+  .sr-chips button, .hs-chips button{min-height:36px; padding:7px 14px; border-radius:999px; border:1px solid var(--line); background:var(--paper); font:inherit; font-size:0.84rem; color:var(--ink); cursor:pointer;}
+  .sr-chips button:hover, .hs-chips button:hover{border-color:var(--sl-green); color:var(--sl-green-deep);}
+  .home-search{background:var(--paper); padding:26px 0 18px;}
+  .hs-bar{display:flex; align-items:center; gap:12px; width:100%; max-width:720px; margin:0 auto; padding:16px 22px; border:1px solid var(--line); border-radius:999px; background:#fff; box-shadow:0 10px 30px rgba(12,61,34,0.08); font:inherit; font-size:1rem; color:var(--ink-soft); cursor:text; text-align:left; transition:box-shadow .2s, border-color .2s;}
+  .hs-bar:hover{border-color:var(--sl-green); box-shadow:0 12px 34px rgba(12,61,34,0.14);}
+  .hs-chips{justify-content:center; max-width:720px; margin:14px auto 0;}
+  @media(max-width:700px){
+    .search-overlay{padding:0; align-items:stretch;}
+    .search-box{max-width:none; max-height:none; height:100%; border-radius:0;}
+    .hs-bar{font-size:0.92rem; padding:14px 18px;}
+  }
+
+  /* ---------- Sign in and Join, easy to find ---------- */
+  #authArea{display:flex; align-items:center; gap:8px;}
+  .nav-signin{padding:9px 14px; border:1px solid var(--line); border-radius:3px; font-size:0.85rem; font-weight:600; color:var(--sl-green-deep); cursor:pointer;}
+  .nav-signin:hover{border-color:var(--sl-green-deep);}
+  .nav-join{cursor:pointer;}
+  .nav-acct{display:none;}
+  #searchBtn{display:inline-flex; align-items:center; gap:8px;}
+  @media(min-width:901px){
+    #searchBtn{border:1px solid var(--line); border-radius:999px; padding:7px 16px 7px 12px; background:var(--paper);}
+    #searchBtn .sb-txt{font-size:0.85rem; color:var(--ink-soft);}
+  }
+  @media(max-width:900px){
+    #searchBtn .sb-txt{display:none;}
+    .nav-acct{display:inline-flex; align-items:center; gap:6px; flex:0 0 auto; min-height:36px; padding:6px 12px; border-radius:999px; border:1px solid var(--sl-green-deep); background:var(--sl-green-deep); color:#fff; font:inherit; font-size:0.78rem; font-weight:700; white-space:nowrap; cursor:pointer;}
+    .nav-acct.is-user{width:38px; height:38px; padding:0; justify-content:center; background:var(--paper-dim); color:var(--sl-green-deep); border-color:var(--line);}
+    .mm-auth{padding:18px 20px; background:var(--paper-dim); border-bottom:1px solid var(--line);}
+    .mm-auth p{margin:0 0 12px; font-size:0.86rem; color:var(--ink-soft);}
+    .mm-auth div{display:flex; gap:10px;}
+    .mm-auth .btn{flex:1;}
+    body.signed-in .mm-auth{display:none;}
+    .mm-search{display:flex; align-items:center; gap:8px; width:calc(100% - 40px); margin:14px 20px 6px; padding:12px 16px; border:1px solid var(--line); border-radius:999px; background:var(--paper); font:inherit; font-size:0.92rem; color:var(--ink-soft); text-align:left; cursor:text;}
+  }
+  @media(min-width:901px){ .mm-auth, .mm-search{display:none;} }
+  .search-box .sb-head input::-webkit-search-cancel-button{-webkit-appearance:none; display:none;}
+  /* Header labels never wrap; on mid size screens search is an icon and the extra shop button goes
+     (Books is in the menu), so everything stays on one line. */
+  nav.links a, .nav-signin, .nav-join, .nav-inner > .nav-cta, .brand{white-space:nowrap;}
+  @media(min-width:901px) and (max-width:1240px){
+    .nav-inner{gap:12px; padding:14px 20px;}
+    nav.links{gap:18px;}
+    .nav-inner > .nav-cta{display:none;}
+    #searchBtn .sb-txt{display:none;}
+    #searchBtn{padding:7px 10px;}
+    .nav-signin, .nav-join{padding:8px 12px;}
+  }
+  @media(min-width:901px) and (max-width:1060px){
+    nav.links{gap:14px; font-size:0.84rem;}
+    #navReload{display:none;}
+  }
+  @media(max-width:370px){ .nav-acct .na-txt{display:none;} .nav-acct{padding:6px 10px;} }
+
   /* ---------- Cart ---------- */
   .cart-item{display:flex; gap:16px; align-items:center; padding:18px 0; border-bottom:1px solid var(--line);}
   .cart-item-cover{width:54px; aspect-ratio:3/4; border-radius:4px; flex-shrink:0;}
@@ -1987,15 +2058,21 @@
       <a href="#contact" class="nav-link" data-view="contact">Contact</a>
     </nav>
     <div id="authArea">
-      <a class="nav-cta" id="signInBtn">Sign In</a>
+      <a class="nav-signin" id="signInBtn" data-auth-open="signin">Sign in</a><a class="nav-cta nav-join" data-auth-open="signup">Join free</a>
     </div>
     <a href="#admin" class="nav-dash nav-link" data-view="admin" id="navDash" title="Open your dashboard">Dashboard</a>
-    <button class="icon-btn" id="searchBtn" aria-label="Search the site">🔍</button>
+    <button class="icon-btn" id="searchBtn" aria-label="Search the site" title="Search (press /)"><span aria-hidden="true">🔍</span><span class="sb-txt">Search</span></button>
     <button class="icon-btn" id="cartBtn" aria-label="View cart"><span>🛒</span><span class="cart-badge" id="cartBadge" style="display:none;">0</span></button>
     <a href="#book-mrp" class="nav-cta nav-link" data-view="book-mrp" style="margin-left:10px;">Shop Books</a>
+    <button type="button" class="nav-acct" id="acctBtnMobile" data-auth-open="signin" aria-label="Sign in or create an account"><span class="na-ico" aria-hidden="true">👤</span><span class="na-txt">Sign in</span></button>
     <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
   </div>
   <div class="mobile-menu" id="mobileMenu">
+    <div class="mm-auth">
+      <p>Sign in to keep your library, join the Book Club and hear about new releases.</p>
+      <div><button type="button" class="btn btn-dark btn-sm" data-auth-open="signin">Sign in</button><button type="button" class="btn btn-outline-dark btn-sm" data-auth-open="signup">Create account</button></div>
+    </div>
+    <button type="button" class="mm-search" data-open-search><span aria-hidden="true">🔍</span> Search books, essays, news, help…</button>
     <a href="#home" class="nav-link" data-view="home">Home</a>
     <a href="#books-catalog" class="nav-link" data-view="books-catalog">Books</a>
     <a href="#essays" class="nav-link" data-view="essays">Essays</a>
@@ -2069,6 +2146,20 @@
       </div>
       <div class="hero-name">ALPHA AMADU JALLOH</div>
       <div class="hero-role">Author · Columnist · Human Rights Advocate · Peacebuilder · Public Commentator</div>
+    </div>
+  </section>
+
+  <section class="home-search" aria-label="Search the site">
+    <div class="wrap">
+      <button type="button" class="hs-bar" data-open-search><span class="hs-ico" aria-hidden="true">🔍</span><span>Search books, essays, newspapers, events and help…</span></button>
+      <div class="hs-chips">
+        <button type="button" data-open-search data-search-q="Books">Books</button>
+        <button type="button" data-open-search data-search-q="Essays">Essays</button>
+        <button type="button" data-open-search data-search-q="Listen">Listen</button>
+        <button type="button" data-open-search data-search-q="Newspapers">Newspapers</button>
+        <button type="button" data-open-search data-search-q="Book Club">Book Club</button>
+        <button type="button" data-auth-open="signin">Sign in or join</button>
+      </div>
     </div>
   </section>
 
@@ -3687,10 +3778,14 @@
 </div>
 
 <!-- ============ SEARCH OVERLAY ============ -->
-<div class="search-overlay" id="searchOverlay">
+<div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-label="Search the site">
   <div class="search-box">
-    <input type="text" id="siteSearchInput" placeholder="Search books, essays…" aria-label="Search the site">
-    <div class="search-results" id="siteSearchResults"></div>
+    <div class="sb-head">
+      <span class="sb-ico" aria-hidden="true">🔍</span>
+      <input type="search" id="siteSearchInput" placeholder="Search books, essays, news, pages, help…" aria-label="Search the whole site" autocomplete="off" enterkeyhint="search" role="combobox" aria-expanded="true" aria-controls="siteSearchResults" aria-autocomplete="list">
+      <button type="button" class="sb-close" id="searchClose" aria-label="Close search">✕</button>
+    </div>
+    <div class="search-results" id="siteSearchResults" role="listbox" aria-label="Results"></div>
   </div>
 </div>
 
@@ -4526,7 +4621,6 @@
 
   function openAuth(){ authModal.classList.add('open'); document.body.classList.add('auth-open'); }
   function closeAuth(){ authModal.classList.remove('open'); document.body.classList.remove('auth-open'); }
-  document.getElementById('signInBtn').addEventListener('click', openAuth);
   document.getElementById('signInBtnMobile').addEventListener('click', openAuth);
   document.getElementById('modalClose').addEventListener('click', closeAuth);
   authModal.addEventListener('click', e => { if(e.target === authModal) closeAuth(); });
@@ -4536,6 +4630,38 @@
 
   document.querySelectorAll('#authModal .modal-tab').forEach(tab => {
     tab.addEventListener('click', () => showPanel(tab.dataset.tab));
+  });
+
+  // The account button in the phone header: "Sign in" when signed out, the reader's initials after.
+  function paintHeaderAccount(user){
+    const b = document.getElementById('acctBtnMobile');
+    if(!b) return;
+    if(user){
+      b.removeAttribute('data-auth-open');
+      b.classList.add('is-user');
+      b.innerHTML = `<span>${escapeAttr(initials(user.name || user.email || '?'))}</span>`;
+      b.setAttribute('aria-label', 'Your account');
+      b.onclick = () => { showView('account'); loadAccountView(); };
+    } else {
+      b.setAttribute('data-auth-open', 'signin');
+      b.classList.remove('is-user');
+      b.innerHTML = '<span class="na-ico" aria-hidden="true">👤</span><span class="na-txt">Sign in</span>';
+      b.setAttribute('aria-label', 'Sign in or create an account');
+      b.onclick = null;
+    }
+  }
+  // Any element with data-auth-open="signin|signup|forgot" opens that panel; data-open-search opens
+  // the search (data-search-q fills it in).
+  function openAuthAt(panel){
+    document.getElementById('mobileMenu')?.classList.remove('open');
+    openAuth();
+    showPanel(panel);
+  }
+  document.addEventListener('click', (e) => {
+    const auth = e.target.closest('[data-auth-open]');
+    if(auth){ e.preventDefault(); openAuthAt(auth.dataset.authOpen); return; }
+    const find = e.target.closest('[data-open-search]');
+    if(find){ e.preventDefault(); document.getElementById('mobileMenu')?.classList.remove('open'); openSearch(find.dataset.searchQ || ''); }
   });
 
   function initials(name){
@@ -4570,7 +4696,8 @@
     const isNewSession = !currentUser;
     currentUser = user;
     const authArea = document.getElementById('authArea');
-    authArea.innerHTML = `<div class="nav-user" id="userMenuBtn"><div class="avatar">${initials(user.name)}</div>${user.name.split(' ')[0]}</div>`;
+    authArea.innerHTML = `<div class="nav-user" id="userMenuBtn"><div class="avatar">${escapeAttr(initials(user.name))}</div>${escapeAttr(user.name.split(' ')[0])}</div>`;
+    paintHeaderAccount(user);
 
     // The desktop auth area is hidden on a phone, so the menu needs its own
     // way into the account page.
@@ -6518,8 +6645,8 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     currentSession = null;
     document.body.classList.remove('is-staff', 'signed-in');
     const authArea = document.getElementById('authArea');
-    authArea.innerHTML = '<a class="nav-cta" id="signInBtn">Sign In</a>';
-    document.getElementById('signInBtn').addEventListener('click', openAuth);
+    authArea.innerHTML = '<a class="nav-signin" id="signInBtn" data-auth-open="signin">Sign in</a><a class="nav-cta nav-join" data-auth-open="signup">Join free</a>';
+    paintHeaderAccount(null);
     const mobileAuth = document.getElementById('signInBtnMobile');
     if(mobileAuth){
       mobileAuth.textContent = 'Sign In / Sign Up';
@@ -10069,40 +10196,254 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   });
 
   // ================= SITE-WIDE SEARCH =================
+  // One search for everything: books (with their descriptions), essays (with their summaries),
+  // newspapers, photos, videos and events, every page, and help (signing in, a lost password,
+  // buying, inviting Alpha to speak). Forgiving: case and accents do not matter, a small typo still
+  // finds the word, and when nothing matches every word the closest matches are offered.
   const searchOverlay = document.getElementById('searchOverlay');
   const siteSearchInput = document.getElementById('siteSearchInput');
-  document.getElementById('searchBtn').addEventListener('click', () => {
-    searchOverlay.classList.add('open');
-    siteSearchInput.value = '';
-    document.getElementById('siteSearchResults').innerHTML = '';
-    setTimeout(() => siteSearchInput.focus(), 50);
-  });
-  searchOverlay.addEventListener('click', e => { if(e.target === searchOverlay) searchOverlay.classList.remove('open'); });
+  const searchResults = document.getElementById('siteSearchResults');
+  const RECENT_SEARCHES = 'cwt.recentSearches';
+  const normText = (str) => String(str || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const SEARCH_STOP = new Set(['the', 'a', 'an', 'of', 'and', 'or', 'to', 'in', 'on', 'for', 'my', 'is', 'i', 'how', 'do', 'where', 'what', 'me', 'with', 'by', 'want', 'find', 'please']);
+  const GROUP_ICON = { Pages: '📄', Help: '💬', Books: '📘', Essays: '✍️', Videos: '▶', 'Newspapers and letters': '📰', 'Photos and events': '📷' };
+  const SEARCH_PAGES = [
+    { title: 'Home', view: 'home', sub: 'The front page', words: 'home start main front welcome' },
+    { title: 'All books', view: 'books-catalog', sub: 'Buy paperbacks, eBooks and audiobooks', words: 'books shop buy order store purchase catalogue paperback hardcover ebook price' },
+    { title: 'Essays', view: 'essays', sub: 'The essay library', words: 'essays articles writing columns read library opinion' },
+    { title: 'Listen', view: 'audio', sub: 'Audiobooks and audio essays', words: 'listen audio audiobook audiobooks podcast narration hear play sound' },
+    { title: 'AJ Book Club', view: 'bookclub', sub: 'Membership', words: 'book club membership join subscribe members monthly' },
+    { title: 'Events', view: 'events', sub: 'Upcoming and past', words: 'events upcoming past launch meeting calendar dates' },
+    { title: 'Gallery', view: 'gallery', sub: 'Photos, videos and newspapers', words: 'gallery photos pictures videos newspapers press media articles letters magazine' },
+    { title: 'Videos', view: 'videos', sub: 'Interviews and talks', words: 'videos watch interviews speeches talks' },
+    { title: 'Speaking and bookings', view: 'speaking', sub: 'Invite Alpha to speak', words: 'speaking invite booking keynote panel conference speaker talk event' },
+    { title: 'About Alpha Amadu Jalloh', view: 'about', sub: 'Author, columnist, human rights advocate', words: 'about author biography bio alpha amadu jalloh who human rights peacebuilder columnist' },
+    { title: 'Contact', view: 'contact', sub: 'Send a message', words: 'contact message email write reach help support question' },
+    { title: 'Your cart', view: 'cart', sub: 'Checkout', words: 'cart basket checkout bag pay' },
+    { title: 'Privacy Policy', view: 'privacy', sub: 'Your data', words: 'privacy data policy personal information' },
+    { title: 'Terms', view: 'terms', sub: 'Terms of use', words: 'terms conditions rules refund' },
+  ];
+  const SEARCH_HELP = [
+    { title: 'Sign in', sub: 'To your account', words: 'sign in signin login log logon account enter', run: () => openAuthAt('signin') },
+    { title: 'Create an account', sub: 'Free, for your library and the Book Club', words: 'register registration sign up signup join create account new member', run: () => openAuthAt('signup') },
+    { title: 'Forgot your password?', sub: 'Get a reset link by email', words: 'forgot forgotten password reset lost cannot cant sign in change password', run: () => openAuthAt('forgot') },
+    { title: 'Your account and library', sub: 'Books you own, orders and settings', words: 'account library my books orders profile settings purchases downloads owned', run: () => { if(currentUser){ showView('account'); loadAccountView(); } else openAuthAt('signin'); } },
+    { title: 'Buy a book', sub: 'Paperback, eBook or audiobook', words: 'buy purchase order shop price pay paperback ebook', run: () => showView('books-catalog') },
+    { title: 'Invite Alpha to speak', sub: 'Send a speaking request', words: 'invite speak speaker booking keynote request event', run: () => showView('speaking') },
+    { title: 'Get the app', sub: 'Install it on your phone', words: 'app install download android iphone phone application', run: () => document.querySelector('[data-install-app]')?.click() },
+    { title: 'Turn on notifications', sub: 'Hear about new books and essays', words: 'notifications notify alerts new releases updates bell', run: () => document.querySelector('[data-push-toggle]')?.click() },
+  ];
 
-  siteSearchInput.addEventListener('input', () => {
-    const q = siteSearchInput.value.trim().toLowerCase();
-    const results = document.getElementById('siteSearchResults');
-    results.innerHTML = '';
-    if(!q){ return; }
-    const bookMatches = books.filter(b => b.title.toLowerCase().includes(q) || (b.subtitle||'').toLowerCase().includes(q));
-    const essayMatches = essays.filter(e => e.title.toLowerCase().includes(q) || e.cat.toLowerCase().includes(q));
-    bookMatches.forEach(b => {
-      const div = document.createElement('div');
-      div.className = 'search-result-item';
-      div.innerHTML = `<div class="srt">${b.title}</div><div class="src">Book</div>`;
-      div.addEventListener('click', () => { searchOverlay.classList.remove('open'); openBook(b.id); });
-      results.appendChild(div);
+  function searchRecords(){
+    const recs = [];
+    const add = (r) => {
+      r.t = normText(r.title); r.k = normText(r.words); r.b = normText(r.body);
+      r.tw = r.t.split(' '); r.kw = r.k.split(' ').filter(Boolean);
+      recs.push(r);
+    };
+    books.forEach(b => add({ group: 'Books', title: b.title, sub: [b.subtitle, b.genre].filter(Boolean).join(' · ') || 'Book',
+      words: [b.subtitle, b.genre, b.isbn, b.publisher, b.edition, 'book books'].join(' '), body: b.description, thumb: b.cover_image_url, run: () => openBook(b.id) }));
+    essays.forEach(e => add({ group: 'Essays', title: e.title, sub: ['Essay', e.cat, e.year, e.audio_url ? 'Audio' : ''].filter(Boolean).join(' · '),
+      words: [e.cat, e.year, 'essay essays', e.audio_url ? 'audio listen' : ''].join(' '), body: e.excerpt, thumb: e.cover_image_url, run: () => openEssay(e.id) }));
+    galleryItems.forEach(i => {
+      const kind = kindOf(i), linked = linkedName(i);
+      add({ group: kind === 'document' ? 'Newspapers and letters' : kind === 'video' ? 'Videos' : 'Photos and events', title: titleOf(i),
+        sub: [KIND_LABEL[kind], i.outlet, GALLERY_LABEL[i.section], fmtDay(i.event_date), linked?.name].filter(Boolean).join(' · '),
+        words: [KIND_LABEL[kind], i.outlet, GALLERY_LABEL[i.section], linked?.name, kind === 'document' ? 'newspaper newspapers article press magazine letter' : kind === 'video' ? 'video videos watch' : 'photo photos picture event events'].join(' '),
+        body: i.caption, thumb: i.image_url, run: () => openViewer([i], 0) });
     });
-    essayMatches.forEach(e => {
-      const div = document.createElement('div');
-      div.className = 'search-result-item';
-      div.innerHTML = `<div class="srt">${e.title}</div><div class="src">Essay · ${e.cat}</div>`;
-      div.addEventListener('click', () => { searchOverlay.classList.remove('open'); showView('essays'); });
-      results.appendChild(div);
-    });
-    if(bookMatches.length === 0 && essayMatches.length === 0){
-      results.innerHTML = '<div class="search-result-item" style="color:var(--ink-soft);">No results found.</div>';
+    SEARCH_PAGES.forEach(p => add({ group: 'Pages', title: p.title, sub: p.sub, words: p.words, run: () => showView(p.view) }));
+    SEARCH_HELP.forEach(h => add({ group: 'Help', ...h }));
+    return recs;
+  }
+  // True when two words differ by one letter (two for long words): typing mistakes still match.
+  function nearWord(a, b){
+    const max = a.length >= 7 ? 2 : 1;
+    if(Math.abs(a.length - b.length) > max) return false;
+    let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+    for(let i = 1; i <= a.length; i++){
+      const cur = [i];
+      let rowMin = i;
+      for(let j = 1; j <= b.length; j++){
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        if(cur[j] < rowMin) rowMin = cur[j];
+      }
+      if(rowMin > max) return false;
+      prev = cur;
     }
+    return prev[b.length] <= max;
+  }
+  function wordScore(w, r){
+    if(r.tw.includes(w)) return 12;
+    if(r.tw.some(x => x.startsWith(w))) return 10;
+    if(w.length >= 3 && r.t.includes(w)) return 7;
+    if(r.kw.some(x => x === w || x.startsWith(w))) return 5;
+    if(w.length >= 3 && r.b.includes(w)) return 2;
+    if(w.length >= 4){
+      if(r.tw.some(x => nearWord(w, x))) return 5;
+      if(r.kw.some(x => nearWord(w, x))) return 3;
+    }
+    return 0;
+  }
+  function runSearch(q){
+    let words = normText(q).split(' ').filter(Boolean);
+    const content = words.filter(w => !SEARCH_STOP.has(w));
+    if(content.length) words = content;
+    if(!words.length) return { hits: [], partial: false, words };
+    const whole = words.join(' ');
+    const scored = searchRecords().map(r => {
+      const each = words.map(w => wordScore(w, r));
+      return { r, all: each.every(x => x > 0), score: each.reduce((a, c) => a + c, 0) + (r.t === whole ? 25 : r.t.startsWith(whole) ? 10 : 0) };
+    }).filter(x => x.score > 0);
+    let hits = scored.filter(x => x.all), partial = false;
+    if(!hits.length){ hits = scored; partial = true; }
+    hits.sort((a, c) => c.score - a.score);
+    return { hits: hits.slice(0, 40).map(x => x.r), partial, words };
+  }
+
+  function markWords(text, words){
+    const usable = (words || []).filter(w => w.length > 1).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    if(!usable.length) return escapeAttr(text);
+    const parts = String(text || '').split(new RegExp('(' + usable.join('|') + ')', 'gi'));
+    return parts.map((part, n) => n % 2 ? `<mark>${escapeAttr(part)}</mark>` : escapeAttr(part)).join('');
+  }
+  // When only the description or summary matched, show the sentence around the word.
+  function bodySnippet(r, words){
+    const raw = String(r.body || '');
+    const low = raw.toLowerCase();
+    const at = words.map(w => low.indexOf(w)).filter(n => n >= 0).sort((a, c) => a - c)[0];
+    if(at === undefined) return '';
+    const start = Math.max(0, at - 40);
+    return (start ? '…' : '') + raw.slice(start, at + 90).trim() + '…';
+  }
+
+  let searchShown = [], searchActive = -1;
+  function searchChips(labels){
+    const box = document.createElement('div');
+    box.className = 'sr-chips';
+    labels.forEach(label => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = label;
+      b.addEventListener('click', () => { siteSearchInput.value = label; paintSearch(label); siteSearchInput.focus(); });
+      box.appendChild(b);
+    });
+    return box;
+  }
+  function searchHeading(text){ const h = document.createElement('div'); h.className = 'sr-group'; h.textContent = text; return h; }
+  function readRecent(){ try { const l = JSON.parse(localStorage.getItem(RECENT_SEARCHES) || '[]'); return Array.isArray(l) ? l : []; } catch(e){ return []; } }
+  function saveRecent(q){
+    q = q.trim();
+    if(q.length < 2) return;
+    try { localStorage.setItem(RECENT_SEARCHES, JSON.stringify([q, ...readRecent().filter(x => x.toLowerCase() !== q.toLowerCase())].slice(0, 6))); } catch(e){}
+  }
+  function paintSearch(q){
+    searchShown = []; searchActive = -1;
+    siteSearchInput.removeAttribute('aria-activedescendant');
+    const frag = document.createDocumentFragment();
+    if(!q.trim()){
+      const recent = readRecent();
+      if(recent.length){ frag.appendChild(searchHeading('Recent searches')); frag.appendChild(searchChips(recent)); }
+      frag.appendChild(searchHeading('Popular'));
+      frag.appendChild(searchChips([...books.slice(0, 3).map(b => b.title), 'Essays', 'Listen', 'Book Club', 'Newspapers', 'Events', 'Forgot password', 'Contact']));
+      searchResults.replaceChildren(frag);
+      return;
+    }
+    const { hits, partial, words } = runSearch(q);
+    if(!hits.length){
+      const none = document.createElement('div');
+      none.className = 'sr-empty';
+      none.textContent = `Nothing found for “${q.trim()}”. Try another word, or go to:`;
+      frag.appendChild(none);
+      frag.appendChild(searchChips(['Books', 'Essays', 'Gallery', 'Contact', 'Forgot password']));
+      searchResults.replaceChildren(frag);
+      return;
+    }
+    if(partial){ const n = document.createElement('div'); n.className = 'sr-empty'; n.textContent = 'No exact match. The closest:'; frag.appendChild(n); }
+    const groups = new Map();
+    hits.forEach(r => { if(!groups.has(r.group)) groups.set(r.group, []); if(groups.get(r.group).length < 8) groups.get(r.group).push(r); });
+    groups.forEach((list, name) => {
+      frag.appendChild(searchHeading(name));
+      list.forEach(r => {
+        const n = searchShown.length;
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        item.id = 'sr-' + n;
+        item.setAttribute('role', 'option');
+        const inTitle = words.some(w => r.t.includes(w) || r.k.includes(w));
+        const sub = !inTitle && r.body ? bodySnippet(r, words) || r.sub : r.sub;
+        const thumb = r.thumb ? ` style="background-image:url('${escapeAttr(sized(r.thumb, 120))}')"` : '';
+        item.innerHTML = `<span class="sr-thumb"${thumb}>${r.thumb ? '' : (GROUP_ICON[r.group] || '')}</span>`
+          + `<span class="sr-body"><span class="srt">${markWords(r.title, words)}</span><span class="src">${markWords(sub || '', inTitle ? [] : words)}</span></span>`;
+        item.addEventListener('click', () => chooseResult(r));
+        item.addEventListener('mousemove', () => { if(searchActive !== n) setSearchActive(n); });
+        searchShown.push(r);
+        frag.appendChild(item);
+      });
+    });
+    searchResults.replaceChildren(frag);
+  }
+  function setSearchActive(n){
+    const items = searchResults.querySelectorAll('.search-result-item');
+    items.forEach((el, k) => el.classList.toggle('active', k === n));
+    searchActive = n;
+    if(items[n]){ items[n].scrollIntoView({ block: 'nearest' }); siteSearchInput.setAttribute('aria-activedescendant', items[n].id); }
+  }
+  function chooseResult(r){
+    saveRecent(siteSearchInput.value);
+    closeSearch().then(() => r.run());
+  }
+
+  // Open and close. The phone back button closes the search rather than leaving the page.
+  let searchOpen = false, searchInHistory = false, swallowSearchPop = null;
+  function openSearch(prefill = ''){
+    if(!searchOpen){
+      history.pushState(Object.assign({}, history.state || {}, { cwtSearch: true }), '', location.href);
+      searchInHistory = true;
+    }
+    searchOpen = true;
+    searchOverlay.classList.add('open');
+    document.documentElement.classList.add('gx-locked');
+    siteSearchInput.value = prefill;
+    paintSearch(prefill);
+    siteSearchInput.focus();
+    setTimeout(() => siteSearchInput.focus(), 60);
+  }
+  function closeSearch(){
+    return new Promise(resolve => {
+      if(!searchOpen) return resolve();
+      searchOpen = false;
+      searchOverlay.classList.remove('open');
+      document.documentElement.classList.remove('gx-locked');
+      if(searchInHistory){
+        searchInHistory = false;
+        swallowSearchPop = resolve;
+        history.back();
+        setTimeout(() => { if(swallowSearchPop === resolve){ swallowSearchPop = null; resolve(); } }, 500);
+      } else resolve();
+    });
+  }
+  window.addEventListener('popstate', (e) => {
+    if(swallowSearchPop){ const done = swallowSearchPop; swallowSearchPop = null; e.stopImmediatePropagation(); done(); return; }
+    if(searchOpen){ e.stopImmediatePropagation(); searchInHistory = false; closeSearch(); }
+  }, true);
+
+  document.getElementById('searchBtn').addEventListener('click', () => openSearch());
+  document.getElementById('searchClose').addEventListener('click', () => closeSearch());
+  searchOverlay.addEventListener('click', e => { if(e.target === searchOverlay) closeSearch(); });
+  let searchTimer = null;
+  siteSearchInput.addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(() => paintSearch(siteSearchInput.value), 70); });
+  siteSearchInput.addEventListener('keydown', (e) => {
+    const n = searchShown.length;
+    if(e.key === 'ArrowDown' && n){ e.preventDefault(); setSearchActive((searchActive + 1) % n); }
+    else if(e.key === 'ArrowUp' && n){ e.preventDefault(); setSearchActive((searchActive - 1 + n) % n); }
+    else if(e.key === 'Enter'){ e.preventDefault(); const r = searchShown[searchActive >= 0 ? searchActive : 0]; if(r) chooseResult(r); }
+    else if(e.key === 'Escape'){ e.preventDefault(); closeSearch(); }
+  });
+  // "/" or Ctrl+K anywhere opens the search (not while typing in a field).
+  document.addEventListener('keydown', (e) => {
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '') || document.activeElement?.isContentEditable;
+    if(searchOpen || typing) return;
+    if(e.key === '/' || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')){ e.preventDefault(); openSearch(); }
   });
 
   // ================= EMPTY STATES for admin tables =================
