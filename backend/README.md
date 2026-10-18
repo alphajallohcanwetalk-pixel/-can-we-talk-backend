@@ -41,7 +41,7 @@ For the production Render service, use these non-secret values:
 ```text
 FRONTEND_URL=https://canwetalkvoice.com
 FRONTEND_APP_URL=https://canwetalkvoice.com
-EMAIL_FROM=Can We Talk <questions@canwetalkvoice.com>
+EMAIL_FROM=Can We Talk <info@canwetalkvoice.com>
 PORT=4000
 ADMIN_EMAIL=alpha.jalloh@canwetalkvoice.com
 ```

@@ -3,6 +3,7 @@ import { supabaseAdmin } from '../lib/supabase.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
 import { sendContactToAuthor, sendContactReply } from '../lib/email.js';
 import { notifyUsers } from '../lib/push.js';
+import { MAILBOX, mailboxForReason } from '../lib/mailboxes.js';
 import { stripDashes } from '../lib/validate.js';
 
 const router = express.Router();
@@ -44,7 +45,10 @@ router.post('/', async (req, res) => {
 
   let emailed = false;
   try {
-    const r = await sendContactToAuthor(process.env.ADMIN_EMAIL, msg);
+    // To the mailbox for the reason (speaking and press: Alpha; orders: books@; the rest: info@), and
+    // always to Alpha too, so nothing waits in a box nobody opened.
+    const to = [...new Set([mailboxForReason(msg.reason), MAILBOX.author])];
+    const r = await sendContactToAuthor(to, msg);
     emailed = !r?.error;
     if (r?.error) console.error(JSON.stringify({ type: 'error', scope: 'contact_email', message: r.error.message }));
   } catch (err) {
@@ -53,7 +57,7 @@ router.post('/', async (req, res) => {
   if (saved && emailed) await supabaseAdmin.from('contact_messages').update({ emailed: true }).eq('id', saved.id);
 
   // Nothing kept and nothing sent: say so, so the visitor can email directly instead.
-  if (!saved && !emailed) return res.status(502).json({ error: 'Your message could not be sent right now. Please email alpha.jalloh@canwetalkvoice.com.' });
+  if (!saved && !emailed) return res.status(502).json({ error: 'Your message could not be sent right now. Please email info@canwetalkvoice.com.' });
 
   authorIds()
     .then((ids) => notifyUsers(ids, { title: `New message: ${msg.reason}`, body: `${msg.name}: ${msg.message.slice(0, 120)}`, url: '/#admin' }))

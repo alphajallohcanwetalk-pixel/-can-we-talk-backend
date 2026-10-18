@@ -1,5 +1,6 @@
 import express from 'express';
 import { logAppError } from '../lib/errorLog.js';
+import { fromAddress } from '../lib/mailboxes.js';
 
 const router = express.Router();
 
@@ -133,7 +134,7 @@ router.patch('/', async (req, res) => {
 router.post('/use-resend', async (req, res) => {
   const key = process.env.RESEND_API_KEY;
   if (!key) return res.status(400).json({ error: 'RESEND_API_KEY is not set on the server.' });
-  const from = process.env.EMAIL_FROM || '';
+  const from = fromAddress();
   const address = (from.match(/<([^>]+)>/) || [null, from])[1].trim();
   const name = from.includes('<') ? from.split('<')[0].trim().replace(/^"|"$/g, '') : 'Can We Talk?';
   if (!/^[^\s@]+@[^\s@]+$/.test(address)) return res.status(400).json({ error: 'EMAIL_FROM on the server is not an email address.' });

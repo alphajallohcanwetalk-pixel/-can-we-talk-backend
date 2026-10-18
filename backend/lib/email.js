@@ -1,7 +1,8 @@
 import { Resend } from 'resend';
+import { MAILBOX, fromAddress } from './mailboxes.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = process.env.EMAIL_FROM;
+const FROM = fromAddress();
 
 // Names, book titles and essay text are interpolated into HTML below. Escape
 // them so a stray angle bracket cannot break the layout or inject markup.
@@ -43,6 +44,7 @@ export async function sendWelcomeEmail(toEmail, name) {
   `);
   return resend.emails.send({
     from: FROM,
+    reply_to: MAILBOX.general,
     to: toEmail,
     subject: 'Welcome to Can We Talk?',
     html
@@ -71,6 +73,7 @@ export async function sendOrderConfirmationEmail(toEmail, order) {
   `);
   return resend.emails.send({
     from: FROM,
+    reply_to: MAILBOX.books,
     to: toEmail,
     subject: `Order confirmed: #${order.id.slice(0, 8)}`,
     html
@@ -87,6 +90,7 @@ export async function sendNewEssayAlert(toEmails, essay) {
   // Resend supports batch sending; for large lists, chunk into batches of ~100.
   return resend.emails.send({
     from: FROM,
+    reply_to: MAILBOX.general,
     to: toEmails,
     subject: `New essay: ${essay.title}`,
     html
@@ -103,6 +107,7 @@ export async function sendBookClubWelcomeEmail(toEmail, name, plan) {
   `);
   return resend.emails.send({
     from: FROM,
+    reply_to: MAILBOX.books,
     to: toEmail,
     subject: 'Welcome to the AJ Book Club',
     html
@@ -123,7 +128,7 @@ export async function sendNewsletterConfirmation(toEmail, name, token) {
       If this was not you, ignore this message. Nothing will be sent to you unless you confirm.
     </p>
   `);
-  return resend.emails.send({ from: FROM, to: toEmail, subject: 'Confirm your email', html });
+  return resend.emails.send({ from: FROM, reply_to: MAILBOX.general, to: toEmail, subject: 'Confirm your email', html });
 }
 
 // A message from the Contact page, to Alpha. Replying in the email app goes straight to the sender.

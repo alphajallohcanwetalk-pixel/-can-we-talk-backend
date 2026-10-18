@@ -4,6 +4,8 @@ What is next, what is waiting on someone, and ideas for later. Tick items off (o
 Back to the [BRAIN](BRAIN.md) · [LOG](LOG.md)
 
 ## Now and next (from the B&A owner area, 16 October 2026)
+- [ ] Before the Serv plan ends in December: the three mailboxes (info@, books@, alpha.jalloh@) live on that plan. Move them (for example Zoho Mail free, or Cloudflare Email Routing to existing inboxes) together with the DNS move in docs/DNS_MOVE.md, or mail to the site stops arriving.
+- [ ] Optional on Render: set EMAIL_FROM to "Can We Talk? <info@canwetalkvoice.com>" (the code already swaps the old questions@).
 - [x] Notifications switched on (18 October 2026): the VAPID keys are read from the private Storage file server-config/server.json (service role only) because Render had none. Owner, when rotating keys: make a new pair (npx web-push generate-vapid-keys), set all three on Render (Render always wins over the file), then delete server-config/server.json. Note: new keys mean devices must turn notifications on again.
 - [ ] Owner: create a Supabase personal access token (supabase.com/dashboard/account/tokens) and add it on Render as SUPABASE_ACCESS_TOKEN. Then in the dashboard, Developer tab, Sign in and email settings, press "Send them through Resend" so confirmation and reset emails are not limited to a few an hour.
 - [ ] Owner, when convenient: have the Terms and the short in-site Privacy summary reviewed (the template notes are no longer shown to visitors).
