@@ -1,6 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script id="i18n-head">
+  // Language: the reader's saved choice, else the phone's language when the site has it, else English.
+  // The dictionary starts loading now; frontend/i18n/layer.js applies it. The page stays hidden until then
+  // (1.5 s at most), so readers never see English flash first. English loads nothing extra.
+  (function(){
+    var L = window.CWT_LANGS = [{code:'en',name:'English',english:'English'},{code:'fr',name:'Français',english:'French'},{code:'pt',name:'Português',english:'Portuguese'},{code:'es',name:'Español',english:'Spanish'},{code:'ar',name:'العربية',english:'Arabic',rtl:1},{code:'de',name:'Deutsch',english:'German'},{code:'it',name:'Italiano',english:'Italian'},{code:'nl',name:'Nederlands',english:'Dutch'},{code:'ru',name:'Русский',english:'Russian'},{code:'zh',name:'中文',english:'Chinese'},{code:'hi',name:'हिन्दी',english:'Hindi'},{code:'tr',name:'Türkçe',english:'Turkish'},{code:'id',name:'Bahasa Indonesia',english:'Indonesian'},{code:'sw',name:'Kiswahili',english:'Swahili'},{code:'ha',name:'Hausa',english:'Hausa'},{code:'yo',name:'Yorùbá',english:'Yoruba'},{code:'ig',name:'Igbo',english:'Igbo'},{code:'pcm',name:'Naijá',english:'Nigerian Pidgin',draft:1},{code:'kri',name:'Krio',english:'Krio',draft:1},{code:'tem',name:'Temne',english:'Temne',draft:1},{code:'men',name:'Mɛnde',english:'Mende',draft:1},{code:'ff',name:'Pulaar',english:'Fula',draft:1},{code:'wo',name:'Wolof',english:'Wolof',draft:1},{code:'ak',name:'Twi',english:'Twi',draft:1},{code:'am',name:'አማርኛ',english:'Amharic',draft:1},{code:'so',name:'Soomaali',english:'Somali',draft:1},{code:'zu',name:'isiZulu',english:'Zulu'},{code:'af',name:'Afrikaans',english:'Afrikaans'}];
+    var ok = {}; L.forEach(function(l){ ok[l.code] = l; });
+    var c = null; try { c = localStorage.getItem('cwt.lang'); } catch(e){}
+    if(!ok[c]){
+      c = 'en';
+      var n = navigator.languages || [navigator.language || 'en'];
+      for(var i = 0; i < n.length; i++){
+        var p = String(n[i]).toLowerCase(), b = p.split('-')[0];
+        if(ok[p]){ c = p; break; } if(ok[b]){ c = b; break; }
+      }
+    }
+    window.CWT_LANG = c;
+    var d = document.documentElement; d.lang = c; d.dir = ok[c].rtl ? 'rtl' : 'ltr';
+    if(c === 'en'){ window.CWT_DICT = null; return; }
+    d.classList.add('i18n-wait');
+    window.CWT_DICT = fetch('/i18n/' + c + '.json').then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+    setTimeout(function(){ d.classList.remove('i18n-wait'); }, 1500);
+  })();
+</script>
+<style id="i18n-wait">html.i18n-wait body{visibility:hidden}</style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Delete your account | Can We Talk? (The Misfit Voice)</title>
@@ -27,6 +52,7 @@
   .note{border-left:3px solid var(--red); background:rgba(179,38,30,0.06); padding:14px 16px; border-radius:0 6px 6px 0; margin:18px 0;}
   .back{display:inline-block; margin-top:36px; color:var(--green); font-weight:600;}
 </style>
+<script defer src="/i18n/layer.js"></script>
 </head>
 <body>
 <header><div class="wrap">

@@ -1,6 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script id="i18n-head">
+  // Language: the reader's saved choice, else the phone's language when the site has it, else English.
+  // The dictionary starts loading now; frontend/i18n/layer.js applies it. The page stays hidden until then
+  // (1.5 s at most), so readers never see English flash first. English loads nothing extra.
+  (function(){
+    var L = window.CWT_LANGS = [{code:'en',name:'English',english:'English'},{code:'fr',name:'Français',english:'French'},{code:'pt',name:'Português',english:'Portuguese'},{code:'es',name:'Español',english:'Spanish'},{code:'ar',name:'العربية',english:'Arabic',rtl:1},{code:'de',name:'Deutsch',english:'German'},{code:'it',name:'Italiano',english:'Italian'},{code:'nl',name:'Nederlands',english:'Dutch'},{code:'ru',name:'Русский',english:'Russian'},{code:'zh',name:'中文',english:'Chinese'},{code:'hi',name:'हिन्दी',english:'Hindi'},{code:'tr',name:'Türkçe',english:'Turkish'},{code:'id',name:'Bahasa Indonesia',english:'Indonesian'},{code:'sw',name:'Kiswahili',english:'Swahili'},{code:'ha',name:'Hausa',english:'Hausa'},{code:'yo',name:'Yorùbá',english:'Yoruba'},{code:'ig',name:'Igbo',english:'Igbo'},{code:'pcm',name:'Naijá',english:'Nigerian Pidgin',draft:1},{code:'kri',name:'Krio',english:'Krio',draft:1},{code:'tem',name:'Temne',english:'Temne',draft:1},{code:'men',name:'Mɛnde',english:'Mende',draft:1},{code:'ff',name:'Pulaar',english:'Fula',draft:1},{code:'wo',name:'Wolof',english:'Wolof',draft:1},{code:'ak',name:'Twi',english:'Twi',draft:1},{code:'am',name:'አማርኛ',english:'Amharic',draft:1},{code:'so',name:'Soomaali',english:'Somali',draft:1},{code:'zu',name:'isiZulu',english:'Zulu'},{code:'af',name:'Afrikaans',english:'Afrikaans'}];
+    var ok = {}; L.forEach(function(l){ ok[l.code] = l; });
+    var c = null; try { c = localStorage.getItem('cwt.lang'); } catch(e){}
+    if(!ok[c]){
+      c = 'en';
+      var n = navigator.languages || [navigator.language || 'en'];
+      for(var i = 0; i < n.length; i++){
+        var p = String(n[i]).toLowerCase(), b = p.split('-')[0];
+        if(ok[p]){ c = p; break; } if(ok[b]){ c = b; break; }
+      }
+    }
+    window.CWT_LANG = c;
+    var d = document.documentElement; d.lang = c; d.dir = ok[c].rtl ? 'rtl' : 'ltr';
+    if(c === 'en'){ window.CWT_DICT = null; return; }
+    d.classList.add('i18n-wait');
+    window.CWT_DICT = fetch('/i18n/' + c + '.json').then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; });
+    setTimeout(function(){ d.classList.remove('i18n-wait'); }, 1500);
+  })();
+</script>
+<style id="i18n-wait">html.i18n-wait body{visibility:hidden}</style>
 <script>
   (function(){
     var m = location.pathname.match(/^\/(essay|book)\/([0-9a-f-]{36})(?:\.html)?\/?$/i);
@@ -2183,6 +2208,7 @@
     #installBanner .ib-actions{width:100%; justify-content:flex-end;}
   }
 </style>
+<script defer src="i18n/layer.js"></script>
 </head>
 <body>
 
@@ -2989,19 +3015,19 @@
     <div id="reader-content" style="display:none;">
       <!-- Hidden measuring page. paginateText clones this to work out where
            each page breaks, so it must keep the same box as a real leaf. -->
-      <div class="reader-page-wrap" id="readerPageWrap" aria-hidden="true"
+      <div class="reader-page-wrap" id="readerPageWrap" aria-hidden="true" data-no-i18n
            style="position:absolute; left:-100000px; top:0; visibility:hidden; margin:0;"></div>
 
       <div class="book-stage">
         <div class="book-spread" id="bookSpread" oncontextmenu="return false;">
           <div class="book-page left" id="bookPageLeft">
             <div class="reader-watermark" id="readerWatermarkL"></div>
-            <div class="bp-text" id="bookTextLeft"></div>
+            <div class="bp-text" id="bookTextLeft" data-no-i18n></div>
             <div class="bp-num" id="bookNumLeft"></div>
           </div>
           <div class="book-page right" id="bookPageRight">
             <div class="reader-watermark" id="readerWatermarkR"></div>
-            <div class="bp-text" id="bookTextRight"></div>
+            <div class="bp-text" id="bookTextRight" data-no-i18n></div>
             <div class="bp-num" id="bookNumRight"></div>
           </div>
           <div class="book-spine"></div>
@@ -3273,7 +3299,7 @@
   </section>
   <section style="padding:0 0 90px;">
     <div class="wrap" style="max-width:720px;">
-      <div id="essay-detail-body" class="essay-page" style="font-family:'Fraunces',serif; font-size:1.1rem; line-height:1.85; color:var(--ink);"></div>
+      <div id="essay-detail-body" data-no-i18n class="essay-page" style="font-family:'Fraunces',serif; font-size:1.1rem; line-height:1.85; color:var(--ink);"></div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:30px;">
         <button class="btn btn-outline-dark" id="essayPagePrev">← Previous</button>
         <span id="essayPageIndicator" style="font-family:'IBM Plex Mono',monospace; font-size:0.8rem; color:var(--ink-soft);">Page 1 of 1</span>
@@ -4204,6 +4230,10 @@
   const SUPABASE_ANON_KEY = "sb_publishable_slVay-YwkZRin-oGiUDGYQ_aoROXBsx";
   const API_URL = "https://can-we-talk-backend.onrender.com";
   const PLAY_BUILD = document.documentElement.classList.contains('play-build');
+  // Dates and sentences with names or numbers in the reader's language (frontend/i18n/layer.js).
+  // If the layer did not load, both fall back to English.
+  const localDate = (v, opts) => window.I18N ? I18N.fmtDate(v, opts) : new Date(v).toLocaleDateString(undefined, opts);
+  const tx = (s, values) => window.I18N ? I18N.t(s, values) : s.replace(/\{([a-z]+)\}/gi, (m, k) => values?.[k] ?? m);
 
   // ---------- Loading signals ----------
   // Every request goes through fetch (the API, sign in, uploads), so counting them here drives one
@@ -4707,7 +4737,7 @@
       paragraph.textContent = text;
       return paragraph;
     }));
-    document.getElementById('essayPageIndicator').textContent = `Page ${essayReaderPage + 1} of ${essayReaderPages.length}`;
+    document.getElementById('essayPageIndicator').textContent = tx('Page {n} of {total}', { n: essayReaderPage + 1, total: essayReaderPages.length });
     document.getElementById('essayPagePrev').disabled = essayReaderPage === 0;
     document.getElementById('essayPageNext').disabled = essayReaderPage === essayReaderPages.length - 1;
     window.scrollTo({top:0, behavior:'smooth'});
@@ -5552,16 +5582,18 @@
         avatar.textContent = initials(name);
         const nameEl = document.createElement('span');
         nameEl.className = 'comment-name';
+        nameEl.dataset.noI18n = ''; // a reader's name stays as they wrote it
         nameEl.textContent = name;
         const stars = document.createElement('span');
         stars.className = 'comment-stars';
         stars.textContent = starString(c.rating || 0);
         const date = document.createElement('span');
         date.className = 'comment-date';
-        date.textContent = new Date(c.created_at).toLocaleDateString();
+        date.textContent = localDate(c.created_at);
         head.append(avatar, nameEl, stars, date);
         const body = document.createElement('div');
         body.className = 'comment-body';
+        body.dataset.noI18n = ''; // readers' own words (translated on request in step 2)
         body.textContent = c.body;
         div.append(head, body);
         div.appendChild(buildReportControl(c.id));
@@ -5799,7 +5831,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     const fmtDate = (v) => {
       if(!v) return '';
       const d = new Date(v);
-      return isNaN(d) ? String(v) : d.toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' });
+      return isNaN(d) ? String(v) : localDate(d, { year:'numeric', month:'long', day:'numeric' });
     };
     const rows = [
       ['Publisher', book?.publisher],
@@ -7004,7 +7036,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     document.getElementById('acctName').textContent = user.user_metadata?.full_name || 'Not set';
     document.getElementById('acctEmail').textContent = user.email || 'Not set';
     document.getElementById('acctSince').textContent = user.created_at
-      ? new Date(user.created_at).toLocaleDateString() : 'Not set';
+      ? localDate(user.created_at) : 'Not set';
 
     // Book Club state
     try {
@@ -7069,7 +7101,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         ordersBox.innerHTML = '<p class="an-empty">No orders yet.</p>';
       } else {
         orders.forEach(o => ordersBox.appendChild(devRow(
-          new Date(o.created_at).toLocaleDateString(),
+          localDate(o.created_at),
           `${money(o.total_cents)} · ${o.status}`
         )));
       }
@@ -7278,7 +7310,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       if(verified.length){
         box.appendChild(devRow('Two factor authentication', 'ON', 'ok'));
         verified.forEach(f => box.appendChild(devRow(f.friendly_name || 'Authenticator app',
-          'added ' + new Date(f.created_at).toLocaleDateString())));
+          tx('Added {date}', { date: localDate(f.created_at) }))));
         enrollBtn.style.display = 'none';
         disableBtn.style.display = '';
       } else {
@@ -8870,7 +8902,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   // The cover image may also be listed among the pages; show each page once.
   const pagesOf = (i) => [...new Set([i.image_url, ...(Array.isArray(i.pages) ? i.pages : [])].filter(Boolean))];
   const titleOf = (i) => i.title || (kindOf(i) === 'document' ? (i.outlet || 'Article') : kindOf(i) === 'video' ? 'Video' : GALLERY_LABEL[i.section] || 'Photo');
-  const fmtDay = (d) => d ? new Date(d + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+  const fmtDay = (d) => d ? localDate(new Date(d + 'T00:00:00'), { day: 'numeric', month: 'long', year: 'numeric' }) : '';
   const byLatest = (a, b) => String(b.event_date || b.created_at || '').localeCompare(String(a.event_date || a.created_at || ''));
   const linkedName = (i) => {
     if(i.book_id){ const b = books.find(x => x.id === i.book_id); if(b) return { type: 'book', id: b.id, name: b.title }; }
@@ -9440,7 +9472,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       const d = e.event_date ? new Date(e.event_date + 'T00:00:00') : null;
       card.innerHTML = '<div class="event-date"><span class="day"></span><span class="mon"></span></div><div class="event-info"><span class="event-tag"></span><h3></h3><p></p></div>';
       card.querySelector('.day').textContent = d ? String(d.getDate()).padStart(2, '0') : 'TBA';
-      card.querySelector('.mon').textContent = d ? d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : '';
+      card.querySelector('.mon').textContent = d ? localDate(d, { month: 'short', year: 'numeric' }) : '';
       const tag = card.querySelector('.event-tag');
       tag.textContent = isUpcoming ? 'Upcoming' : 'Past';
       tag.classList.add(isUpcoming ? 'upcoming' : 'past');
@@ -9834,7 +9866,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         strip.replaceChildren(...pages.map((url, n) => {
           const cell = document.createElement('div');
           cell.className = 'gx-prev-cell';
-          const img = document.createElement('img'); img.alt = doc ? `Page ${n + 1}` : 'Photo'; img.src = sized(url, 240);
+          const img = document.createElement('img'); img.alt = doc ? tx('Page {n}', { n: n + 1 }) : 'Photo'; img.src = sized(url, 240);
           img.onerror = () => { img.onerror = null; img.src = url; };
           cell.appendChild(img);
           if(doc){
@@ -10350,7 +10382,9 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
 
     const shown = Math.min(i + per, total);
     document.getElementById('readerPageNum').textContent =
-      total ? `Page ${Math.min(i + 1, total)}${per === 2 && readerState.pages[i + 1] ? ' and ' + (i + 2) : ''} of ${total}` : '';
+      total ? (per === 2 && readerState.pages[i + 1]
+        ? tx('Pages {n} and {m} of {total}', { n: Math.min(i + 1, total), m: i + 2, total })
+        : tx('Page {n} of {total}', { n: Math.min(i + 1, total), total })) : '';
     const pct = total ? Math.round((shown / total) * 100) : 0;
     document.getElementById('bookProgressFill').style.width = pct + '%';
     document.getElementById('bookPercent').textContent = pct + '% read';
