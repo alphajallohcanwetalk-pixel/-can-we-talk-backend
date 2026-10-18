@@ -4,6 +4,7 @@ What is next, what is waiting on someone, and ideas for later. Tick items off (o
 Back to the [BRAIN](BRAIN.md) · [LOG](LOG.md)
 
 ## Now and next (from the B&A owner area, 16 October 2026)
+- [x] Database reachable from this laptop (18 October 2026) through the session pooler aws-1-eu-west-1.pooler.supabase.com, user postgres.ppojnjgzrolzjmtblgwf; DATABASE_URL is in backend/.env (git-ignored). Migrations can now be applied directly. The owner plans to rotate the database password: update backend/.env after.
 - [ ] Before the Serv plan ends in December: the three mailboxes (info@, books@, alpha.jalloh@) live on that plan. Move them (for example Zoho Mail free, or Cloudflare Email Routing to existing inboxes) together with the DNS move in docs/DNS_MOVE.md, or mail to the site stops arriving.
 - [ ] Optional on Render: set EMAIL_FROM to "Can We Talk? <info@canwetalkvoice.com>" (the code already swaps the old questions@).
 - [x] Notifications switched on (18 October 2026): the VAPID keys are read from the private Storage file server-config/server.json (service role only) because Render had none. Owner, when rotating keys: make a new pair (npx web-push generate-vapid-keys), set all three on Render (Render always wins over the file), then delete server-config/server.json. Note: new keys mean devices must turn notifications on again.
