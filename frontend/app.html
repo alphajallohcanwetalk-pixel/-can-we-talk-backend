@@ -1926,6 +1926,45 @@
   }
 
   /* ---------- Consent banner ---------- */
+
+  /* Language: floating translator button, its sheet and the draft note (frontend/i18n/layer.js swaps the words). */
+  .lang-fab{position:fixed; right:16px; bottom:calc(16px + var(--tabbar-h, 0px) + env(safe-area-inset-bottom, 0px)); z-index:450;
+    display:flex; align-items:center; justify-content:center; gap:4px; min-width:48px; height:48px; padding:0 12px; border-radius:24px;
+    border:1px solid rgba(255,255,255,0.16); background:var(--sl-green-deep); color:#fff; cursor:pointer;
+    font:700 0.78rem 'Inter',sans-serif; letter-spacing:0.04em; box-shadow:0 8px 20px -8px rgba(12,25,15,0.45);
+    transition:transform .18s ease, background .18s ease;}
+  .lang-fab:hover{background:var(--sl-green);}
+  .lang-fab:active{transform:scale(0.96);}
+  .lang-fab:focus-visible{outline:3px solid var(--gold); outline-offset:3px;}
+  .lang-fab svg{width:18px; height:18px; flex:none;}
+  html[dir="rtl"] .lang-fab{right:auto; left:16px;}
+  body:has(.mini-player.show) .lang-fab{bottom:calc(84px + var(--tabbar-h, 0px) + env(safe-area-inset-bottom, 0px));}
+  body.auth-open .lang-fab, html.gx-locked .lang-fab, body:has(#consentBanner.show) .lang-fab{display:none;}
+  .lang-sheet{position:fixed; inset:0; z-index:5700; display:flex; align-items:flex-end; justify-content:center; background:rgba(12,25,15,0.5);}
+  .lang-sheet[hidden]{display:none;}
+  .lang-sheet .ls-panel{width:100%; max-width:520px; max-height:min(80vh, 640px); display:flex; flex-direction:column; gap:12px;
+    background:var(--paper); border-radius:18px 18px 0 0; padding:18px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    box-shadow:0 -12px 40px rgba(12,25,15,0.25);}
+  @media(min-width:700px){ .lang-sheet{align-items:center;} .lang-sheet .ls-panel{border-radius:18px; padding:22px;} }
+  .lang-sheet .ls-head{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .lang-sheet h2{font-size:1.35rem;}
+  .lang-sheet .ls-close{width:44px; height:44px; border:0; border-radius:50%; background:var(--paper-dim); color:var(--ink); font-size:1.3rem; cursor:pointer;}
+  .lang-sheet input[type=search]{width:100%; min-height:46px; padding:10px 14px; border:1px solid var(--line); border-radius:12px; background:#fff; font:1rem 'Inter',sans-serif; color:var(--ink);}
+  .lang-sheet .ls-list{overflow:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:6px; padding:2px;}
+  .lang-sheet .ls-list button{display:flex; flex-direction:column; align-items:flex-start; gap:2px; min-height:52px; padding:8px 12px; text-align:start;
+    border:1px solid var(--line); border-radius:12px; background:#fff; color:var(--ink); cursor:pointer;}
+  .lang-sheet .ls-list button:hover{border-color:var(--sl-green);}
+  .lang-sheet .ls-list button[aria-selected="true"]{border-color:var(--sl-green); background:#eef5ee; box-shadow:inset 0 0 0 1px var(--sl-green);}
+  .lang-sheet .ll-name{font-weight:650; font-size:0.98rem;}
+  .lang-sheet .ll-en{font-size:0.78rem; color:var(--ink-soft);}
+  .lang-sheet .ll-en em{font-style:normal; color:#8a5a00; font-weight:600;}
+  .lang-sheet .ls-note{font-size:0.82rem; color:var(--ink-soft);}
+  .lang-sheet .ls-note a, .lang-draft-note a{color:var(--sl-green); text-decoration:underline; font-weight:600;}
+  .lang-draft-note{display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; padding:6px 44px 6px 16px; position:relative;
+    background:#fff6dd; color:#5c4300; font-size:0.84rem; border-bottom:1px solid rgba(138,90,0,0.18);}
+  .lang-draft-note[hidden]{display:none;}
+  .lang-draft-note .ldn-close{position:absolute; right:4px; top:50%; transform:translateY(-50%); width:36px; height:36px; border:0; background:none; color:inherit; font-size:1.1rem; cursor:pointer;}
+  html[dir="rtl"] .lang-draft-note{padding:6px 16px 6px 44px;} html[dir="rtl"] .lang-draft-note .ldn-close{right:auto; left:4px;}
   #consentBanner{position:fixed; left:0; right:0; bottom:0; z-index:5500; display:none;
     background:var(--sl-green-deep); color:#fff; box-shadow:0 -10px 40px rgba(0,0,0,0.3);}
   #consentBanner.show{display:block; animation:cbUp .45s var(--ease-out);}
@@ -2213,10 +2252,20 @@
 <body>
 
 <!-- ============ NAV (persistent across all views) ============ -->
+<button type="button" class="lang-fab" id="langFab" aria-haspopup="dialog" aria-controls="langSheet" aria-label="Change language"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="lf-code" data-no-i18n>EN</span></button>
+<div class="lang-sheet" id="langSheet" role="dialog" aria-modal="true" aria-labelledby="langSheetTitle" hidden>
+  <div class="ls-panel">
+    <div class="ls-head"><h2 id="langSheetTitle">Choose your language</h2><button type="button" class="ls-close" aria-label="Close">&times;</button></div>
+    <input type="search" id="langSearch" placeholder="Search languages" autocomplete="off" aria-label="Search languages">
+    <div class="ls-list" id="langList" role="listbox" aria-labelledby="langSheetTitle"></div>
+    <p class="ls-note">Languages marked draft are our own translation, waiting for a native speaker to check them. <a href="#contact" data-suggest>Suggest a better wording</a></p>
+  </div>
+</div>
 <div class="acct-menu" id="acctMenu" role="menu" aria-label="Your account" hidden>
   <div class="am-head"><span class="am-avatar" aria-hidden="true"></span><span class="am-who"><strong class="am-name"></strong><span class="am-email"></span></span></div>
   <button type="button" role="menuitem" data-am="account"><span aria-hidden="true">👤</span> Your account and library</button>
   <button type="button" role="menuitem" data-am="bookclub"><span aria-hidden="true">📚</span> Book Club</button>
+  <button type="button" role="menuitem" data-am="language"><span aria-hidden="true">🌐</span> Language</button>
   <button type="button" role="menuitem" data-am="dashboard" class="staff-only"><span aria-hidden="true">🛠️</span> Dashboard</button>
   <button type="button" role="menuitem" data-am="signout" class="am-out"><span aria-hidden="true">↩</span> Sign out</button>
 </div>
@@ -2275,6 +2324,7 @@
     <a id="signInBtnMobile">Sign In / Sign Up</a>
   </div>
 </header>
+<div class="lang-draft-note" id="langDraftNote" role="note" hidden><span>Draft translation.</span> <a href="#contact" data-suggest>Suggest a better wording</a><button type="button" class="ldn-close" aria-label="Close">&times;</button></div>
 <div class="tricolor"><span class="g"></span><span class="w"></span><span class="b"></span></div>
 
 <nav class="tabbar" id="tabbar" aria-label="Main sections">
@@ -2919,7 +2969,7 @@
         <div class="field"><label for="name">Full name</label><input type="text" id="name" required placeholder="Your name"></div>
         <div class="field"><label for="email">Email address</label><input type="email" id="email" required placeholder="you@example.com"></div>
         <div class="field"><label for="reason">Reason for contact</label>
-          <select id="reason"><option>General inquiry</option><option>Speaking engagement</option><option>Media / press request</option><option>Bulk / bookstore order</option><option>Signed copy request</option><option>Feedback about the website</option></select>
+          <select id="reason"><option>General inquiry</option><option>Speaking engagement</option><option>Media / press request</option><option>Bulk / bookstore order</option><option>Signed copy request</option><option>Feedback about the website</option><option>Translation</option></select>
         </div>
         <div class="field"><label for="message">Message</label><textarea id="message" required placeholder="How can we help?"></textarea></div>
         <div class="hp-field" aria-hidden="true"><label for="contactWebsite">Leave this empty</label><input type="text" id="contactWebsite" tabindex="-1" autocomplete="off"></div>
@@ -3928,6 +3978,8 @@
         <input type="text" id="signupName" autocomplete="name" placeholder="Your name"></div>
       <div class="field"><label for="signupEmail">Email</label>
         <input type="email" id="signupEmail" autocomplete="email" inputmode="email" placeholder="you@example.com"></div>
+      <div class="field"><label for="signupLang">Language</label>
+        <select id="signupLang" data-no-i18n></select></div>
       <div class="field"><label for="signupPassword">Password</label>
         <div class="pw-wrap">
           <input type="password" id="signupPassword" autocomplete="new-password" placeholder="At least 8 characters">
@@ -4192,6 +4244,7 @@
     <div class="cb-actions">
       <button class="btn btn-sm btn-dark" id="consentAccept">I agree</button>
       <button class="btn btn-sm btn-outline-dark" id="consentReadMore">Read first</button>
+      <button type="button" class="btn btn-sm btn-outline-dark cb-lang" data-lang-open aria-label="Change language"><span aria-hidden="true">🌐</span> <span class="cb-lang-name" data-no-i18n>English</span></button>
     </div>
   </div>
 </div>
@@ -4881,6 +4934,90 @@
     if(r) r.value = 'Speaking engagement';
   }));
 
+
+  // ================= LANGUAGE =================
+  // The floating translator button, its sheet, the draft note, the sign up choice and the account menu
+  // entry. frontend/i18n/layer.js (window.I18N) swaps the words; the choice is saved to the account
+  // when signed in (PATCH /api/auth/me/language) and the account's choice wins on sign in.
+  let openLangSheet = () => {};
+  (function(){
+    if(!window.I18N) { document.getElementById('langFab')?.remove(); return; }
+    const fab = document.getElementById('langFab'), sheet = document.getElementById('langSheet');
+    const list = document.getElementById('langList'), search = document.getElementById('langSearch');
+    const note = document.getElementById('langDraftNote'), signupSel = document.getElementById('signupLang');
+    list.replaceChildren(...I18N.langs.map(l => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.lang = l.code; b.setAttribute('role', 'option');
+      b.dataset.find = (l.name + ' ' + l.english + ' ' + l.code).toLowerCase();
+      const name = document.createElement('span'); name.className = 'll-name'; name.lang = l.code; name.dataset.noI18n = ''; name.textContent = l.name;
+      const en = document.createElement('span'); en.className = 'll-en'; en.textContent = l.english;
+      if(l.draft){ const d = document.createElement('em'); d.textContent = 'Draft'; en.append(' · ', d); }
+      b.append(name, en);
+      return b;
+    }));
+    signupSel?.replaceChildren(...I18N.langs.map(l => new Option(l.name, l.code)));
+
+    function paint(){
+      const cur = I18N.lang, info = I18N.info(cur) || {};
+      fab.querySelector('.lf-code').textContent = cur.toUpperCase();
+      document.querySelectorAll('.cb-lang-name').forEach(n => { n.textContent = info.name || 'English'; });
+      list.querySelectorAll('[data-lang]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.lang === cur)));
+      if(signupSel) signupSel.value = cur;
+      let dismissed = false; try { dismissed = sessionStorage.getItem('cwt.draftNote') === cur; } catch(e){}
+      note.hidden = !info.draft || dismissed;
+    }
+    function filter(){
+      const q = search.value.trim().toLowerCase();
+      list.querySelectorAll('[data-lang]').forEach(b => { b.hidden = !!q && !b.dataset.find.includes(q) && !b.textContent.toLowerCase().includes(q); });
+    }
+    let lastFocus = null;
+    openLangSheet = () => {
+      if(!sheet.hidden) return;
+      lastFocus = document.activeElement;
+      search.value = ''; filter(); sheet.hidden = false;
+      history.pushState(Object.assign({}, history.state || {}, { langSheet: true }), '', location.href);
+      setTimeout(() => (list.querySelector('[aria-selected="true"]') || search).focus(), 30);
+    };
+    function closeLangSheet(fromHistory){
+      if(sheet.hidden) return;
+      sheet.hidden = true;
+      if(!fromHistory && history.state && history.state.langSheet) history.back();
+      (lastFocus && document.contains(lastFocus) ? lastFocus : fab).focus();
+    }
+    window.addEventListener('popstate', e => { if(!sheet.hidden){ e.stopImmediatePropagation(); closeLangSheet(true); } }, true);
+    fab.addEventListener('click', openLangSheet);
+    document.addEventListener('click', e => { if(e.target.closest('[data-lang-open]')) openLangSheet(); });
+    sheet.querySelector('.ls-close').addEventListener('click', () => closeLangSheet());
+    sheet.addEventListener('click', e => { if(e.target === sheet) closeLangSheet(); });
+    sheet.addEventListener('keydown', e => { if(e.key === 'Escape'){ e.stopPropagation(); closeLangSheet(); } });
+    search.addEventListener('input', filter);
+    list.addEventListener('click', e => {
+      const b = e.target.closest('[data-lang]'); if(!b) return;
+      I18N.set(b.dataset.lang);
+      closeLangSheet();
+    });
+    signupSel?.addEventListener('change', () => I18N.set(signupSel.value, { save: false }));
+    note.querySelector('.ldn-close').addEventListener('click', () => { try { sessionStorage.setItem('cwt.draftNote', I18N.lang); } catch(e){} note.hidden = true; });
+    // "Suggest a better wording": the contact form, reason Translation, with the language and page filled in.
+    document.addEventListener('click', e => {
+      const a = e.target.closest('[data-suggest]'); if(!a) return;
+      e.preventDefault();
+      const page = (location.hash || '#home').split('?')[0];
+      closeLangSheet();
+      showView('contact');
+      const r = document.getElementById('reason'); if(r) r.value = 'Translation';
+      const m = document.getElementById('message');
+      if(m && !m.value.trim()) m.value = `${(I18N.info() || {}).english || I18N.lang} (${I18N.lang}), ${page}\n` + tx('Wording to improve:') + ' ';
+    });
+    window.addEventListener('cwt:lang', e => {
+      paint();
+      if(e.detail.save && typeof currentSession !== 'undefined' && currentSession){
+        fetch(`${API_URL}/api/auth/me/language`, { method: 'PATCH', headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()), body: JSON.stringify({ language: e.detail.lang }) }).catch(() => {});
+      }
+    });
+    paint();
+  })();
+
   // ================= AUTH =================
   let currentUser = null; // {name, email}
   const authModal = document.getElementById('authModal');
@@ -4950,6 +5087,7 @@
       const what = item.dataset.am;
       if(what === 'account'){ showView('account'); loadAccountView(); }
       else if(what === 'bookclub') showView('bookclub');
+      else if(what === 'language') openLangSheet();
       else if(what === 'dashboard') showView('admin');
       else if(what === 'signout') signOutEverywhere();
       return;
@@ -5002,6 +5140,7 @@
     try {
       const me = await fetch(`${API_URL}/api/auth/me`, { headers: authHeaders() }).then(r => r.json());
       document.body.classList.toggle('is-staff', Boolean(me.is_author || me.is_developer));
+      if(window.I18N && me.language && me.language !== I18N.lang) I18N.set(me.language, { save: false });
     } catch(e){ document.body.classList.remove('is-staff'); }
   }
 
@@ -5267,7 +5406,7 @@
         email,
         password: pw,
         options: {
-          data: { full_name: name },
+          data: { full_name: name, language: document.getElementById('signupLang')?.value || (window.I18N ? I18N.lang : 'en') },
           // Send the confirmation link back to this site rather than Supabase's
           // default, which would otherwise drop the reader on a blank page.
           emailRedirectTo: `${location.origin}${location.pathname}`
@@ -7062,6 +7201,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       const link = document.getElementById('acctMfaLink');
       if(link) link.style.display = (me.is_author || me.is_developer) ? '' : 'none';
       document.body.classList.toggle('is-staff', Boolean(me.is_author || me.is_developer));
+      if(window.I18N && me.language && me.language !== I18N.lang) I18N.set(me.language, { save: false });
     } catch(e){}
 
     // Library: what this account can read and hear right now.
