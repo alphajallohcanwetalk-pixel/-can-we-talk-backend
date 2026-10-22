@@ -72,3 +72,6 @@ export function t(lang, english, values, dicts) {
   const s = (d && d[english]) || english;
   return values ? s.replace(/\{([a-z]+)\}/gi, (m, k) => (values[k] != null ? String(values[k]) : m)) : s;
 }
+
+/** Tests: use these dictionaries instead of the files. */
+export function useDicts(dicts) { for (const k of Object.keys(cache)) delete cache[k]; Object.assign(cache, dicts); }

@@ -11,12 +11,12 @@ const router = express.Router();
 // public anon key (Supabase's JS SDK handles this well). This endpoint exists mainly
 // to trigger our own welcome email as a side effect right after signup.
 router.post('/welcome', async (req, res) => {
-  const { email, full_name } = req.body;
+  const { email, full_name, language } = req.body;
   if (!/^\S+@\S+\.\S+$/.test(email || '') || typeof full_name !== 'string' || full_name.trim().length < 2 || full_name.length > 120) {
     return res.status(400).json({ error: 'Valid email and name required' });
   }
   try {
-    await sendWelcomeEmail(email, full_name);
+    await sendWelcomeEmail(email, full_name, isLang(language) ? language : 'en');
     res.json({ sent: true });
   } catch (err) {
     console.error('Welcome email failed:', err);

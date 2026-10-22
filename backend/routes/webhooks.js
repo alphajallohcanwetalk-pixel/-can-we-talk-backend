@@ -1,5 +1,6 @@
 import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
+import { isLang } from '../lib/i18n.js';
 import { stripe } from '../lib/stripe.js';
 import { sendOrderConfirmationEmail, sendBookClubWelcomeEmail } from '../lib/email.js';
 
@@ -35,7 +36,7 @@ router.post('/stripe', async (req, res) => {
 
       const { data: order } = await supabaseAdmin
         .from('orders')
-        .select('*, order_items(*, books(title)), profiles(email)')
+        .select('*, order_items(*, books(title)), profiles(email, language)')
         .eq('id', orderId)
         .single();
 
@@ -62,7 +63,7 @@ router.post('/stripe', async (req, res) => {
       if (order?.profiles?.email) {
         try {
           const items = order.order_items.map((i) => ({ ...i, title: i.books?.title || 'Book' }));
-          await sendOrderConfirmationEmail(order.profiles.email, { ...order, items });
+          await sendOrderConfirmationEmail(order.profiles.email, { ...order, items }, isLang(order.profiles.language) ? order.profiles.language : 'en');
         } catch (emailError) {
           console.error(JSON.stringify({ type: 'error', scope: 'order_confirmation_email', order_id: orderId, message: emailError.message }));
         }
@@ -89,10 +90,10 @@ router.post('/stripe', async (req, res) => {
         status: 'active'
       }, { onConflict: 'stripe_subscription_id', ignoreDuplicates: true });
 
-      const { data: profile } = await supabaseAdmin.from('profiles').select('email, full_name').eq('id', userId).single();
+      const { data: profile } = await supabaseAdmin.from('profiles').select('email, full_name, language').eq('id', userId).single();
       if (profile && !existingSubscription) {
         try {
-          await sendBookClubWelcomeEmail(profile.email, profile.full_name, plan);
+          await sendBookClubWelcomeEmail(profile.email, profile.full_name, plan, isLang(profile.language) ? profile.language : 'en');
         } catch (emailError) {
           console.error(JSON.stringify({ type: 'error', scope: 'bookclub_welcome_email', user_id: userId, message: emailError.message }));
         }

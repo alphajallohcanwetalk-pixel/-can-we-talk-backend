@@ -33,3 +33,15 @@ test('returns unique sorted strings', () => {
   const s = extractStrings(page + page);
   assert.deepEqual(s, [...new Set(s)].sort());
 });
+
+test('server strings: t(lang, ...) calls and notification titles', async () => {
+  const { extractServerStrings } = await import('./i18n-extract.mjs');
+  const code = `const a = t(lang, 'Welcome, {name}', { name });
+    t(l, "Order confirmed: #{number}", x); esc(t(lang, "Your order will ship within 2 business days. We'll email tracking details once it's on its way."));
+    announce({ title: essay.audio_url ? 'New audio essay' : 'New essay', body: essay.title });
+    console.log('not this');`;
+  const s = extractServerStrings(code);
+  for (const want of ['Welcome, {name}', 'Order confirmed: #{number}', "Your order will ship within 2 business days. We'll email tracking details once it's on its way.", 'New audio essay', 'New essay'])
+    assert.ok(s.includes(want), 'missing: ' + want);
+  assert.ok(!s.includes('not this'));
+});

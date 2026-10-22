@@ -1,5 +1,6 @@
 import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
+import { isLang, reqLang } from '../lib/i18n.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
 import { sendNewsletterConfirmation } from '../lib/email.js';
 import { stripDashes } from '../lib/validate.js';
@@ -61,7 +62,7 @@ router.post('/subscribe', async (req, res) => {
   }
 
   try {
-    await sendNewsletterConfirmation(email, fullName, row.token);
+    await sendNewsletterConfirmation(email, fullName, row.token, isLang(req.body?.language) ? req.body.language : reqLang(req));
   } catch (mailError) {
     console.error(JSON.stringify({ type: 'error', scope: 'newsletter_confirmation', message: mailError.message }));
   }

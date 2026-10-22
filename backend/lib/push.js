@@ -1,5 +1,6 @@
 import webpush from 'web-push';
 import { supabaseAdmin } from './supabase.js';
+import { isLang, t } from './i18n.js';
 
 // App notifications for new publications.
 //
@@ -28,26 +29,47 @@ export function pushPublicKey() {
   return pushReady() ? process.env.VAPID_PUBLIC_KEY : null;
 }
 
-// Sends one notification to every subscribed device. Never throws: a failed
-// notification must not fail the publish that triggered it. Devices that have
-// uninstalled or revoked permission answer 404 or 410 and are removed.
-export async function notifyEveryone({ title, body, url, image }) {
+/** Devices grouped by the language of their account (English for devices with no account). */
+export function groupByLanguage(subs, langOf) {
+  const groups = new Map();
+  for (const s of subs) {
+    const l = isLang(langOf[s.user_id]) ? langOf[s.user_id] : 'en';
+    if (!groups.has(l)) groups.set(l, []);
+    groups.get(l).push(s);
+  }
+  return groups;
+}
+
+// Sends one notification to every subscribed device, in each device's account language (title
+// through t(); values fill {placeholders}). Never throws: a failed notification must not fail the
+// publish that triggered it. Devices that have uninstalled or revoked permission answer 404 or 410
+// and are removed.
+export async function notifyEveryone({ title, body, url, image, values }) {
   if (!pushReady()) return { sent: 0, skipped: 'push not configured' };
-  const { data: subs, error } = await supabaseAdmin.from('push_subscriptions').select('id,endpoint,p256dh,auth');
+  let { data: subs, error } = await supabaseAdmin.from('push_subscriptions').select('id,endpoint,p256dh,auth,user_id');
+  if (error) ({ data: subs, error } = await supabaseAdmin.from('push_subscriptions').select('id,endpoint,p256dh,auth'));
   if (error || !subs?.length) return { sent: 0 };
 
-  const payload = JSON.stringify({ title, body, url: url || '/', image: image || null });
+  const ids = [...new Set(subs.map((s) => s.user_id).filter(Boolean))];
+  const langOf = {};
+  if (ids.length) {
+    const { data: profiles } = await supabaseAdmin.from('profiles').select('id,language').in('id', ids);
+    for (const p of profiles || []) langOf[p.id] = p.language;
+  }
   let sent = 0;
   const dead = [];
-  await Promise.all(subs.map(async (s) => {
-    try {
-      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, payload, { TTL: 60 * 60 * 24 * 3 });
-      sent += 1;
-    } catch (err) {
-      if (err.statusCode === 404 || err.statusCode === 410) dead.push(s.id);
-      else console.error(JSON.stringify({ type: 'error', scope: 'push_send', status: err.statusCode, message: err.message }));
-    }
-  }));
+  for (const [lang, group] of groupByLanguage(subs, langOf)) {
+    const payload = JSON.stringify({ title: t(lang, title, values), body, url: url || '/', image: image || null });
+    await Promise.all(group.map(async (s) => {
+      try {
+        await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, payload, { TTL: 60 * 60 * 24 * 3 });
+        sent += 1;
+      } catch (err) {
+        if (err.statusCode === 404 || err.statusCode === 410) dead.push(s.id);
+        else console.error(JSON.stringify({ type: 'error', scope: 'push_send', status: err.statusCode, message: err.message }));
+      }
+    }));
+  }
   if (dead.length) await supabaseAdmin.from('push_subscriptions').delete().in('id', dead);
   return { sent, removed: dead.length };
 }

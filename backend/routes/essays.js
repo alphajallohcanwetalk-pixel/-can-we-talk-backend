@@ -1,6 +1,6 @@
 import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
-import { reqLang, translateRows } from '../lib/i18n.js';
+import { isLang, reqLang, translateRows } from '../lib/i18n.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
 import { sendNewEssayAlert } from '../lib/email.js';
 import { announce } from '../lib/push.js';
@@ -63,12 +63,21 @@ router.post('/', requireAuth, requireAuthor, async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
 
   if (notify_subscribers) {
-    const { data: subscribers } = await supabaseAdmin
+    let { data: subscribers, error: subErr } = await supabaseAdmin
       .from('profiles')
-      .select('email')
+      .select('email,language')
       .eq('book_club_active', true); // or a separate "newsletter_opt_in" flag
-    const emails = (subscribers || []).map((s) => s.email);
-    if (emails.length) await sendNewEssayAlert(emails, essay);
+    if (subErr) ({ data: subscribers } = await supabaseAdmin.from('profiles').select('email').eq('book_club_active', true));
+    const byLang = new Map();
+    for (const s of subscribers || []) {
+      const l = isLang(s.language) ? s.language : 'en';
+      if (!byLang.has(l)) byLang.set(l, []);
+      byLang.get(l).push(s.email);
+    }
+    for (const [l, emails] of byLang) {
+      const [inLang] = await translateRows('essay', [essay], ['title', 'excerpt'], l);
+      await sendNewEssayAlert(emails, inLang, l);
+    }
   }
 
   // Tell every device with notifications on. Runs after the save and never

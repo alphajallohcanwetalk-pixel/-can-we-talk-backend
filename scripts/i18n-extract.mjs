@@ -5,7 +5,7 @@
 // (frontend/i18n/layer.js) swaps exact matches, so a string collected here that never shows is harmless.
 //
 // Usage: node scripts/i18n-extract.mjs
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, copyFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -52,6 +52,18 @@ function literals(code) {
   return found.map((s) => s.replace(/\\(['"`\\])/g, '$1').replace(/\\n/g, ' '));
 }
 
+/** The API's own reader facing text: first arguments of t(lang, '...') and notification titles. */
+export function extractServerStrings(code) {
+  const out = new Set();
+  const lit = String.raw`'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"`;
+  const unescape = (s) => s.replace(/\\(['"\\])/g, '$1');
+  for (const m of code.matchAll(new RegExp(String.raw`\bt\(\s*\w+\s*,\s*(?:` + lit + ')', 'g'))) out.add(unescape(m[1] ?? m[2]));
+  for (const m of code.matchAll(/announce\(\{\s*title:\s*([^\n]*?),\s*body:/g)) {
+    for (const q of m[1].matchAll(new RegExp(lit, 'g'))) out.add(unescape(q[1] ?? q[2]));
+  }
+  return [...out].sort();
+}
+
 export function extractStrings(html) {
   const out = new Set();
   const scripts = [];
@@ -75,8 +87,19 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
     let src; try { src = readFileSync(f, 'utf8'); } catch { continue; }
     for (const s of extractStrings(f.endsWith('.js') ? `<script>${src}</script>` : src)) all.add(s);
   }
+  // The API's emails and notifications (t(lang, '...') calls and announce titles).
+  for (const dir of ['backend/lib', 'backend/routes']) {
+    for (const f of readdirSync(path.join(root, dir)).filter((f) => f.endsWith('.js') && !f.endsWith('.test.js'))) {
+      for (const s of extractServerStrings(readFileSync(path.join(root, dir, f), 'utf8'))) all.add(s);
+    }
+  }
   const sorted = [...all].sort();
   mkdirSync(path.join(root, 'frontend/i18n'), { recursive: true });
   writeFileSync(path.join(root, 'frontend/i18n/en.json'), JSON.stringify(Object.fromEntries(sorted.map((s) => [s, s])), null, 1) + '\n');
   console.log(`en.json: ${sorted.length} strings`);
+  // The API reads the same dictionaries (backend/lib/i18n.js t()); Render deploys only backend/.
+  mkdirSync(path.join(root, 'backend/i18n'), { recursive: true });
+  const dicts = readdirSync(path.join(root, 'frontend/i18n')).filter((f) => /^[a-z]{2,3}\.json$/.test(f) && f !== 'en.json');
+  for (const f of dicts) copyFileSync(path.join(root, 'frontend/i18n', f), path.join(root, 'backend/i18n', f));
+  console.log(`backend/i18n: ${dicts.length} dictionaries copied`);
 }

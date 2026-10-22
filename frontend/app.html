@@ -5452,7 +5452,7 @@
       document.getElementById('signupPassword').value = '';
       // Welcome email is fire and forget: sign-up must not fail because the
       // mail provider is slow.
-      fetch(`${API_URL}/api/auth/welcome`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, full_name: name }) }).catch(() => {});
+      fetch(`${API_URL}/api/auth/welcome`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, full_name: name, language: window.I18N ? I18N.lang : 'en' }) }).catch(() => {});
       if(data.session){
         currentSession = data.session;
         setSignedIn({ name, email });
@@ -6652,7 +6652,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         const res = await fetch(`${API_URL}/api/newsletter/subscribe`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, full_name: currentUser?.name || null })
+          body: JSON.stringify({ email, full_name: currentUser?.name || null, language: window.I18N ? I18N.lang : 'en' })
         });
         const body = await res.json().catch(() => ({}));
         if(!res.ok) throw new Error(body.hint || body.error || 'Could not sign you up.');
