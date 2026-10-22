@@ -4,6 +4,11 @@ What is next, what is waiting on someone, and ideas for later. Tick items off (o
 Back to the [BRAIN](BRAIN.md) · [LOG](LOG.md)
 
 ## Now and next (from the B&A owner area, 16 October 2026)
+- [x] Languages (22 October 2026): the whole site, Alpha's content and the emails in 28 languages, floating translator button. See LOG.
+- [ ] Owner: Alpha creates the Google Cloud Translation key (steps in CLAUDE_HANDOFF.md) and sends it to B&A privately; B&A adds GOOGLE_TRANSLATE_KEY on Render.
+- [ ] Then B&A: automatic translation of new essays, captions and descriptions (per paragraph, monthly budget TRANSLATE_MONTHLY_CHARS), and the sign in emails (confirm, reset) per language (needs SUPABASE_ACCESS_TOKEN on Render).
+- [ ] Ask native speakers to check the draft languages (Pidgin, Krio, Temne, Mende, Fula, Wolof, Twi, Amharic, Somali); fixes go in frontend/i18n/<code>.json; when one is approved, remove its draft flag in the head script of frontend/app.html.
+- [ ] Step 2: member chat (WhatsApp style: members, who is online, sharing thoughts). Brainstorm and design first, in all 28 languages.
 - [x] Database reachable from this laptop (18 October 2026) through the session pooler aws-1-eu-west-1.pooler.supabase.com, user postgres.ppojnjgzrolzjmtblgwf; DATABASE_URL is in backend/.env (git-ignored). Migrations can now be applied directly. The owner plans to rotate the database password: update backend/.env after.
 - [ ] Before the Serv plan ends in December: the three mailboxes (info@, books@, alpha.jalloh@) live on that plan. Move them (for example Zoho Mail free, or Cloudflare Email Routing to existing inboxes) together with the DNS move in docs/DNS_MOVE.md, or mail to the site stops arriving.
 - [ ] Optional on Render: set EMAIL_FROM to "Can We Talk? <info@canwetalkvoice.com>" (the code already swaps the old questions@).
