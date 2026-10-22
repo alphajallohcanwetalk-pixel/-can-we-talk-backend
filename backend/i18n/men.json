@@ -1495,5 +1495,11 @@
  "🔒 Secure checkout · all major cards & mobile money": "🔒 Chɛkɔt sef · kad kpɛlɛ kɛ mobayl mɔni",
  "🔔 Notifications on": "🔔 Notifikeshɔn ɔn",
  "🔔 Notify me of new releases": "🔔 Rilis nyu ma ye nya va",
- "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Ti ship dunya kpɛlɛ hu Freetown kɛ Nairobi wɛhaus ma"
+ "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Ti ship dunya kpɛlɛ hu Freetown kɛ Nairobi wɛhaus ma",
+ "Added {date}": "Dɛn ad am {date}",
+ "Page {n}": "Pej {n}",
+ "Page {n} of {total}": "Pej {n} pan {total}",
+ "Pages {n} and {m} of {total}": "Pej {n} ɛn {m} pan {total}",
+ "That language could not load. Check your connection and try again.": "Dat langwej nɔ ebul lod. Chɛk yu nɛtwɔk ɛn tray igen.",
+ "{pct}% read": "Yu dɔn rid {pct}%"
 }

@@ -1495,5 +1495,11 @@
  "Your account is live. You can now comment on books and essays, buy audiobook chapters, and, if you join, read every book online through the AJ Book Club.": "Akaụntụ gị na-arụ ọrụ ugbu a. Ị nwere ike ide nkọwa n'akwụkwọ na edemede, zụta isiakwụkwọ akwụkwọ ọdịyo, ma, ọ bụrụ na i sonye, gụọ akwụkwọ ọ bụla n'ịntanetị site na AJ Book Club.",
  "Your order will ship within 2 business days. We'll email tracking details once it's on its way.": "A ga-eziga ịtụ ahịa gị n'ime ụbọchị ọrụ 2. Anyị ga-ezitere gị nkọwa nsochi n'email ozugbo ọ malitere ije.",
  "signed": "e binyere aka",
- "{name}, someone asked to receive new essays from Alpha Amadu Jalloh at this address. Confirm below and you will get each new piece as it is published.": "{name}, mmadụ rịọrọ ka a na-ezite edemede ọhụrụ sitere n'aka Alpha Amadu Jalloh n'adreesị a. Kwado n'okpuru, ị ga na-enwetakwa ọrụ ọhụrụ ọ bụla ka a na-ebipụta ya."
+ "{name}, someone asked to receive new essays from Alpha Amadu Jalloh at this address. Confirm below and you will get each new piece as it is published.": "{name}, mmadụ rịọrọ ka a na-ezite edemede ọhụrụ sitere n'aka Alpha Amadu Jalloh n'adreesị a. Kwado n'okpuru, ị ga na-enwetakwa ọrụ ọhụrụ ọ bụla ka a na-ebipụta ya.",
+ "Added {date}": "Etinyere {date}",
+ "Page {n}": "Peeji {n}",
+ "Page {n} of {total}": "Peeji {n} n'ime {total}",
+ "Pages {n} and {m} of {total}": "Peeji {n} na {m} n'ime {total}",
+ "That language could not load. Check your connection and try again.": "Asụsụ ahụ enweghị ike ibu. Lelee njikọ gị ma nwaa ọzọ.",
+ "{pct}% read": "Agụla {pct}%"
 }

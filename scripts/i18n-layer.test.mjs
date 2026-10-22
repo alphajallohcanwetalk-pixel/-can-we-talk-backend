@@ -22,7 +22,7 @@ const page = (lang) => `<!doctype html><html lang="en"><head><title>Read the ess
 <script>try{${lang ? `localStorage.setItem('cwt.lang','${lang}')` : `localStorage.removeItem('cwt.lang')`}}catch(e){}</script>${head}
 <script defer src="/i18n/layer.js"></script></head><body>
 <h1 id="h">Read the essays</h1><input id="q" placeholder="Search everything"><a id="a" title="Open the reader">x</a>
-<textarea id="ta">Saved</textarea><p id="raw" data-no-i18n>Read the essays</p><div id="dyn"></div></body></html>`;
+<textarea id="ta">Saved</textarea><select id="sel"><option>Read the essays</option><option value="x">Saved</option></select><div class="comment-body" id="cb">English text. Hello world</div><p id="raw" data-no-i18n>Read the essays</p><div id="dyn"></div></body></html>`;
 
 let browser;
 before(async () => { assert.ok(head, 'head script with id i18n-head and style id i18n-wait must exist in app.html'); browser = await chromium.launch(); });
@@ -35,6 +35,7 @@ async function open(lang, { dict = FR, dictStatus = 200 } = {}) {
     const u = new URL(route.request().url()); requests.push(u.pathname);
     if (u.pathname === '/') return route.fulfill({ contentType: 'text/html', body: page(lang) });
     if (u.pathname === '/i18n/layer.js') return route.fulfill({ contentType: 'text/javascript', body: layer });
+    if (u.pathname === '/i18n/de.json') return route.fulfill({ status: 404, body: '' });
     if (u.pathname.startsWith('/i18n/')) return route.fulfill({ status: dictStatus, contentType: 'application/json', body: JSON.stringify(u.pathname.includes('/ar.') ? AR : dict) });
     return route.fulfill({ status: 404, body: '' });
   });
@@ -104,5 +105,36 @@ test('switching fr → en restores English, → ar is right to left; t() fills p
   assert.equal(await text(p, '#h'), 'اقرأ المقالات');
   assert.equal(await p.getAttribute('html', 'dir'), 'rtl');
   assert.equal(await p.evaluate(() => localStorage.getItem('cwt.lang')), 'ar');
+  await ctx.close();
+});
+
+test('an option with no value keeps its English value while its text is translated', async () => {
+  const { p, ctx } = await open('fr');
+  await p.waitForFunction(() => document.querySelector('#sel option').textContent === 'Lire les essais');
+  assert.equal(await p.inputValue('#sel'), 'Read the essays');
+  await p.selectOption('#sel', 'x');
+  assert.equal(await p.inputValue('#sel'), 'x');
+  await ctx.close();
+});
+
+test('a language whose dictionary fails to load leaves the current language and the saved choice alone', async () => {
+  const { p, ctx } = await open('fr');
+  await p.waitForFunction(() => window.I18N && document.getElementById('h').textContent === 'Lire les essais');
+  await p.evaluate(() => { window.__saves = []; addEventListener('cwt:lang', (e) => __saves.push(e.detail)); });
+  const ok = await p.evaluate(() => I18N.set('de'));
+  assert.equal(ok, false);
+  assert.equal(await p.evaluate(() => I18N.lang), 'fr');
+  assert.equal(await text(p, '#h'), 'Lire les essais');
+  assert.equal(await p.evaluate(() => localStorage.getItem('cwt.lang')), 'fr');
+  assert.deepEqual(await p.evaluate(() => __saves), []);
+  await ctx.close();
+});
+
+test('right to left: English text in readers words keeps its own direction', async () => {
+  const { p, ctx } = await open('fr');
+  await p.waitForFunction(() => window.I18N);
+  await p.evaluate(() => I18N.set('ar', { save: false }));
+  await p.waitForFunction(() => document.documentElement.dir === 'rtl');
+  assert.equal(await p.$eval('#cb', (e) => getComputedStyle(e).unicodeBidi), 'plaintext');
   await ctx.close();
 });

@@ -18,6 +18,7 @@
   var dict = null;
   var root = document.documentElement;
   var observer = null;
+  var requests = 0;
 
   function norm(s) { return s.replace(/\s+/g, ' ').trim(); }
   function lookup(english) {
@@ -36,6 +37,9 @@
     if (node.__en === undefined || now !== node.__out) node.__en = now; // first sight, or the app wrote new text
     var english = node.__en;
     if (!/\S/.test(english)) return;
+    // An <option> with no value sends its text: keep that English, whatever the reader sees.
+    var parent = node.parentNode;
+    if (parent && parent.nodeName === 'OPTION' && !parent.hasAttribute('value')) parent.setAttribute('value', norm(english));
     var t = lookup(english);
     var out = t ? english.match(/^\s*/)[0] + t + english.match(/\s*$/)[0] : english;
     node.__out = out;
@@ -98,20 +102,29 @@
       var date = d instanceof Date ? d : new Date(d);
       return isNaN(date) ? String(d) : date.toLocaleDateString(window.I18N.locale(), opts);
     },
-    /** Switch language. save:false keeps it to this device (used when the profile's choice arrives). */
+    /** Switch language. save:false keeps it to this device (used when the profile's choice arrives).
+     *  Resolves true when switched. If the dictionary cannot load, nothing changes (the reader's choice
+     *  is never replaced by English) and it resolves false. Only the latest request wins. */
     set: function (code, options) {
       code = BY[code] ? code : 'en';
       var save = !(options && options.save === false);
+      var ticket = ++requests;
       var load = code === 'en' ? Promise.resolve(null)
         : fetch('/i18n/' + code + '.json').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
       return load.then(function (d) {
-        lang = d || code === 'en' ? code : 'en';
+        if (ticket !== requests) return false;
+        if (code !== 'en' && !d) {
+          window.dispatchEvent(new CustomEvent('cwt:lang-failed', { detail: { lang: code } }));
+          return false;
+        }
+        lang = code;
         dict = d;
         try { localStorage.setItem('cwt.lang', lang); } catch (e) {}
         setRoot(lang);
         apply(root);
         watch();
         window.dispatchEvent(new CustomEvent('cwt:lang', { detail: { lang: lang, save: save } }));
+        return true;
       });
     }
   };

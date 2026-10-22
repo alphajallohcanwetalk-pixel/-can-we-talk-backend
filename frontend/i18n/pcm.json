@@ -1495,5 +1495,11 @@
  "🔒 Secure checkout · all major cards & mobile money": "🔒 Safe checkout · all di big cards and mobile money",
  "🔔 Notifications on": "🔔 Notifications don on",
  "🔔 Notify me of new releases": "🔔 Tell me about new releases",
- "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 We dey send am everywhere for di world from our warehouses for Freetown and Nairobi"
+ "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 We dey send am everywhere for di world from our warehouses for Freetown and Nairobi",
+ "Added {date}": "Dem add am {date}",
+ "Page {n}": "Page {n}",
+ "Page {n} of {total}": "Page {n} for {total}",
+ "Pages {n} and {m} of {total}": "Pages {n} and {m} for {total}",
+ "That language could not load. Check your connection and try again.": "That language no gree load. Check your network and try again.",
+ "{pct}% read": "You don read {pct}%"
 }

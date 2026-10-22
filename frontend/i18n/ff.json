@@ -1495,5 +1495,11 @@
  "🔒 Secure checkout · all major cards & mobile money": "🔒 Yoɓgol kisnaaɗo · karte mawɗe fof e mobile money",
  "🔔 Notifications on": "🔔 Tintinɗe hurminaama",
  "🔔 Notify me of new releases": "🔔 Tintin kam e ko yaltinaa kese",
- "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Ina neldee aduna fof iwde e magaasiiji Freetown e Nairobi"
+ "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Ina neldee aduna fof iwde e magaasiiji Freetown e Nairobi",
+ "Added {date}": "Ɓeydaama {date}",
+ "Page {n}": "Page {n}",
+ "Page {n} of {total}": "Page {n} e nder {total}",
+ "Pages {n} and {m} of {total}": "Pages {n} e {m} e nder {total}",
+ "That language could not load. Check your connection and try again.": "Ɗemngal ngal waawaay loodeede. Ƴeewtu internet maaɗa, ndeen haɓtu.",
+ "{pct}% read": "Janngaama {pct}%"
 }

@@ -1495,5 +1495,11 @@
  "Your account is live. You can now comment on books and essays, buy audiobook chapters, and, if you join, read every book online through the AJ Book Club.": "Àkáǹtì rẹ ti ń ṣiṣẹ́. O lè sọ àsọyé lórí ìwé àti àròkọ báyìí, ra àwọn orí ìwé olóhùn, àti pé, tí o bá darapọ̀, ka gbogbo ìwé lórí íńtánẹ́ẹ̀tì nípasẹ̀ AJ Book Club.",
  "Your order will ship within 2 business days. We'll email tracking details once it's on its way.": "A ó fi àṣẹ ọjà rẹ ránṣẹ́ láàárín ọjọ́ iṣẹ́ 2. A ó fi àlàyé ìtọpinpin ránṣẹ́ sí ímeèlì rẹ nígbà tí ó bá ti wà lójú ọ̀nà.",
  "signed": "tí a buwọ́lù",
- "{name}, someone asked to receive new essays from Alpha Amadu Jalloh at this address. Confirm below and you will get each new piece as it is published.": "{name}, ẹnìkan béèrè láti máa gba àròkọ tuntun láti ọ̀dọ̀ Alpha Amadu Jalloh ní àdírẹ́sì yìí. Jẹ́rìísí nísàlẹ̀, ìwọ yóò sì máa gba iṣẹ́ tuntun kọ̀ọ̀kan bí a ṣe ń tẹ̀ ẹ́ jáde."
+ "{name}, someone asked to receive new essays from Alpha Amadu Jalloh at this address. Confirm below and you will get each new piece as it is published.": "{name}, ẹnìkan béèrè láti máa gba àròkọ tuntun láti ọ̀dọ̀ Alpha Amadu Jalloh ní àdírẹ́sì yìí. Jẹ́rìísí nísàlẹ̀, ìwọ yóò sì máa gba iṣẹ́ tuntun kọ̀ọ̀kan bí a ṣe ń tẹ̀ ẹ́ jáde.",
+ "Added {date}": "A fi kun {date}",
+ "Page {n}": "Ojú ìwé {n}",
+ "Page {n} of {total}": "Ojú ìwé {n} lára {total}",
+ "Pages {n} and {m} of {total}": "Ojú ìwé {n} àti {m} lára {total}",
+ "That language could not load. Check your connection and try again.": "Èdè yẹn kò lè ṣí. Ṣàyẹ̀wò ìsopọ̀ rẹ kí o tún gbìyànjú.",
+ "{pct}% read": "A ti ka {pct}%"
 }

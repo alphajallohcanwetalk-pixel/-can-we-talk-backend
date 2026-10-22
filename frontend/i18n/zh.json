@@ -1496,5 +1496,11 @@
  "🔔 Notifications on": "🔔 通知已开启",
  "🔔 Notify me of new releases": "🔔 新作发布时通知我",
  "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 从弗里敦和内罗毕仓库发货，配送全球",
- "Page": "页面"
+ "Page": "页面",
+ "Added {date}": "添加于 {date}",
+ "Page {n}": "第 {n} 页",
+ "Page {n} of {total}": "第 {n} 页，共 {total} 页",
+ "Pages {n} and {m} of {total}": "第 {n} 页和第 {m} 页，共 {total} 页",
+ "That language could not load. Check your connection and try again.": "无法加载该语言。请检查网络连接后重试。",
+ "{pct}% read": "已读 {pct}%"
 }

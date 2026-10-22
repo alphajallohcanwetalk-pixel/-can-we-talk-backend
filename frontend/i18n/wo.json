@@ -1495,5 +1495,11 @@
  "🔒 Secure checkout · all major cards & mobile money": "🔒 Fey bu wóor · kàrt yu mag yépp ak mobile money",
  "🔔 Notifications on": "🔔 Yégle yi taal nañu",
  "🔔 Notify me of new releases": "🔔 Yégal ma li bees génn",
- "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Dañuy yónne ci àdduna bépp jóge ci dencukaayi Freetown ak Nairobi"
+ "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Dañuy yónne ci àdduna bépp jóge ci dencukaayi Freetown ak Nairobi",
+ "Added {date}": "Yokk nañu ko {date}",
+ "Page {n}": "Xët {n}",
+ "Page {n} of {total}": "Xët {n} ci {total}",
+ "Pages {n} and {m} of {total}": "Xët {n} ak {m} ci {total}",
+ "That language could not load. Check your connection and try again.": "Làkk wi mënul a yewu. Seetal sa connexion te jéemaat.",
+ "{pct}% read": "Jàng nga {pct}%"
 }

@@ -1495,5 +1495,11 @@
  "🔒 Secure checkout · all major cards & mobile money": "🔒 Veilig afrekenen · alle grote kaarten en mobile money",
  "🔔 Notifications on": "🔔 Meldingen aan",
  "🔔 Notify me of new releases": "🔔 Houd me op de hoogte van nieuwe uitgaven",
- "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Wereldwijde verzending vanuit magazijnen in Freetown en Nairobi"
+ "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Wereldwijde verzending vanuit magazijnen in Freetown en Nairobi",
+ "Added {date}": "Toegevoegd op {date}",
+ "Page {n}": "Pagina {n}",
+ "Page {n} of {total}": "Pagina {n} van {total}",
+ "Pages {n} and {m} of {total}": "Pagina's {n} en {m} van {total}",
+ "That language could not load. Check your connection and try again.": "Die taal kon niet worden geladen. Controleer je verbinding en probeer het opnieuw.",
+ "{pct}% read": "{pct}% gelezen"
 }

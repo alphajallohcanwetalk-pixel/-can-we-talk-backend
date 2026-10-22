@@ -1495,5 +1495,11 @@
  "🔒 Secure checkout · all major cards & mobile money": "🔒 Biya mai tsaro · dukkan manyan katuna da kuɗin waya",
  "🔔 Notifications on": "🔔 An kunna sanarwa",
  "🔔 Notify me of new releases": "🔔 Sanar da ni sabbin fitarwa",
- "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Ana aikawa ko'ina a duniya daga rumbunan Freetown da Nairobi"
+ "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Ana aikawa ko'ina a duniya daga rumbunan Freetown da Nairobi",
+ "Added {date}": "An ƙara {date}",
+ "Page {n}": "Shafi na {n}",
+ "Page {n} of {total}": "Shafi na {n} cikin {total}",
+ "Pages {n} and {m} of {total}": "Shafi na {n} da {m} cikin {total}",
+ "That language could not load. Check your connection and try again.": "Ba a iya loda wannan harshe ba. Duba haɗin intanet ɗinka, sai ka sake gwadawa.",
+ "{pct}% read": "An karanta {pct}%"
 }

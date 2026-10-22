@@ -1495,5 +1495,11 @@
  "🔒 Secure checkout · all major cards & mobile money": "🔒 Checkout aman · semua kartu utama dan mobile money",
  "🔔 Notifications on": "🔔 Notifikasi aktif",
  "🔔 Notify me of new releases": "🔔 Beri tahu saya soal rilis baru",
- "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Dikirim ke seluruh dunia dari gudang di Freetown dan Nairobi"
+ "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Dikirim ke seluruh dunia dari gudang di Freetown dan Nairobi",
+ "Added {date}": "Ditambahkan {date}",
+ "Page {n}": "Halaman {n}",
+ "Page {n} of {total}": "Halaman {n} dari {total}",
+ "Pages {n} and {m} of {total}": "Halaman {n} dan {m} dari {total}",
+ "That language could not load. Check your connection and try again.": "Bahasa itu tidak dapat dimuat. Periksa koneksi Anda lalu coba lagi.",
+ "{pct}% read": "{pct}% dibaca"
 }

@@ -1496,5 +1496,11 @@
  "🔔 Notifications on": "🔔 Bildirimler açık",
  "🔔 Notify me of new releases": "🔔 Yeni çıkanları bana bildir",
  "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Freetown ve Nairobi depolarından dünyanın her yerine gönderim",
- "Page": "Sayfa"
+ "Page": "Sayfa",
+ "Added {date}": "{date} tarihinde eklendi",
+ "Page {n}": "Sayfa {n}",
+ "Page {n} of {total}": "Sayfa {n} / {total}",
+ "Pages {n} and {m} of {total}": "Sayfa {n} ve {m} / {total}",
+ "That language could not load. Check your connection and try again.": "Bu dil yüklenemedi. Bağlantını kontrol edip tekrar dene.",
+ "{pct}% read": "%{pct} okundu"
 }

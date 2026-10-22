@@ -1496,5 +1496,11 @@
  "🔔 Notifications on": "🔔 Уведомления включены",
  "🔔 Notify me of new releases": "🔔 Сообщать о новинках",
  "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Доставка по всему миру со складов во Фритауне и Найроби",
- "Page": "Страница"
+ "Page": "Страница",
+ "Added {date}": "Добавлено {date}",
+ "Page {n}": "Страница {n}",
+ "Page {n} of {total}": "Страница {n} из {total}",
+ "Pages {n} and {m} of {total}": "Страницы {n} и {m} из {total}",
+ "That language could not load. Check your connection and try again.": "Не удалось загрузить этот язык. Проверьте подключение и попробуйте снова.",
+ "{pct}% read": "Прочитано {pct}%"
 }

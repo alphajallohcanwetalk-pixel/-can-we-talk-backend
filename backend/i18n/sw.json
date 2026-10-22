@@ -1496,5 +1496,11 @@
  "🔔 Notifications on": "🔔 Arifa zimewashwa",
  "🔔 Notify me of new releases": "🔔 Nijulishe kuhusu matoleo mapya",
  "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Tunasafirisha duniani kote kutoka maghala ya Freetown na Nairobi",
- "Page": "Ukurasa"
+ "Page": "Ukurasa",
+ "Added {date}": "Imeongezwa {date}",
+ "Page {n}": "Ukurasa {n}",
+ "Page {n} of {total}": "Ukurasa {n} kati ya {total}",
+ "Pages {n} and {m} of {total}": "Kurasa {n} na {m} kati ya {total}",
+ "That language could not load. Check your connection and try again.": "Lugha hiyo haikuweza kupakiwa. Angalia mtandao wako kisha ujaribu tena.",
+ "{pct}% read": "Umesoma {pct}%"
 }

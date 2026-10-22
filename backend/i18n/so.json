@@ -1495,5 +1495,11 @@
  "🔒 Secure checkout · all major cards & mobile money": "🔒 Lacag bixin ammaan ah · dhammaan kaararka waaweyn iyo lacagta mobilka",
  "🔔 Notifications on": "🔔 Ogeysiisyadu way shidan yihiin",
  "🔔 Notify me of new releases": "🔔 I ogeysii waxyaabaha cusub",
- "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Waxaa loo diraa adduunka oo dhan laga soo bilaabo bakhaarada Freetown iyo Nairobi"
+ "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Waxaa loo diraa adduunka oo dhan laga soo bilaabo bakhaarada Freetown iyo Nairobi",
+ "Added {date}": "Lagu daray {date}",
+ "Page {n}": "Bogga {n}",
+ "Page {n} of {total}": "Bogga {n} ee {total}",
+ "Pages {n} and {m} of {total}": "Boggaga {n} iyo {m} ee {total}",
+ "That language could not load. Check your connection and try again.": "Luqaddaas lama soo shubi karin. Hubi isku xirkaaga oo mar kale isku day.",
+ "{pct}% read": "{pct}% la akhriyay"
 }

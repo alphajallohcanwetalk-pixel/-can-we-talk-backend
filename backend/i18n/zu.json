@@ -1496,5 +1496,11 @@
  "🔔 Notifications on": "🔔 Izaziso zivuliwe",
  "🔔 Notify me of new releases": "🔔 Ngazise ngokukhishwa okusha",
  "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Sithumela emhlabeni wonke sisuka ezinqolobaneni zase Freetown nase Nairobi",
- "Page": "Ikhasi"
+ "Page": "Ikhasi",
+ "Added {date}": "Kufakwe ngo-{date}",
+ "Page {n}": "Ikhasi {n}",
+ "Page {n} of {total}": "Ikhasi {n} kwangu-{total}",
+ "Pages {n} and {m} of {total}": "Amakhasi {n} no-{m} kwangu-{total}",
+ "That language could not load. Check your connection and try again.": "Leyo ndlela yolimi ayikwazanga ukulayishwa. Hlola uxhumo lwakho uphinde uzame futhi.",
+ "{pct}% read": "Kufundwe u-{pct}%"
 }

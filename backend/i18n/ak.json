@@ -1495,5 +1495,11 @@
  "🔒 Secure checkout · all major cards & mobile money": "🔒 Katua a ahobammɔ wom · kaad akɛseɛ nyinaa ne mobile money",
  "🔔 Notifications on": "🔔 Nkra abue",
  "🔔 Notify me of new releases": "🔔 Ka deɛ ɛyɛ foforɔ kyerɛ me",
- "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Yɛde kɔ wiase nyinaa fi Freetown ne Nairobi akorabea"
+ "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Yɛde kɔ wiase nyinaa fi Freetown ne Nairobi akorabea",
+ "Added {date}": "Wɔde ka ho {date}",
+ "Page {n}": "Nkratafa {n}",
+ "Page {n} of {total}": "Nkratafa {n} wɔ {total} mu",
+ "Pages {n} and {m} of {total}": "Nkratafa {n} ne {m} wɔ {total} mu",
+ "That language could not load. Check your connection and try again.": "Kasa no antumi ammue. Hwɛ wo network na san sɔ hwɛ.",
+ "{pct}% read": "Wɔakenkan {pct}%"
 }

@@ -1496,5 +1496,11 @@
  "🔔 Notifications on": "🔔 Benachrichtigungen an",
  "🔔 Notify me of new releases": "🔔 Benachrichtige mich über Neuerscheinungen",
  "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 Weltweiter Versand aus Lagern in Freetown & Nairobi",
- "Page": "Seite"
+ "Page": "Seite",
+ "Added {date}": "Hinzugefügt am {date}",
+ "Page {n}": "Seite {n}",
+ "Page {n} of {total}": "Seite {n} von {total}",
+ "Pages {n} and {m} of {total}": "Seiten {n} und {m} von {total}",
+ "That language could not load. Check your connection and try again.": "Diese Sprache konnte nicht geladen werden. Prüfe deine Verbindung und versuche es erneut.",
+ "{pct}% read": "{pct} % gelesen"
 }

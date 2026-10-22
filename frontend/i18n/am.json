@@ -1495,5 +1495,11 @@
  "🔒 Secure checkout · all major cards & mobile money": "🔒 ደኅንነቱ የተጠበቀ ክፍያ · ሁሉም ዋና ካርዶች እና የሞባይል ገንዘብ",
  "🔔 Notifications on": "🔔 ማሳወቂያዎች በርተዋል",
  "🔔 Notify me of new releases": "🔔 ስለ አዳዲስ ሥራዎች አሳውቁኝ",
- "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 ከፍሪታውን እና ከናይሮቢ መጋዘኖች በመላው ዓለም እንልካለን"
+ "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 ከፍሪታውን እና ከናይሮቢ መጋዘኖች በመላው ዓለም እንልካለን",
+ "Added {date}": "{date} ታክሏል",
+ "Page {n}": "ገጽ {n}",
+ "Page {n} of {total}": "ገጽ {n} ከ{total}",
+ "Pages {n} and {m} of {total}": "ገጾች {n} እና {m} ከ{total}",
+ "That language could not load. Check your connection and try again.": "ቋንቋው መጫን አልቻለም። ግንኙነትዎን ያረጋግጡና እንደገና ይሞክሩ።",
+ "{pct}% read": "{pct}% ተነብቧል"
 }

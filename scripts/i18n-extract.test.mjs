@@ -45,3 +45,9 @@ test('server strings: t(lang, ...) calls and notification titles', async () => {
     assert.ok(s.includes(want), 'missing: ' + want);
   assert.ok(!s.includes('not this'));
 });
+
+test('tx() patterns with {values} are collected', () => {
+  const s = extractStrings("<script>el.textContent = tx('Page {n} of {total}', { n, total }); x = tx(\"{pct}% read\", { pct });</script>");
+  assert.ok(s.includes('Page {n} of {total}'));
+  assert.ok(s.includes('{pct}% read'));
+});

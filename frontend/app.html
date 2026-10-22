@@ -25,7 +25,8 @@
     setTimeout(function(){ d.classList.remove('i18n-wait'); }, 1500);
   })();
 </script>
-<style id="i18n-wait">html.i18n-wait body{visibility:hidden}</style>
+<style id="i18n-wait">html.i18n-wait body{visibility:hidden}
+html[dir="rtl"] :is([data-no-i18n], .comment-body, .bp-text p, .essay-page p){unicode-bidi:plaintext}</style>
 <script>
   (function(){
     var m = location.pathname.match(/^\/(essay|book)\/([0-9a-f-]{36})(?:\.html)?\/?$/i);
@@ -5045,6 +5046,7 @@
       if(m && !m.value.trim()) m.value = `${(I18N.info() || {}).english || I18N.lang} (${I18N.lang}), ${page}\n` + tx('Wording to improve:') + ' ';
     });
     let shownLang = I18N.lang;
+    window.addEventListener('cwt:lang-failed', () => showAdminToast(tx('That language could not load. Check your connection and try again.')));
     window.addEventListener('cwt:lang', e => {
       paint();
       // Alpha's essays, books and gallery in the new language (the words around them switch at once).
@@ -5114,7 +5116,9 @@
     if(!m.hidden){ closeAccountMenu(); return; }
     const r = anchor.getBoundingClientRect();
     m.style.top = Math.round(r.bottom + 8) + 'px';
-    m.style.right = Math.max(12, Math.round(window.innerWidth - r.right)) + 'px';
+    // Right to left: the account button sits near the left edge, so the menu opens from there.
+    if(document.documentElement.dir === 'rtl'){ m.style.right = ''; m.style.left = Math.max(12, Math.round(r.left)) + 'px'; }
+    else { m.style.left = ''; m.style.right = Math.max(12, Math.round(window.innerWidth - r.right)) + 'px'; }
     m.hidden = false;
     m.dataset.openY = String(window.scrollY);
     anchor.setAttribute('aria-expanded', 'true');
@@ -6232,7 +6236,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         return {
           id: b.id, title: b.title, subtitle: b.subtitle || '', price: paperback ? paperback.price_cents / 100 : 0,
           meta: '', description: b.description || '', cover: b.cover_style || 'cover-1', cover_image_url: b.cover_image_url,
-          back_cover_url: b.back_cover_url, gallery_urls: normalizeGalleryUrls(b.gallery_urls), reader_full_text: b.reader_full_text || '', formats: b.book_formats || [],
+          back_cover_url: b.back_cover_url, gallery_urls: normalizeGalleryUrls(b.gallery_urls), _en: b._en, reader_full_text: b.reader_full_text || '', formats: b.book_formats || [],
           video_urls: Array.isArray(b.video_urls) ? b.video_urls : [],
           sample_chars: b.sample_chars || 0, created_at: b.created_at, has_text: Boolean(b.has_text),
           isbn: b.isbn, publisher: b.publisher, published_date: b.published_date, page_count: b.page_count, language: b.language, genre: b.genre, edition: b.edition
@@ -8114,10 +8118,12 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       const b = books.find(x => x.id === el.dataset.editBook);
       if(!b) return;
       editingBookId = b.id;
+      // The list may be in the reader's language; the editor always works on Alpha's English.
+      const english = (f) => (b._en && b._en[f] != null ? b._en[f] : b[f]) || '';
       document.getElementById('newBookTitle').value = b.title;
-      document.getElementById('newBookSubtitle').value = b.subtitle || '';
+      document.getElementById('newBookSubtitle').value = english('subtitle');
       document.getElementById('newBookPrice').value = b.price;
-      document.getElementById('newBookDescription').value = b.description || '';
+      document.getElementById('newBookDescription').value = english('description');
       const textBox = document.getElementById('newBookReaderText');
       textBox.value = '';
       textBox.placeholder = 'Loading the manuscript…';
@@ -8140,7 +8146,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       document.getElementById('newBookPubDate').value = b.published_date || '';
       document.getElementById('newBookPages').value = b.page_count || '';
       document.getElementById('newBookLanguage').value = b.language || '';
-      document.getElementById('newBookGenre').value = b.genre || '';
+      document.getElementById('newBookGenre').value = english('genre');
       document.getElementById('newBookEdition').value = b.edition || '';
       document.getElementById('newBookSampleWords').value = b.sample_chars ? Math.round(b.sample_chars / 6) : '';
       document.getElementById('bookFormHeading').textContent = 'Editing: ' + b.title;
@@ -8566,10 +8572,11 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
       if(!e) return;
       editingEssayId = e.id;
       fetch(`${API_URL}/api/essays/${e.id}`).then(response => response.json()).then(fullEssay => {
-      document.getElementById('newEssayTitle').value = e.title;
-      document.getElementById('newEssayCategory').value = e.cat;
+      // fullEssay is fetched without ?lang, so it is Alpha's English even when the site is in another language.
+      document.getElementById('newEssayTitle').value = fullEssay.title || '';
+      document.getElementById('newEssayCategory').value = fullEssay.category || '';
       document.getElementById('newEssayYear').value = e.year;
-      document.getElementById('newEssayExcerpt').value = e.excerpt;
+      document.getElementById('newEssayExcerpt').value = fullEssay.excerpt || '';
       document.getElementById('newEssayFullText').value = fullEssay.full_text || '';
       const preview = document.getElementById('essayCoverPreview');
       applyCoverImage(preview, e.cover_image_url || '');
@@ -10569,7 +10576,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
         : tx('Page {n} of {total}', { n: Math.min(i + 1, total), total })) : '';
     const pct = total ? Math.round((shown / total) * 100) : 0;
     document.getElementById('bookProgressFill').style.width = pct + '%';
-    document.getElementById('bookPercent').textContent = pct + '% read';
+    document.getElementById('bookPercent').textContent = tx('{pct}% read', { pct });
 
     document.querySelector('[data-page-prev]').disabled = i <= 0;
     document.querySelector('[data-page-next]').disabled = i + per >= total;

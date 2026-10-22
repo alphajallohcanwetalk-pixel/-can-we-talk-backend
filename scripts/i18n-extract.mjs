@@ -72,6 +72,9 @@ export function extractStrings(html) {
     .replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, (_, code) => { scripts.push(code); return ' '; });
   fromHtml(page, out);
   for (const code of scripts) {
+    // tx('Page {n} of {total}', …): patterns with values, which the prose filter would refuse.
+    const TX = new RegExp(String.raw`\btx\(\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")`, 'g');
+    for (const m of code.matchAll(TX)) out.add(clean((m[1] ?? m[2]).replace(/\\(['"\\])/g, '$1')));
     for (const lit of literals(code)) {
       if (/<[a-z][^>]*>|<\/[a-z]+>/i.test(lit)) fromHtml(lit, out);
       else { const s = clean(lit); if (isProse(s)) out.add(s); }

@@ -1496,5 +1496,11 @@
  "🔔 Notifications on": "🔔 सूचनाएँ चालू",
  "🔔 Notify me of new releases": "🔔 नई रचनाओं की सूचना दें",
  "🚚 Ships worldwide from Freetown & Nairobi warehouses": "🚚 फ्रीटाउन और नैरोबी के गोदामों से दुनिया भर में डिलीवरी",
- "Page": "पन्ना"
+ "Page": "पन्ना",
+ "Added {date}": "{date} को जोड़ा गया",
+ "Page {n}": "पृष्ठ {n}",
+ "Page {n} of {total}": "{total} में से पृष्ठ {n}",
+ "Pages {n} and {m} of {total}": "{total} में से पृष्ठ {n} और {m}",
+ "That language could not load. Check your connection and try again.": "वह भाषा लोड नहीं हो सकी। अपना कनेक्शन जाँचें और फिर कोशिश करें।",
+ "{pct}% read": "{pct}% पढ़ा गया"
 }
