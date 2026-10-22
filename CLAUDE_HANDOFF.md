@@ -71,6 +71,32 @@ SUPABASE_ACCESS_TOKEN=sbp_...  # optional, a Supabase personal access token: let
 6. Rotate any Supabase service key, Stripe key/webhook secret, or Resend key that was
    exposed during setup.
 
+## Languages (28) and the Google translation key
+
+The site, Alpha's content and the readers' emails are in 28 languages (design:
+docs/superpowers/specs/2026-10-18-languages-design.md). Everything existing was translated by B&A.
+New essays, captions and descriptions stay English until the Google key exists (then they are
+translated automatically; that worker is the next step, see ROADMAP).
+
+Steps for Alpha (Alpha's own Google account and card; B&A never needs the password):
+1. Open https://console.cloud.google.com, sign in, create a project named "Can We Talk".
+2. Billing: add a payment card. Then Billing, Budgets and alerts: a budget of 5 US dollars a month
+   with email alerts at 50%, 90% and 100%.
+3. APIs and services, Library: enable "Cloud Translation API".
+4. APIs and services, Credentials: Create credentials, API key. Edit it: "Restrict key" to the
+   Cloud Translation API only.
+5. Send the key to B&A privately (not by email to a shared inbox). B&A adds GOOGLE_TRANSLATE_KEY on Render.
+
+The free allowance is 500,000 characters a month. B&A will cap use with TRANSLATE_MONTHLY_CHARS
+(default 400,000) and translate per paragraph, so a typo fix does not retranslate a whole essay.
+
+Translations: the site dictionaries are frontend/i18n/<code>.json (keys are the English text); after
+changing English text run `node scripts/i18n-extract.mjs` (updates en.json and copies the
+dictionaries to backend/i18n for emails) and `node scripts/i18n-coverage.mjs` (what each language misses).
+Alpha's content translations live in the table content_translations (migration 016); load files with
+`node scripts/i18n-content.mjs <content-en.json> <folder>`. Translation suggestions from readers go to
+info@ (contact reason "Translation"), never to Alpha.
+
 ## Local development
 
 ```powershell
