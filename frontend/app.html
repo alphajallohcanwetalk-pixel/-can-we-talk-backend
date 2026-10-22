@@ -960,6 +960,12 @@
   .comment-report.done .report-btn{color:#12622f; opacity:1;}
 
   .hp-field{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;}
+  /* Right to left: the page scrolls towards the left edge, so things parked off screen go to the right. */
+  html[dir="rtl"] .hp-field{left:auto; right:-9999px;}
+  html[dir="rtl"] #readerPageWrap{left:auto !important; right:-100000px;}
+  /* Latin names in a right to left line ("Can We Talk?") keep their own direction; back points right. */
+  html[dir="rtl"] :is(h1, h2, h3, .brand, .rb-title){unicode-bidi:plaintext;}
+  html[dir="rtl"] #navBack{transform:scaleX(-1);}
   .error-msg{margin-top:12px; padding:12px 14px; border-radius:6px; background:#fdecec; color:#8a1c1c; font-size:0.9rem;}
   .tab-badge{display:inline-grid; place-items:center; min-width:20px; height:20px; padding:0 6px; margin-left:6px; border-radius:10px; background:#c62828; color:#fff; font-size:0.72rem; font-weight:700; vertical-align:middle;}
   .msg-banner{display:block; width:100%; text-align:left; margin-top:18px; padding:12px 16px; border:0; border-radius:8px; background:var(--sl-green-deep); color:#fff; font-weight:600; cursor:pointer;}
@@ -4693,7 +4699,7 @@
     const measure = target.cloneNode(false);
     measure.removeAttribute('id');
     measure.style.position = 'absolute';
-    measure.style.left = '-100000px';
+    measure.style[document.documentElement.dir === 'rtl' ? 'right' : 'left'] = '-100000px';
     measure.style.top = '0';
     measure.style.visibility = 'hidden';
     measure.style.pointerEvents = 'none';

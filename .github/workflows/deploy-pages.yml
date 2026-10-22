@@ -39,6 +39,9 @@ jobs:
           cp -r frontend/icons dist/icons
           # Fonts are served from the site itself (faster than Google Fonts).
           cp -r frontend/fonts dist/fonts
+          # Translations: the layer and one dictionary per language (loaded only for that language).
+          cp -r frontend/i18n dist/i18n
+          rm -f dist/i18n/*.part*.json
           # Standalone legal pages. These must work without JavaScript so a
           # Play reviewer always reaches them.
           cp frontend/privacy.html dist/privacy.html
