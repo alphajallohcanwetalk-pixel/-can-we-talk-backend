@@ -3044,7 +3044,7 @@
 <div class="view" id="view-reader">
   <div class="reader-shell">
     <div class="reader-bar">
-      <div class="rb-title" id="readerBookTitle">Book Title</div>
+      <div class="rb-title" id="readerBookTitle" data-no-i18n>Book Title</div>
       <div class="rb-controls">
         <button id="readerRecording" hidden>&#9654; Recording</button>
         <button id="readerListen" aria-label="Listen to this page">Listen</button>
@@ -3088,6 +3088,7 @@
         </div>
       </div>
 
+      <div class="sample-banner" id="translatedNote" hidden><span>Translated from English.</span> <button type="button" class="btn btn-sm btn-outline-dark" id="translatedToggle">Read the original</button></div>
       <div class="sample-banner" id="sampleBanner" style="display:none;">
         <span id="sampleBannerText">You are reading a free sample.</span>
         <a href="#books-catalog" class="btn btn-sm btn-dark nav-link" data-view="books-catalog"><span class="web-only">Buy the full book</span><span class="play-only">See the printed book</span></a>
@@ -4363,10 +4364,18 @@
   // is kept on the device. The page shows that copy at once, so a slow or failed request never makes
   // the site say "nothing published" when there is.
   const API_CACHE = 'cwt.api:';
+  // Alpha's essays, books and gallery come back in the reader's language (the API's ?lang=); English
+  // asks for nothing extra. Cached copies are kept per language.
+  function withLang(path){
+    const l = window.I18N ? I18N.lang : 'en';
+    return l === 'en' || !/^\/api\/(essays|books|gallery)/.test(path) ? path : path + (path.includes('?') ? '&' : '?') + 'lang=' + l;
+  }
   function apiCached(path){
+    path = withLang(path);
     try { const v = JSON.parse(localStorage.getItem(API_CACHE + path) || 'null'); return v && v.d; } catch(e){ return null; }
   }
   async function apiGet(path, { tries = 4, timeout = 15000 } = {}){
+    path = withLang(path);
     let last;
     for(let n = 0; n < tries; n++){
       const ctl = new AbortController();
@@ -4766,6 +4775,25 @@
     if(banner) banner.style.display = 'none';
 
     const body = (essay.full_text && essay.full_text.trim()) ? essay.full_text : essay.excerpt || '';
+    // A translated essay says so, and the original is one tap away.
+    const tNote = document.getElementById('translatedNote');
+    const translated = Boolean(essay._translated && (essay._translated.full_text || essay._translated.excerpt) && essay._en);
+    tNote.hidden = !translated;
+    if(translated){
+      const original = essay._en.full_text || essay._en.excerpt || body;
+      let showingOriginal = false;
+      const toggle = document.getElementById('translatedToggle');
+      toggle.textContent = 'Read the original';
+      toggle.onclick = () => {
+        showingOriginal = !showingOriginal;
+        toggle.textContent = showingOriginal ? 'Read the translation' : 'Read the original';
+        document.getElementById('readerBookTitle').textContent = showingOriginal ? (essay._en.title || essay.title) : essay.title;
+        readerState.sourceText = showingOriginal ? original : body;
+        readerState.pages = withCover(paginateText(readerState.sourceText, '#bookPageRight', readerState.fontSize), readerState.cover, readerState.title);
+        readerState.page = Math.min(readerState.page, readerState.pages.length - 1);
+        renderReaderPage();
+      };
+    }
     const rec = document.getElementById('readerRecording');
     if(rec){
       rec.hidden = !essay.audio_url;
@@ -4809,7 +4837,7 @@
   async function openEssay(id){
     const e = essays.find(x => x.id === id);
     if(!e) return;
-    const response = await fetch(`${API_URL}/api/essays/${id}`);
+    const response = await fetch(`${API_URL}${withLang('/api/essays/' + id)}`);
     if(!response.ok) return;
     const fullEssay = await response.json();
     document.getElementById('essay-crumb').textContent = e.title;
@@ -4823,7 +4851,8 @@
 
     // Read it in the book reader, so an essay gets the same spread, page turns,
     // typography and saved position a book does.
-    openEssayInReader({ id, title: e.title, full_text: fullEssay.full_text, excerpt: fullEssay.excerpt,
+    openEssayInReader({ id, title: fullEssay.title || e.title, full_text: fullEssay.full_text, excerpt: fullEssay.excerpt,
+      _translated: fullEssay._translated, _en: fullEssay._en,
       cover_image_url: fullEssay.cover_image_url || e.cover_image_url, audio_url: fullEssay.audio_url || e.audio_url,
       audio_seconds: fullEssay.audio_seconds || e.audio_seconds });
   }
@@ -5009,8 +5038,14 @@
       const m = document.getElementById('message');
       if(m && !m.value.trim()) m.value = `${(I18N.info() || {}).english || I18N.lang} (${I18N.lang}), ${page}\n` + tx('Wording to improve:') + ' ';
     });
+    let shownLang = I18N.lang;
     window.addEventListener('cwt:lang', e => {
       paint();
+      // Alpha's essays, books and gallery in the new language (the words around them switch at once).
+      if(e.detail.lang !== shownLang){
+        shownLang = e.detail.lang;
+        loadEssays(); loadBooks(); loadGallery();
+      }
       if(e.detail.save && typeof currentSession !== 'undefined' && currentSession){
         fetch(`${API_URL}/api/auth/me/language`, { method: 'PATCH', headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()), body: JSON.stringify({ language: e.detail.lang }) }).catch(() => {});
       }
@@ -9957,12 +9992,12 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
     kindSel.value = isVideo ? 'video' : kind0 === 'document' ? 'document' : 'photo';
     $('.gxe-section').value = item.section || 'event';
     fillRelatedOptions($('.gxe-related'), relatedValue(item));
-    $('.gxe-title').value = item.title || '';
+    $('.gxe-title').value = (item._en && item._en.title) || item.title || ''; // edit the English, never a translation
     $('.gxe-outlet').value = item.outlet || '';
     $('.gxe-date').value = item.event_date || '';
     $('.gxe-video').value = videoUrl;
     $('.gxe-link').value = item.link_url || '';
-    $('.gxe-caption').value = item.caption || '';
+    $('.gxe-caption').value = (item._en && item._en.caption) || item.caption || '';
     $('.gxe-slide').checked = item.in_slideshow !== false;
     const status = $('.gxe-status');
 
@@ -10335,6 +10370,7 @@ Export the audio as MP3 at 64 kbps (speech sounds the same), or split it into pa
   let readerState = {bookId:null, sourceText:'', pages:[], page:0, fontSize:1.12};
 
   async function openReader(bookKey){
+    const tNote = document.getElementById('translatedNote'); if(tNote) tNote.hidden = true; // only translated essays show it
     showView('reader');
     // Signed out readers get the free opening; the server decides how much.
     // Accepts either a flagship key or a real book id, so a "Read a sample"

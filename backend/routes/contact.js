@@ -3,7 +3,7 @@ import { supabaseAdmin } from '../lib/supabase.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
 import { sendContactToAuthor, sendContactReply } from '../lib/email.js';
 import { notifyUsers } from '../lib/push.js';
-import { MAILBOX, mailboxForReason } from '../lib/mailboxes.js';
+import { recipientsFor } from '../lib/mailboxes.js';
 import { stripDashes } from '../lib/validate.js';
 
 const router = express.Router();
@@ -14,7 +14,7 @@ const router = express.Router();
 // form showed "thank you" and kept nothing.
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const REASONS = ['General inquiry', 'Speaking engagement', 'Media / press request', 'Bulk / bookstore order', 'Signed copy request', 'Feedback', 'Other'];
+const REASONS = ['General inquiry', 'Speaking engagement', 'Media / press request', 'Bulk / bookstore order', 'Signed copy request', 'Feedback', 'Translation', 'Other'];
 const clean = (v, max) => (typeof v === 'string' ? stripDashes(v.trim()).slice(0, max) : '');
 const notMigrated = (error) => /contact_messages/.test(error?.message || '');
 const COLS = 'id,name,email,reason,message,status,reply,emailed,created_at,read_at,replied_at';
@@ -46,8 +46,8 @@ router.post('/', async (req, res) => {
   let emailed = false;
   try {
     // To the mailbox for the reason (speaking and press: Alpha; orders: books@; the rest: info@), and
-    // always to Alpha too, so nothing waits in a box nobody opened.
-    const to = [...new Set([mailboxForReason(msg.reason), MAILBOX.author])];
+    // to Alpha too, so nothing waits in a box nobody opened. Translation suggestions: info@ only.
+    const { to } = recipientsFor(msg.reason);
     const r = await sendContactToAuthor(to, msg);
     emailed = !r?.error;
     if (r?.error) console.error(JSON.stringify({ type: 'error', scope: 'contact_email', message: r.error.message }));
@@ -59,7 +59,7 @@ router.post('/', async (req, res) => {
   // Nothing kept and nothing sent: say so, so the visitor can email directly instead.
   if (!saved && !emailed) return res.status(502).json({ error: 'Your message could not be sent right now. Please email info@canwetalkvoice.com.' });
 
-  authorIds()
+  if (recipientsFor(msg.reason).notifyAuthor) authorIds()
     .then((ids) => notifyUsers(ids, { title: `New message: ${msg.reason}`, body: `${msg.name}: ${msg.message.slice(0, 120)}`, url: '/#admin' }))
     .catch(() => {});
   res.status(201).json({ ok: true });

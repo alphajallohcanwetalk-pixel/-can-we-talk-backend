@@ -1,5 +1,6 @@
 import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
+import { reqLang, translateRows } from '../lib/i18n.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
 import { announce } from '../lib/push.js';
 import { requestSiteRebuild } from '../lib/redeploy.js';
@@ -37,7 +38,7 @@ router.get('/', async (req, res) => {
   const { data: withText } = await supabaseAdmin
     .from('books').select('id').not('reader_full_text', 'is', null).neq('reader_full_text', '');
   const readable = new Set((withText || []).map((b) => b.id));
-  res.json(data.map((b) => ({ ...b, has_text: readable.has(b.id) })));
+  res.json(await translateRows('book', data.map((b) => ({ ...b, has_text: readable.has(b.id) })), ['subtitle', 'description', 'genre'], reqLang(req)));
 });
 
 // GET /api/books/:id: single book detail
@@ -48,7 +49,8 @@ router.get('/:id', async (req, res) => {
     .eq('id', req.params.id)
     .single());
   if (error) return res.status(404).json({ error: 'Book not found' });
-  res.json(data);
+  const [row] = await translateRows('book', [data], ['subtitle', 'description', 'genre'], reqLang(req));
+  res.json(row);
 });
 
 router.get('/:id/manage', requireAuth, requireAuthor, async (req, res) => {

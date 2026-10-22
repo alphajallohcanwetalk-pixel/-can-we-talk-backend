@@ -1,5 +1,6 @@
 import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
+import { reqLang, translateRows } from '../lib/i18n.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
 import { sendNewEssayAlert } from '../lib/email.js';
 import { announce } from '../lib/push.js';
@@ -33,13 +34,14 @@ router.get('/', async (req, res) => {
   let { data, error } = await build(ESSAY_LIST + ',audio_url,audio_seconds');
   if (error) ({ data, error } = await build(ESSAY_LIST));
   if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
+  res.json(await translateRows('essay', data, ['title', 'excerpt'], reqLang(req)));
 });
 
 router.get('/:id', async (req, res) => {
   const { data, error } = await supabaseAdmin.from('essays').select('*').eq('id', req.params.id).eq('published', true).single();
   if (error) return res.status(404).json({ error: 'Essay not found' });
-  res.json(data);
+  const [row] = await translateRows('essay', [data], ['title', 'excerpt', 'full_text'], reqLang(req));
+  res.json(row);
 });
 
 // POST /api/essays: Author Dashboard: publish new essay + optionally email subscribers

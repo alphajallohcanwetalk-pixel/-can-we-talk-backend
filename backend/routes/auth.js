@@ -3,6 +3,7 @@ import { supabaseAdmin } from '../lib/supabase.js';
 import { sendWelcomeEmail } from '../lib/email.js';
 import { requireAuth } from '../middleware/auth.js';
 import { libraryFor } from '../lib/entitlements.js';
+import { isLang } from '../lib/i18n.js';
 
 const router = express.Router();
 
@@ -27,11 +28,19 @@ router.get('/me', requireAuth, async (req, res) => {
   // is_developer arrives with migration 007. Until that has been run the column
   // does not exist and selecting it fails the whole query, which would lock the
   // author out of the dashboard, so fall back to the original column set.
+  // language arrives with migration 016; without it the next query below still works.
   let { data, error } = await supabaseAdmin
     .from('profiles')
-    .select('id,email,is_author,is_developer')
+    .select('id,email,is_author,is_developer,language')
     .eq('id', req.user.id)
     .single();
+  if (error) {
+    ({ data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('id,email,is_author,is_developer')
+      .eq('id', req.user.id)
+      .single());
+  }
 
   if (error) {
     ({ data, error } = await supabaseAdmin
@@ -44,6 +53,15 @@ router.get('/me', requireAuth, async (req, res) => {
 
   if (error || !data) return res.status(404).json({ error: 'Profile not found' });
   res.json(data);
+});
+
+// PATCH /api/auth/me/language { language }: the reader's language, saved so it follows them to every device.
+router.patch('/me/language', requireAuth, async (req, res) => {
+  const language = req.body?.language;
+  if (!isLang(language)) return res.status(400).json({ error: 'Unknown language' });
+  const { error } = await supabaseAdmin.from('profiles').update({ language }).eq('id', req.user.id);
+  if (error) return res.status(500).json({ error: 'Could not save the language' });
+  res.json({ language });
 });
 
 // GET /api/auth/library: everything this account may read or hear. The browser

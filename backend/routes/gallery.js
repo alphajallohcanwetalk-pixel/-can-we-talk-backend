@@ -1,5 +1,6 @@
 import express from 'express';
 import { supabaseAdmin } from '../lib/supabase.js';
+import { reqLang, translateRows } from '../lib/i18n.js';
 import { requireAuth, requireAuthor } from '../middleware/auth.js';
 import { isSafeHttpUrl, cleanTextFields, normalizeVideoList } from '../lib/validate.js';
 
@@ -110,7 +111,7 @@ router.get('/', async (req, res) => {
   // Always checked with the server (a cheap 304 when nothing changed), so an edit or a deletion
   // shows at once rather than after a cached copy runs out.
   res.set('Cache-Control', 'no-cache');
-  res.json(data);
+  res.json(await translateRows('gallery', data, ['title', 'caption'], reqLang(req)));
 });
 
 router.post('/', requireAuth, requireAuthor, async (req, res) => {

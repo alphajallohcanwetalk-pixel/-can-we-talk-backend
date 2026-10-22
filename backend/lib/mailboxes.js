@@ -23,3 +23,10 @@ export function mailboxForReason(reason) {
   if (/order|bookstore|signed|book club|shipping|refund/i.test(reason || '')) return MAILBOX.books;
   return MAILBOX.general;
 }
+
+// Who receives a contact form message. Translation suggestions are for B&A's translators at info@:
+// Alpha cannot judge a Yoruba or Krio wording, so they skip Alpha's mailbox and devices.
+export function recipientsFor(reason) {
+  if (/^translation$/i.test(String(reason || '').trim())) return { to: [MAILBOX.general], notifyAuthor: false };
+  return { to: [...new Set([mailboxForReason(reason), MAILBOX.author])], notifyAuthor: true };
+}
