@@ -3,6 +3,10 @@
 What was done, newest first. Every session adds one dated entry at the top: what changed, why, and where it stopped.
 Back to the [BRAIN](BRAIN.md) · [ROADMAP](ROADMAP.md)
 
+## 1 November 2026
+- Google Search Console verified for https://canwetalkvoice.com (URL prefix property, HTML tag in frontend/app.html: keep it, removing it loses verification). The Domain property needs a TXT record at Serv instead; not used.
+- sitemap.xml and robots.txt are written at every publish (scripts/build-sitemap.mjs, step in deploy-pages.yml): home, privacy and account deletion pages.
+
 ## 22 October 2026 (languages, step 1 of 2; design and plan from 18 October)
 - **Can We Talk? in 28 languages.** English, French, Portuguese, Spanish, Arabic (right to left), German, Italian, Dutch, Russian, Chinese, Hindi, Turkish, Indonesian, Swahili, Hausa, Yoruba, Igbo, Zulu, Afrikaans, and as labelled drafts Nigerian Pidgin, Krio, Temne, Mende, Fula, Wolof, Twi, Amharic, Somali. Design: docs/superpowers/specs/2026-10-18-languages-design.md; plan: docs/superpowers/plans/2026-10-18-languages.md.
 - How it works: the site stays English underneath; frontend/i18n/layer.js swaps every visible string from frontend/i18n/<code>.json (keys are the English text) and keeps doing so as the page changes. The language is chosen from the phone, the floating translator button (bottom corner; also inside the first visit privacy banner), the sign up form and the account menu. Signed in readers keep it on every device (profiles.language, migration 016, applied 22 October; the sign up trigger copies it). English visitors load no dictionary; others never see English flash first (the page waits up to 1.5 s for its dictionary).

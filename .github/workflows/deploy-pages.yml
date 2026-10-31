@@ -53,6 +53,10 @@ jobs:
           # Jekyll would otherwise strip the .well-known directory.
           touch dist/.nojekyll
 
+      - name: Sitemap and robots.txt
+        # For Google Search Console: lists the pages and tells crawlers where the sitemap is.
+        run: node scripts/build-sitemap.mjs
+
       - name: Build share pages
         # One static page per book carrying its own Open Graph tags, so a link
         # shared to WhatsApp or Facebook shows that book's cover rather than the
